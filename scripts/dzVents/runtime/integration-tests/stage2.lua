@@ -537,7 +537,7 @@ local testLastUpdates = function(stage2Trigger)
 				local delta = stage1SecsAgo - device.lastUpdate.secondsAgo
 
 				-- test if lastUpdate for the device is close to state1Time
-				acc = acc and (delta <= 1)
+				acc = acc and (delta <= 3) -- should be significantly less that the time between stage1 and stage2
 				expectEql(true, acc, device.name .. ' lastUpdate is not in the past')
 			end
 

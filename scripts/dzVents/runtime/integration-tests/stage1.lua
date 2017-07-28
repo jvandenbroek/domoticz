@@ -1065,11 +1065,12 @@ local testLastUpdates = function()
 	results = dz.devices().reduce(function(acc, device)
 
 		if (device.name ~= 'endResult' and device.name ~= 'stage1Trigger' and device.name ~= 'stage2Trigger') then
+			local devTime = device.lastUpdate.secondsSinceMidnight
 
 			local delta = now - device.lastUpdate.secondsSinceMidnight
-
+			--print('now:' .. now .. ' device: ' .. device.lastUpdate.secondsSinceMidnight .. ' delta: ' .. delta)
 			-- test if lastUpdate for the device is close to domoticz time
-			acc = acc and (delta <= 1)
+			acc = acc and (devTime <= now and delta < 5)
 			expectEql(true, acc, device.name .. ' lastUpdate is not correctly set')
 		end
 
