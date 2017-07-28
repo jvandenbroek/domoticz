@@ -14,7 +14,7 @@ Then go to the test folder and run the tests:
 
 ```
 cd runtime/integration-tests
-busted *
+busted testIntegration.lua
 ```
 
 When all tests pass you should see this in the logs:
