@@ -651,15 +651,17 @@ local function EventHelpers(domoticz, mainMethod)
 		domoticz.changedDevices().forEach( function(device)
 			utils.log('Device-event for: ' .. device.name .. ' value: ' .. device.state, utils.LOG_DEBUG)
 
-			local scriptsToExecute
+			local scriptsToExecute = self.findScriptForChangedItem(device.name, allEventScripts)
+			local idScripts = allEventScripts[device.id]
 
-			-- first search by name
-
-			scriptsToExecute = self.findScriptForChangedItem(device.name, allEventScripts)
-
-			if (scriptsToExecute == nil) then
-				-- search by id
-				scriptsToExecute = allEventScripts[device.id]
+			if (idScripts ~= nil) then
+				-- merge id scripts with name scripts
+				if (scriptsToExecute == nil) then
+					scriptsToExecute = {}
+				end
+				for i, mod in pairs(idScripts) do
+					table.insert(scriptsToExecute, mod)
+				end
 			end
 
 			if (scriptsToExecute ~= nil) then
@@ -668,7 +670,6 @@ local function EventHelpers(domoticz, mainMethod)
 			end
 
 		end)
-
 
 		self.dumpCommandArray(self.domoticz.commandArray)
 		return self.domoticz.commandArray

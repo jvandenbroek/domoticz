@@ -1,3 +1,7 @@
+[2.2.1]
+
+ - Fixed a problem where if you have two scripts for a device and one script uses the name and the other uses the id as trigger, the id-based script wasn't executed.
+
 [2.2.0]
 
  - Fixed typo in the doc WActual > WhActual.
@@ -26,7 +30,7 @@
  - Added support for visibility devices
  - Added support for waterflow devices
  - Added missing color attribute to alert sensor devices
- - Added updateEnergy() to electric usage devices
+ - Added updateEnergy() to electric us./dage devices
  - Fixed casing for WhTotal, WhActual methods on kWh devices (Watt's in a name?)
  - Added toCelsius() helper method to domoticz object as the various update temperature methods all need celsius.
  - Added lastLevel for dimmers so you can see the level of the dimmer just before it was switched off (and while is it still on).

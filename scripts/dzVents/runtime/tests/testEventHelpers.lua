@@ -618,6 +618,7 @@ describe('event helpers', function()
 				"script1",
 				"script3",
 				"script4",
+				"script4", -- twice because it also triggers based on id=8
 				"script6",
 				"script_combined",
 				"script_wildcard1",
@@ -690,7 +691,6 @@ describe('event helpers', function()
 
 			assert.is_true(dumped)
 		end)
-
 
 		it('should dispatch all variable event scripts', function()
 			local scripts = {}

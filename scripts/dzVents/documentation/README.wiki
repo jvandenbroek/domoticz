@@ -521,18 +521,18 @@ Note that if you do not find your specific device type here you can always inspe
 
 ==== OpenTherm gateway ====
 
-<ul>
-<li>'''setPoint''': ''Number''.</li>
-<li>'''updateSetPoint(setPoint)''': ''Function''.</li>
-<li>==== P1 Smart meter ====
-</li>
-<li>'''counterDeliveredToday''': ''Number''.</li>
-<li>'''counterToday''': ''Number''.</li>
-<li>'''usage1''', '''usage2''': ''Number''.</li>
-<li>'''return1''', '''return2''': ''Number''.</li>
-<li>'''updateP1(usage1, usage2, return1, return2, cons, prod)''': ''Function''. Updates the device.</li>
-<li>'''usage''': ''Number''.</li>
-<li>'''usageDelivered''': ''Number''.</li></ul>
+* '''setPoint''': ''Number''.
+* '''updateSetPoint(setPoint)''': ''Function''.
+
+==== P1 Smart meter ====
+
+* '''counterDeliveredToday''': ''Number''.
+* '''counterToday''': ''Number''.
+* '''usage1''', '''usage2''': ''Number''.
+* '''return1''', '''return2''': ''Number''.
+* '''updateP1(usage1, usage2, return1, return2, cons, prod)''': ''Function''. Updates the device.
+* '''usage''': ''Number''.
+* '''usageDelivered''': ''Number''.
 
 ==== Percentage ====
 
@@ -565,7 +565,19 @@ See switch below.
 
 ==== Security Panel ====
 
-You can create a security device by first setting a security panel password in Domoticz settings. Then activate the security panel ('''Setup &gt; More Options &gt; Security Panel''' and set it to '''Disarm''' (using your password)). Then go to the device list in ('''Setup &gt; Devices''') where it should show the security panel device under 'Not used'. There you can add the device and give it a name. - '''armAway()''': Sets a security device to Armed Away. Supports timing options. See [[#Switch_timing_options_.28delay.2C_duration.29|below]]. - '''armHome()''': Sets a security device to Armed Home. Supports timing options. See [[#Switch_timing_options_.28delay.2C_duration.29|below]]. - '''disarm()''': Disarms a security device. Supports timing options. See [[#Switch_timing_options_.28delay.2C_duration.29|below]]. - '''state''': ''String'': Same values as domoticz.security value.
+You can create a security device by:
+
+* first setting a security panel password in Domoticz settings.
+* Then activate the security panel ('''Setup &gt; More Options &gt; Security Panel''' and set it to '''Disarm''' (using your password)).
+* Then go to the device list in ('''Setup &gt; Devices''') where it should show the security panel device under 'Not used'.
+* There you can add the device and give it a name.
+
+Methods/attributes:
+
+* '''armAway()''': Sets a security device to Armed Away. Supports timing options. See [[#Switch_timing_options_.28delay.2C_duration.29|below]].
+* '''armHome()''': Sets a security device to Armed Home. Supports timing options. See [[#Switch_timing_options_.28delay.2C_duration.29|below]].
+* '''disarm()''': Disarms a security device. Supports timing options. See [[#Switch_timing_options_.28delay.2C_duration.29|below]].
+* '''state''': ''String'': Same values as domoticz.security value.
 
 ==== Solar radiation ====
 

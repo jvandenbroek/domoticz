@@ -509,7 +509,7 @@ Note that if you do not find your specific device type here you can always inspe
 #### OpenTherm gateway
  - **setPoint**: *Number*.
  - **updateSetPoint(setPoint)**: *Function*.
- -
+
 #### P1 Smart meter
  - **counterDeliveredToday**: *Number*.
  - **counterToday**: *Number*.
@@ -543,7 +543,15 @@ See switch below.
  - **switchOn()**: *Function*. Supports timing options. See [below](#Switch_timing_options_.28delay.2C_duration.29).
 
 #### Security Panel
-You can create a security device by first setting a security panel password in Domoticz settings. Then activate the security panel (**Setup > More Options > Security Panel** and set it to **Disarm** (using your password)). Then go to the device list in (**Setup > Devices**) where it should show the security panel device under 'Not used'. There you can add the device and give it a name.
+You can create a security device by:
+
+ -  first setting a security panel password in Domoticz settings.
+ - Then activate the security panel (**Setup > More Options > Security Panel** and set it to **Disarm** (using your password)).
+ - Then go to the device list in (**Setup > Devices**) where it should show the security panel device under 'Not used'.
+ - There you can add the device and give it a name.
+
+Methods/attributes:
+
  - **armAway()**: Sets a security device to Armed Away. Supports timing options. See [below](#Switch_timing_options_.28delay.2C_duration.29).
  - **armHome()**: Sets a security device to Armed Home. Supports timing options. See [below](#Switch_timing_options_.28delay.2C_duration.29).
  - **disarm()**: Disarms a security device. Supports timing options. See [below](#Switch_timing_options_.28delay.2C_duration.29).
