@@ -1,6 +1,7 @@
 [2.2.1]
 
  - Fixed a problem where if you have two scripts for a device and one script uses the name and the other uses the id as trigger, the id-based script wasn't executed.
+ - Added active to devices (more logical naming than bState). myDevice.active is true or false depending on a set of known state values (like On, Off, Open, Closed etc).
 
 [2.2.0]
 

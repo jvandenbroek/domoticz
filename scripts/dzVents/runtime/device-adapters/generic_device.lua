@@ -29,6 +29,7 @@ local function setStateAttribute(state, device, _states)
 		if (type(state) == 'string') then -- just to be sure
 			device['state'] = state
 			device['bState'] = stateToBool(state, _states)
+			device['active'] = device['bState']
 		else
 			device['state'] = state
 		end

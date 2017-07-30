@@ -372,8 +372,9 @@ dzVents already recognizes most of the devices and creates the proper attributes
 Most of the time when your device is not recognized you can always use the `rawData` attribute as that will almost always hold all the data that is available in Domoticz.
 
 ### Device attributes and methods for all devices
+ - **active**: *Boolean*. Is true for some common states like 'On' or 'Open' or 'Motion'. Same as bState.
  - **batteryLevel**: *Number* If applicable for that device then it will be from 0-100.
- -  **bState**: *Boolean*. Is true for some common states like 'On' or 'Open' or 'Motion'.
+ - **bState**: *Boolean*. Is true for some common states like 'On' or 'Open' or 'Motion'. Better use active.
  - **changed**: *Boolean*. True if the device was changed
  - **description**: *String*. Description of the device.
  - **deviceId**: *String*. Another identifier of devices in Domoticz. dzVents uses the id(x) attribute. See device list in Domoticz' settings table.

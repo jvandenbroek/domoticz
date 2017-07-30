@@ -1186,26 +1186,31 @@ describe('device', function()
 		assert.is_same(55, device.level)
 	end)
 
-	it('should have a bState when possible', function()
+	it('should have a bState/active when possible', function()
 		local device = getDevice_(domoticz, 'myDevice', 'Set Level: 55%', false)
 		assert.is_true(device.bState)
+		assert.is_true(device.active)
+
 
 		device = getDevice_(domoticz, 'myDevice', '', false)
 		assert.is_false(device.bState)
+		assert.is_false(device.active)
 
 
 		device = getDevice_(domoticz, 'myDevice', 'On', false)
 		assert.is_true(device.bState)
+		assert.is_true(device.active)
 
 		local states = device._States
 
 		_.forEach(states, function(value, key)
-			--			print(key, value)
 			device = getDevice_(domoticz, 'myDevice', key, false)
 			if (value.b) then
 				assert.is_true(device.bState)
+				assert.is_true(device.active)
 			else
 				assert.is_false(device.bState)
+				assert.is_true(device.active)
 			end
 		end)
 
