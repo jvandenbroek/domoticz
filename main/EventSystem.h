@@ -118,7 +118,7 @@ public:
 	bool PythonScheduleEvent(std::string ID, const std::string &Action, const std::string &eventName);
 
 private:
-	struct _tEvaluateEventQueue
+	struct _tEventQueue
 	{
 		std::string reason;
 		uint64_t DeviceID;
@@ -131,7 +131,7 @@ private:
 		uint8_t lastLevel;
 		queue_element_trigger* trigger;
 	};
-	concurrent_queue<_tEvaluateEventQueue> m_evaluateeventqueue;
+	concurrent_queue<_tEventQueue> m_eventqueue;
 
 	//lua_State	*m_pLUA;
 	bool m_bEnabled;
@@ -143,7 +143,7 @@ private:
 	boost::mutex m_measurementStatesMutex;
 	boost::mutex luaMutex;
 	volatile bool m_stoprequested;
-	boost::shared_ptr<boost::thread> m_thread, m_evaluateeventthread;
+	boost::shared_ptr<boost::thread> m_thread, m_eventqueuethread;
 	int m_SecStatus;
 	std::string m_lua_Dir;
 	std::string m_dzv_Dir;
@@ -182,8 +182,8 @@ private:
 	std::string ParseBlocklyString(const std::string &oString);
 	void ParseActionString( const std::string &oAction_, _tActionParseResults &oResults_ );
 	void UpdateJsonMap(_tDeviceStatus &item, const uint64_t ulDevID);
-	void EvaluateEventQueue();
-	void UnlockEvaluateEventQueue();
+	void EventQueueThread();
+	void UnlockEventQueueThread();
 	//std::string reciprocalAction (std::string Action);
 	std::vector<_tEventItem> m_events;
 

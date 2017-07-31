@@ -153,17 +153,16 @@ void CEventSystem::StartEventSystem()
 #endif
 
 	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CEventSystem::Do_Work, this)));
-	m_evaluateeventthread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CEventSystem::EvaluateEventQueue, this)));
+	m_eventqueuethread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CEventSystem::EventQueueThread, this)));
 }
 
 void CEventSystem::StopEventSystem()
 {
-	m_stoprequested = true;
-
-	if (m_evaluateeventthread)
+	if (m_eventqueuethread)
 	{
-		UnlockEvaluateEventQueue();
-		m_evaluateeventthread->join();
+		m_stoprequested = true;
+		UnlockEventQueueThread();
+		m_eventqueuethread->join();
 	}
 
 	if (m_thread)
@@ -1246,9 +1245,9 @@ void CEventSystem::WWWUpdateSecurityState(int securityStatus)
 		return;
 
 	m_sql.GetPreferencesVar("SecStatus", m_SecStatus);
-	_tEvaluateEventQueue item;
+	_tEventQueue item;
 	item.reason = "security";
-	m_evaluateeventqueue.push(item);
+	m_eventqueue.push(item);
 }
 
 void CEventSystem::UpdateLastUpdate(const uint64_t ulDevID, const std::string &lastUpdate, const uint8_t lastLevel)
@@ -1368,29 +1367,29 @@ std::string CEventSystem::UpdateSingleState(const uint64_t ulDevID, const std::s
 	return nValueWording;
 }
 
-void CEventSystem::UnlockEvaluateEventQueue()
+void CEventSystem::UnlockEventQueueThread()
 {
 	// Push dummy message to unlock queue
-	_tEvaluateEventQueue item;
+	_tEventQueue item;
 	item.DeviceID = -1;
 	item.trigger = NULL;
-	m_evaluateeventqueue.push(item);
+	m_eventqueue.push(item);
 }
 
-void CEventSystem::EvaluateEventQueue()
+void CEventSystem::EventQueueThread()
 {
 	_log.Log(LOG_STATUS, "EventSystem: Queue thread started...");
 
 	while (!m_stoprequested)
 	{
-		_tEvaluateEventQueue item;
-		bool hasPopped = m_evaluateeventqueue.timed_wait_and_pop<boost::posix_time::milliseconds>(item, boost::posix_time::milliseconds(5000));
-
-		if (m_stoprequested)
-			break;
+		_tEventQueue item;
+		bool hasPopped = m_eventqueue.timed_wait_and_pop<boost::posix_time::milliseconds>(item, boost::posix_time::milliseconds(5000));
 
 		if (!hasPopped)
 			continue;
+
+		if (m_stoprequested)
+			break;
 
 		EvaluateEvent(item.reason, item.DeviceID, item.devname, item.nValue, item.sValue.c_str(), item.nValueWording, item.varId);
 		if (item.DeviceID)
@@ -1413,7 +1412,7 @@ void CEventSystem::ProcessDevice(const int HardwareID, const uint64_t ulDevID, c
 		std::vector<std::string> sd = result[0];
 		_eSwitchType switchType = (_eSwitchType)atoi(sd[1].c_str());
 		std::map<std::string, std::string> options = m_sql.BuildDeviceOptions(result[0][4].c_str());
-		_tEvaluateEventQueue item;
+		_tEventQueue item;
 		item.reason = "device";
 		item.DeviceID = ulDevID;
 		item.devname = devname;
@@ -1424,7 +1423,7 @@ void CEventSystem::ProcessDevice(const int HardwareID, const uint64_t ulDevID, c
 		item.lastUpdate = sd[2];
 		item.lastLevel = atoi(sd[3].c_str());
 		item.trigger = NULL;
-		m_evaluateeventqueue.push(item);
+		m_eventqueue.push(item);
 	}
 	else
 	{
@@ -1434,19 +1433,19 @@ void CEventSystem::ProcessDevice(const int HardwareID, const uint64_t ulDevID, c
 
 void CEventSystem::ProcessMinute()
 {
-	_tEvaluateEventQueue item;
+	_tEventQueue item;
 	item.reason = "time";
-	m_evaluateeventqueue.push(item);
+	m_eventqueue.push(item);
 }
 
 void CEventSystem::ProcessUserVariable(const uint64_t varId)
 {
 	if (!m_bEnabled)
 		return;
-	_tEvaluateEventQueue item;
+	_tEventQueue item;
 	item.reason = "uservariable";
 	item.varId = varId;
-	m_evaluateeventqueue.push(item);
+	m_eventqueue.push(item);
 }
 
 void CEventSystem::EvaluateEvent(const std::string &reason, const uint64_t DeviceID, const std::string &devname, const int nValue, const char* sValue, std::string nValueWording, const uint64_t varId)
