@@ -426,6 +426,7 @@ describe('Integration test', function ()
 		os.remove('../../scripts/vdSwitchDimmer.lua')
 		os.remove('../../scripts/secArmedAway.lua')
 		os.remove('../../scripts/varString.lua')
+		os.remove('../../scripts/scScene.lua')
 		os.remove('../../scripts/global_data.lua')
 		os.remove('../../data/__data_global_data.lua')
 	end)
@@ -442,6 +443,7 @@ describe('Integration test', function ()
 	local switchDimmerResultsIdx
 	local varStringResultsIdx
 	local secArmedAwayIdx
+	local scSceneResultsIdx
 
 --	it('a', function() end)
 
@@ -740,13 +742,17 @@ describe('Integration test', function ()
 			File.copy('./varString.lua', '../../scripts/varString.lua')
 		end)
 
+		it('Should move scScene script in place', function()
+			File.remove('../../scripts/scScene.lua')
+			File.copy('./scScene.lua', '../../scripts/scScene.lua')
+		end)
+
 		it('Should move secArmedAway script in place', function()
 			File.remove('../../scripts/secArmedAway.lua')
 			File.copy('./secArmedAway.lua', '../../scripts/secArmedAway.lua')
 		end)
 
 		it('Should move globaldata script in place', function()
-
 			File.remove('../../scripts/global_data.lua')
 			File.copy('./global_data.lua', '../../scripts/global_data.lua')
 		end)
@@ -777,6 +783,11 @@ describe('Integration test', function ()
 			assert.is_true(ok)
 		end)
 
+		it('Should create results for scScene script ', function()
+			ok, scSceneResultsIdx = createVirtualDevice(dummyIdx, 'scSceneResults', VIRTUAL_DEVICES.TEXT[1])
+			assert.is_true(ok)
+		end)
+
 		it('Should create the final results text device', function()
 			local ok
 			ok, endResultsIdx = createVirtualDevice(dummyIdx, 'endResult', VIRTUAL_DEVICES.TEXT[1])
@@ -803,11 +814,13 @@ describe('Integration test', function ()
 			ok, switchDimmerResultsDevice = getDevice(switchDimmerResultsIdx)
 			ok, varStringResultsDevice = getDevice(varStringResultsIdx)
 			ok, secArmedAwayDevice = getDevice(secArmedAwayIdx)
+			ok, scSceneResultsDevice = getDevice(scSceneResultsIdx)
 
 			assert.is_same('SUCCEEDED', endResultsDevice['Data'])
 			assert.is_same('SUCCEEDED', switchDimmerResultsDevice['Data'])
 			assert.is_same('SUCCEEDED', varStringResultsDevice['Data'])
 			assert.is_same('SUCCEEDED', secArmedAwayDevice['Data'])
+			assert.is_same('SUCCEEDED', scSceneResultsDevice['Data'])
 
 		end)
 

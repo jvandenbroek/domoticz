@@ -1,6 +1,6 @@
 **For people working with dzVents prior to version 2.0: Please read the [change log](#Change_log) below as there are a couple of (easy-to-fix) breaking changes. Or check [Migrating from version 1.x.x](#Migrating_from_version_1.x.x)**
 
-# About dzVents 2.2.0
+# About dzVents 2.3.0
 dzVents (|diː ziː vɛnts| short for Domoticz Easy Events) brings Lua scripting in Domoticz to a whole new level. Writing scripts for Domoticz has never been so easy. Not only can you define triggers more easily, and have full control over timer-based scripts with extensive scheduling support, dzVents presents you with an easy to use API to all necessary information in Domoticz. No longer do you have to combine all kinds of information given to you by Domoticzs in many different data tables. You don't have to construct complex commandArrays anymore. dzVents encapsulates all the Domoticz peculiarities regarding controlling and querying your devices. And on top of that, script performance has increased a lot if you have many scripts because Domoticz will fetch all device information only once for all your device scripts and timer scripts.
 
 Let's start with an example. Let's say you have a switch that when activated, it should activate another switch but only if the room temperature is above a certain level. And when done, it should send a notification. This is how it looks like in dzVents:
@@ -157,22 +157,24 @@ The active setting can either be:
 
 ### on = { ... }
 The on-section holds all the events/triggers that are monitored by dzVents. If any of the events or triggers matches with the current event coming from Domoticz then the `execute` part of the script is executed.
-The on-section has four kinds of subsections that *can all be used simultaneously!* :
+The on-section has five kinds of subsections that *can all be used simultaneously!* :
 
  - **devices = { ...}**: this is a list of devices. Each device can be:
 	 - The name of your device between string quotes. **You can use the asterisk (\*) wild-card here e.g. `PIR_*` or `*_PIR`**.  E.g.: `devices = { 'myDevice', 'anotherDevice', 123, 'pir*' }`
 	 - The index (idx) of your device (the name may change, the index will usually stay the same, the index can be found in the devices section in Domoticz),
 	 - The name/idx of your device followed by a time constraint (similar to what you can do):
 		 - `['myDevice']  = { 'at 15:*', 'at 22:** on sat, sun' }` The script will be executed if `myDevice` was changed and it is either between 15:00 and 16:00 or between 22:00 and 23:00 in the weekend.
+ - **scenes = { ... }**: a list of scenes. The same rules as devices applies here but then for scenes.
+ - **groups = { ... }**: a list of groups. The same rules as devices applies here but then for scenes.
  - **timer = { ... }**: a list of time triggers like `every minute` or `at 17:*`. See [below](#timer_trigger_options).
  - **variables = { ... }**: a list of user variable-names as defined in Domoticz ( Setup > More options > User variables). If any of the variables listed here changes, the script is executed.
  - **security = { domoticz.SECURITY_ARMEDAWAY, domoticz.SECURITY_ARMEDHOME, domoticz.SECURITY_DISARMED}**: a list of *one or more* security states. If the security state in Domoticz changes and it matches with any of the states listed here, the script will be executed. See `/path/to/domoticz/scripts/dzVents/examples/templates/security.lua` for an example. See [Security Panel](#Security_Panel) for information about how to create a security panel device.
 
-### execute = function(domoticz, device/variable, triggerInfo) ... end
+### execute = function(domoticz, device/variable/scene/group, triggerInfo) ... end
 When al the above conditions are met (active == true and the on section has at least one matching rule) then this function is called. This is the heart of your script. The function receives three possible parameters:
 
  - the [domoticz object](#Domoticz_object_API). This gives access to almost everything in your Domoticz system including all methods to manipulate them like modifying switches or sending notifications. More about the domoticz object below.
- - the actual [device](#Device_object_API) or [variable](#Variable_object_API) that was defined in the **on** part and caused the script to be called. **Note: of course, if the script was triggered by a timer event, or a security-change event this parameter is *nil*! You may have to test this in your code if your script is triggered by timer events AND device events**
+ - the actual [device](#Device_object_API) or [variable](#Variable_object_API) or [scene](#Scene) or [group](#Group) that was defined in the **on** part and caused the script to be called. **Note: of course, if the script was triggered by a timer event, or a security-change event this parameter is *nil*! You may have to test this in your code if your script is triggered by timer events AND device events**
  - information about what triggered the script. This is a small table with two keys:
 	* **triggerInfo.type**: (either domoticz.EVENT_TYPE_TIMER, domoticz.EVENT_TYPE_DEVICE, domoticz.EVENT_TYPE_SECURITY or domoticz.EVENT_TYPE_VARIABLE): was the script executed due to a timer event, device-change event, security-change or user variable-change event?
 	* **triggerInfo.trigger**: which timer rule triggered the script in case the script was called due to a timer event. or the security state that triggered the security trigger rule. See [below](#timer_trigger_options) for the possible timer trigger options. Note that dzVents lists the first timer definition that matches the current time so if there are more timer triggers that could have been triggering the script, dzVents only picks the first for this trigger property.
@@ -192,6 +194,110 @@ logging = {
 	level = domoticz.LOG_DEBUG,
 	marker = "Hey you"
 	},
+```
+
+## Some trigger examples
+### Device changes
+Suppose you have two devices: a smoke detector 'myDetector' and a room temperature sensor 'roomTemp' and you want to send a notification when either the detector detects smoke or the temperature is too high:
+
+```
+return {
+	active = true,
+	on = {
+		devices = {
+			'myDetector',
+			'roomTemp'
+		}
+	},
+	execute = function(domoticz, device)
+		if ((device.name == 'myDetector' and device.state == 'On') or
+			(device.name == 'roomTemp' and device.temperature >= 45)) then
+			domoticz.notify('Fire', 'The room is on fire', domoticz.PRIORITY_EMERGENCY)
+		end
+	end
+}
+```
+
+### Scene / group changes
+Suppose you have a scene 'myScene' and a group 'myGroup' and you want to turn on the group as soon as myScene is activated:
+```
+return {
+	active = true,
+	on = {
+		scenes = {
+			'myScene'
+		}
+	},
+	execute = function(domoticz, scene)
+		if (scene.state == 'On') then
+			domoticz.groups('myGroup').switchOn()
+		end
+	end
+}
+```
+Or if you have a group and if it is activated you want to send an email but only at night:
+```
+return {
+	active = true,
+	on = {
+		groups = {
+			['myGroup'] = {'at nighttime'}
+		}
+	},
+	execute = function(domoticz, group)
+		if (group.state == 'On') then
+			domoticz.email('Hey', 'The group is on', 'someone@the.world.org')
+		end
+	end
+}
+```
+### Timer events
+Suppose you want to check the soil humidity every 30 minutes but only during the day and every hour during the night:
+```
+return {
+	active = true,
+	on = {
+		timer = {
+			'every 30 minutes at daytime',
+			'every 60 minutes at nighttime'
+		}
+	},
+	execute = function(domoticz, group)
+		if (domoticz.devices('soil').moisture > 100) then
+			domoticz.devices('irrigation').switchOn().forMin(60)
+		end
+	end
+}
+```
+### Variable changes
+Suppose you have a script that updates a variable 'myAmountOfMoney' and if that variable reaches a certain level you want to be notified:
+```
+return {
+	active = true,
+	on = {
+		variables = { 'myAmountOfMoney' }
+	},
+	execute = function(domoticz, variable)
+		-- variable is the variable that's triggered
+		if (variable.value > 1000000) then
+			domoticz.notify('Rich', 'You can stop working now', domoticz.PRIORITY_HIGH)
+		end
+	end
+}
+```
+
+### Security changes
+Suppose you have a group holding all the lights in your house and you want to switch it off as soon as the alarm is activated:
+```
+return {
+	active = true,
+	on = {
+		security = { domoticz.SECURITY_ARMEDAWAY }
+	},
+	execute = function(domoticz)
+		domoticz.groups('All lights').switchOff()
+	end
+}
 ```
 
 ## *timer* trigger options
@@ -1305,6 +1411,15 @@ In 2.x it is no longer needed to make timed json calls to Domoticz to get extra 
 On the other hand, you have to make sure that dzVents can access the json without the need for a password because some commands are issued using json calls by dzVents. Make sure that in Domoticz settings under **Local Networks (no username/password)** you add `127.0.0.1` and you're good to go.
 
 # Change log
+
+[2.3.0]
+
+ - Fixed a problem where if you have two scripts for a device and one script uses the name and the other uses the id as trigger, the id-based script wasn't executed.
+ - Added active to devices (more logical naming than bState). myDevice.active is true or false depending on a set of known state values (like On, Off, Open, Closed etc).
+ - Added simple urlEncode method on the Domoticz object so you can prepare a string before using it in openURL().
+ - Updating text from dzVents in a text-device now triggers the event system.
+ - Added adapter for the new Temperature+Barometer device.
+ - Added support for groups and scenes change events. Use "on = { scenes = { 'myScene1', 'myScene2' }, groups = {'myGroup1'} }"
 
 [2.2.0]
 

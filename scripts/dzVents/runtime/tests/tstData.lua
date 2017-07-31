@@ -387,6 +387,7 @@ local testData = {
 			["baseType"] = "scene";
 			["description"] = 'Descr scene 1',
 			["name"] = "Scene1";
+			["changed"] = false;
 			["data"] = {
 				_state = "Off"
 			},
@@ -397,6 +398,7 @@ local testData = {
 			["baseType"] = "group";
 			["description"] = 'Descr group 1',
 			["name"] = "Group1";
+			["changed"] = true;
 			["data"] = {
 				_state = "On"
 			},
@@ -407,6 +409,7 @@ local testData = {
 			["baseType"] = "scene";
 			["description"] = 'Descr scene 2',
 			["name"] = "Scene2";
+			["changed"] = true;
 			["data"] = {
 				_state = "Off"
 			},
@@ -417,6 +420,7 @@ local testData = {
 			["baseType"] = "group";
 			["description"] = 'Descr group 2',
 			["name"] = "Group2";
+			["changed"] = false;
 			["data"] = {
 				_state = "Mixed"
 			},

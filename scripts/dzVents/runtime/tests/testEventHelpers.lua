@@ -637,6 +637,83 @@ describe('event helpers', function()
 
 		end)
 
+		it('should dispatch all scene/group event scripts', function()
+			local scripts = {}
+			local scenegroups = {}
+			local dumped = false
+
+			local function getDummy(id, name, state)
+				return {
+					['id'] = id,
+					['name'] = name,
+					['state'] = state,
+				}
+			end
+
+			local scenechanged = {
+				['myscene1'] = getDummy(1, 'myscene1', 'state1'),
+			}
+			local groupchanged = {
+				['mygoup2'] = getDummy(2, 'mygroup2', 'state2'),
+			}
+			scenechanged['forEach'] = function(func)
+				local res
+				for i, item in pairs(scenechanged) do
+					if (type(item) ~= 'function' and type(i) ~= 'number') then
+						res = func(item, i, scenechanged)
+						if (res == false) then -- abort
+							return
+						end
+					end
+				end
+			end
+
+			groupchanged['forEach'] = function(func)
+				local res
+				for i, item in pairs(groupchanged) do
+					if (type(item) ~= 'function' and type(i) ~= 'number') then
+						res = func(item, i, groupchanged)
+						if (res == false) then -- abort
+							return
+						end
+					end
+				end
+			end
+
+			helpers.dumpCommandArray = function()
+				dumped = true
+			end
+
+			helpers.handleEvents = function(_scripts, __, ___, ____, _scenegroup)
+				_.forEach(_scripts, function(s)
+					table.insert(scripts, s.name)
+				end)
+				table.insert(scenegroups, _scenegroup.name)
+			end
+			local res = helpers.dispatchSceneGroupEventsToScripts({
+				['changedScenes'] = function()
+					return scenechanged
+				end,
+				['changedGroups'] = function()
+					return groupchanged
+				end
+			})
+
+			table.sort(scripts)
+			table.sort(scenegroups)
+			assert.is_same({
+				"script_group2",
+				'script_scene1'
+			}, scripts)
+
+			assert.is_same({
+				'mygroup2',
+				"myscene1"
+			}, scenegroups)
+
+			assert.is_true(dumped)
+		end)
+
 		it('should dispatch all timer events', function()
 			local scripts = {}
 			local dumped = false

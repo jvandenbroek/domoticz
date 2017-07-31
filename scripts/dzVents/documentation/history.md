@@ -5,6 +5,7 @@
  - Added simple urlEncode method on the Domoticz object so you can prepare a string before using it in openURL().
  - Updating text from dzVents in a text-device now triggers the event system.
  - Added adapter for the new Temperature+Barometer device.
+ - Added support for groups and scenes change events. Use "on = { scenes = { 'myScene1', 'myScene2' }, groups = {'myGroup1'} }"
 
 [2.2.0]
 

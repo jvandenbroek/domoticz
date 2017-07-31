@@ -107,6 +107,26 @@ describe('Event dispatching', function()
 				["baseType"] = "uservariable";
 				["changed"] = true;
 				["name"] = "myVar1";
+			},
+			[5] = {
+				["id"] = 1;
+				["lastUpdate"] = "2017-05-27 17:18:07";
+				["baseType"] = "scene";
+				["data"] = {
+					["_state"] = 'On';
+				};
+				["changed"] = true;
+				["name"] = "myscene1";
+			},
+			[6] = {
+				["id"] = 2;
+				["lastUpdate"] = "2017-05-27 17:18:07";
+				["baseType"] = "group";
+				["data"] = {
+					["_state"] = 'Off';
+				};
+				["changed"] = true;
+				["name"] = "mygroup1";
 			}
 		}
 	end)
@@ -129,6 +149,17 @@ describe('Event dispatching', function()
 		}, main)
 	end)
 
+	it('should dispatch scene/group events', function()
+		_G.commandArray = {}
+		_G.globalvariables['script_reason'] = 'scenegroup'
+
+		local main = require('dzVents')
+
+		assert.is_same({
+			{ ["Scene:myscene1"] = 'Off' },
+			{ ["Group:mygroup1"] = 'On' },
+		}, main)
+	end)
 
 	it("should dispatch timer events", function()
 		_G.commandArray = {}

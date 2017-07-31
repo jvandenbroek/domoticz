@@ -646,6 +646,32 @@ describe('Domoticz', function()
 
 			assert.is_same(4, reduced2)
 		end)
+
+		it('should give you a changed scene when you need one', function()
+
+			assert.is_same('Scene2', domoticz.changedScenes('Scene2').name)
+
+			-- should be in the cache
+			assert.is_same('Scene2', domoticz.__scenes['Scene2'].name)
+			assert.is_same(2, domoticz.__scenes[2].id)
+
+			-- test if next call uses the case
+			domoticz.__scenes[2].id = 1111
+			assert.is_same(1111, domoticz.scenes(2).id)
+		end)
+
+		it('should give you a changed group when you need one', function()
+
+			assert.is_same('Group1', domoticz.changedGroups('Group1').name)
+
+			-- should be in the cache
+			assert.is_same('Group1', domoticz.__groups['Group1'].name)
+			assert.is_same(3, domoticz.__groups[3].id)
+
+			-- test if next call uses the case
+			domoticz.__groups[3].id = 1111
+			assert.is_same(1111, domoticz.groups(3).id)
+		end)
 	end)
 
 	describe('devices', function()
