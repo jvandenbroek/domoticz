@@ -28,8 +28,6 @@ end
 --print('!!!!!!!!!! remove')print('!!!!!!!!!! remove')
 local persistence = require('persistence')
 persistence.store(currentPath .. '/domoticzData.lua', domoticzData)
-
-
 commandArray = {}
 
 utils.log('dzVents version: 2.2.1', utils.LOG_DEBUG)
@@ -43,6 +41,8 @@ elseif triggerReason == "uservariable" then
 	commandArray = helpers.dispatchVariableEventsToScripts()
 elseif triggerReason == 'security' then
 	commandArray = helpers.dispatchSecurityEventsToScripts()
+elseif triggerReason == 'scenegroup' then
+	commandArray = helpers.dispatchSceneGroupEventsToScripts()
 else
 	utils.log("Unknown trigger: ", triggerReason, utils.LOG_DEBUG)
 end

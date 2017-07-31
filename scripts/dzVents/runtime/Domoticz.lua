@@ -306,8 +306,8 @@ local function Domoticz(settings)
 		-- as they may not be in the collection if Domoticz wasn't restarted after creating the scene or group.
 		if (baseType == 'scene' or baseType == 'group') then
 			utils.log('There is no group or scene with that name or id: ' ..
-					tostring(id) ..
-					'. If you just created the scene or group you may have to restart Domoticz to make it become visible to dzVents.', utils.LOG_ERROR)
+				tostring(id) ..
+				'. If you just created the scene or group you may have to restart Domoticz to make it become visible to dzVents.', utils.LOG_ERROR)
 		else
 			utils.log('There is no ' .. baseType .. ' with that name or id: ' .. tostring(id), utils.LOG_ERROR)
 		end
@@ -459,6 +459,22 @@ local function Domoticz(settings)
 			return getObject('device', id)
 		else
 			return setIterators({}, true, 'device', true)
+		end
+	end
+
+	function self.changedScenes(id)
+		if (id ~= nil) then
+			return getObject('scene', id)
+		else
+			return setIterators({}, true, 'scene', true)
+		end
+	end
+
+	function self.changedGroups(id)
+		if (id ~= nil) then
+			return getObject('group', id)
+		else
+			return setIterators({}, true, 'group', true)
 		end
 	end
 
