@@ -710,6 +710,13 @@ describe('Domoticz', function()
 		assert.is_same(10, domoticz.toCelsius(18, true))
 	end)
 
+	it('should url encode', function()
+
+		local s = 'a b c'
+		assert.is_same('a+b+c', domoticz.urlEncode(s))
+
+	end)
+
 	it('should log', function()
 		local utils = domoticz._getUtilsInstance()
 		local logged = false

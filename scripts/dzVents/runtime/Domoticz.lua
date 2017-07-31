@@ -231,6 +231,10 @@ local function Domoticz(settings)
 		return ((f-32) / 1.8)
 	end
 
+	function self.urlEncode(s)
+		return utils.urlEncode(s)
+	end
+
 	-- doesn't seem to work well for some weird reasone
 	function self.logDevice(device)
 		dumpTable(device, '> ')

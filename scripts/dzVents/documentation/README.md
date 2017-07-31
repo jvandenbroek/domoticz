@@ -295,6 +295,7 @@ The domoticz object holds all information about your Domoticz system. It has a c
 	 - **wday**: *Number*. Day of the week ( 0 == sunday)
 	 - **year**: *Number*
  - **toCelsius(f, relative)**: *Function*. Converts temperature from Fahrenheit to Celsius along the temperature scale or when relative==true it uses the fact that 1F==0.56C. So `toCelsius(5, true)` returns 5F*(1/1.8) = 2.78C.
+ - **urlEncode(s)**: *Functon*. Simple url encoder for string so you can use them in openURL().
  - **variables(idx/name)**: *Function*. A function returning a variable by it's name or idx. See  [Variable object API](#Variable_object_API) for the attributes. To iterate over all variables do: `domoticz.variables().forEach(..)`. See [Iterators](#Iterators). Note that you cannot do `for i, j in pairs(domoticz.variables()) do .. end`.
 
 ### Iterators
