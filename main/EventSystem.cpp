@@ -2892,13 +2892,6 @@ void CEventSystem::ExportDomoticzDataToLua(lua_State *lua_state, const uint64_t 
 		lua_pushstring(lua_state, sgitem.lastUpdate.c_str());
 		lua_rawset(lua_state, -3);
 
-		lua_pushstring(lua_state, "data");
-		lua_createtable(lua_state, 0, 0);
-
-		lua_pushstring(lua_state, "_state");
-		lua_pushstring(lua_state, sgitem.scenesgroupValue.c_str());
-		lua_rawset(lua_state, -3);
-
 		lua_pushstring(lua_state, "changed");
 		if (sgitem.ID == SceneGroupID)
 		{
@@ -2909,6 +2902,13 @@ void CEventSystem::ExportDomoticzDataToLua(lua_State *lua_state, const uint64_t 
 			lua_pushboolean(lua_state, false);
 		}
 		lua_settable(lua_state, -3);
+
+		lua_pushstring(lua_state, "data");
+		lua_createtable(lua_state, 0, 0);
+
+		lua_pushstring(lua_state, "_state");
+		lua_pushstring(lua_state, sgitem.scenesgroupValue.c_str());
+		lua_rawset(lua_state, -3);
 
 		lua_settable(lua_state, -3); // data table
 		lua_settable(lua_state, -3); // end entry
@@ -3475,10 +3475,6 @@ void CEventSystem::EvaluateLua(const std::string &reason, const std::string &fil
 			*/
 			lua_setglobal(lua_state, "devicechanged_ext");
 			// END OTO
-			if (!DeviceID)
-			{
-
-			}
 		}
 	}
 
@@ -3486,23 +3482,24 @@ void CEventSystem::EvaluateLua(const std::string &reason, const std::string &fil
 
 	uint64_t SceneGroupID = 0;
 
-	if (!DeviceID && reason == "device")
+	if (!m_sql.m_bDisableDzVentsSystem)
 	{
-		boost::shared_lock<boost::shared_mutex> scenesgroupsMutexLock(m_scenesgroupsMutex);
-		typedef std::map<uint64_t, _tScenesGroups>::iterator it_scgr;
-		for (it_scgr iterator = m_scenesgroups.begin(); iterator != m_scenesgroups.end(); ++iterator)
+		if (!DeviceID && reason == "device")
 		{
-			if (iterator->second.scenesgroupName == devname)
+			boost::shared_lock<boost::shared_mutex> scenesgroupsMutexLock(m_scenesgroupsMutex);
+			typedef std::map<uint64_t, _tScenesGroups>::iterator it_scgr;
+			for (it_scgr iterator = m_scenesgroups.begin(); iterator != m_scenesgroups.end(); ++iterator)
 			{
-				SceneGroupID = iterator->second.ID;
-				break;
+				if (iterator->second.scenesgroupName == devname)
+				{
+					SceneGroupID = iterator->second.ID;
+					break;
+				}
 			}
 		}
-	}
-
-	if (!m_sql.m_bDisableDzVentsSystem)
 		if (filename == m_dzv_Dir + "dzVents.lua")
 			ExportDomoticzDataToLua(lua_state, DeviceID, varId, SceneGroupID);
+	}
 
 	boost::shared_lock<boost::shared_mutex> uservariablesMutexLock(m_uservariablesMutex);
 	lua_createtable(lua_state, (int)m_uservariables.size(), 0);
@@ -3617,7 +3614,10 @@ void CEventSystem::EvaluateLua(const std::string &reason, const std::string &fil
 			lua_pushstring(lua_state, lua_DirT.str().c_str());
 			lua_rawset(lua_state, -3);
 			lua_pushstring(lua_state, "script_reason");
-			lua_pushstring(lua_state, reason.c_str());
+			if (SceneGroupID)
+				lua_pushstring(lua_state, "scenegroup");
+			else
+				lua_pushstring(lua_state, reason.c_str());
 			lua_rawset(lua_state, -3);
 
 			char szTmp[10];
