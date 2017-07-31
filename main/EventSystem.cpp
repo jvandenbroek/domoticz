@@ -3613,7 +3613,10 @@ void CEventSystem::EvaluateLua(const std::string &reason, const std::string &fil
 			lua_pushstring(lua_state, lua_DirT.str().c_str());
 			lua_rawset(lua_state, -3);
 			lua_pushstring(lua_state, "script_reason");
-			lua_pushstring(lua_state, reason.c_str());
+			if (SceneGroupID && reason == "device")
+				lua_pushstring(lua_state, "scenegroup");
+			else
+				lua_pushstring(lua_state, reason.c_str());
 			lua_rawset(lua_state, -3);
 
 			char szTmp[10];
