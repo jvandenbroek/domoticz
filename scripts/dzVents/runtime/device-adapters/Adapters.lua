@@ -32,6 +32,7 @@ local deviceAdapters = {
 	'switch_device',
 	'thermostat_setpoint_device',
 	'temperature_device',
+	'temperature_barometer_device',
 	'temperature_humidity_device',
 	'temperature_humidity_barometer_device',
 	'text_device',

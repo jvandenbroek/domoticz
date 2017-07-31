@@ -736,13 +736,10 @@ local testTempHumBaro = function(name)
 		["id"] = 29,
 		["name"] = name,
 		["temperature"] = 0,
-		["humidity"] = 50,
 		["barometer"] = 1010,
 		["forecastString"] = "Sunny";
 		["forecast"] = 1;
-		["humidityStatus"] = "Comfortable";
 		["deviceSubType"] = "THB1 - BTHR918, BTHGN129";
-		--["deviceType"] = 'Temp + Humidity';
 		["hardwareType"] = "Dummy (Does nothing, use for virtual switches only)";
 		["hardwareName"] = "dummy";
 		["hardwareTypeValue"] = 15;
@@ -754,6 +751,31 @@ local testTempHumBaro = function(name)
 
 	dev.updateTempHumBaro(34, 88, dz.HUM_WET, 1033, dz.BARO_PARTLYCLOUDY)
 	tstMsg('Test temperature+humidity+barometer device', res)
+	return res
+end
+
+local testTempBaro = function(name)
+	local dev = dz.devices(name)
+	local res = true
+	res = res and checkAttributes(dev, {
+		["id"] = 40,
+		["name"] = name,
+		["temperature"] = 0,
+		["barometer"] = 1038,
+		["forecastString"] = "Stable";
+		["forecast"] = 0;
+		["deviceSubType"] = "BMP085 I2C";
+		["hardwareType"] = "Dummy (Does nothing, use for virtual switches only)";
+		["hardwareName"] = "dummy";
+		["hardwareTypeValue"] = 15;
+		["hardwareId"] = 2;
+		["batteryLevel"] = nil; -- 255 == nil
+		["changed"] = false;
+		["timedOut"] = false;
+	})
+
+	dev.updateTempBaro(34, 1033, dz.BARO_CLOUDY)
+	tstMsg('Test temperature+barometer device', res)
 	return res
 end
 
@@ -1130,6 +1152,7 @@ return {
 		res = res and testTemperature('vdTemperature')
 		res = res and testTempHum('vdTempHum')
 		res = res and testTempHumBaro('vdTempHumBaro')
+		res = res and testTempBaro('vdTempBaro')
 		res = res and testText('vdText')
 		res = res and testThermostatSetpoint("vdThermostatSetpoint")
 		res = res and testUsageElectric("vdUsageElectric")

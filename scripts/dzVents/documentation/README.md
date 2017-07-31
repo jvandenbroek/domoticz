@@ -592,6 +592,13 @@ There are many switch-like devices. Not all methods are applicable for all switc
  - **temperature**: *Number*
  - **updateTemperature(temperature)**: *Function*. Note: temperature must be in Celsius. Use `domoticz.toCelsius()` to convert a Fahrenheit temperature to Celsius.
 
+#### Temperature, Barometer sensor
+ - **barometer**: *Number*
+ - **forecast**: *Number*.
+ - **forecastString**: *String*.
+ - **temperature**: *Number*
+ - **updateTempBaro(temperature, humidity, status, pressure, forecast)**: *Function*. Forecast can be domoticz.BARO_STABLE, BARO_SUNNY, BARO_CLOUDY, BARO_UNSTABLE, BARO_THUNDERSTORM. Note: temperature must be in Celsius. Use `domoticz.toCelsius()` to convert a Fahrenheit temperature to Celsius.
+
 #### Temperature, Humidity, Barometer sensor
  - **barometer**: *Number*
  - **dewPoint**: *Number*

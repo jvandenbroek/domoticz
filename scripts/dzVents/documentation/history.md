@@ -4,6 +4,7 @@
  - Added active to devices (more logical naming than bState). myDevice.active is true or false depending on a set of known state values (like On, Off, Open, Closed etc).
  - Added simple urlEncode method on the Domoticz object so you can prepare a string before using it in openURL().
  - Updating text from dzVents in a text-device now triggers the event system.
+ - Added adapter for the new Temperature+Barometer device.
 
 [2.2.0]
 

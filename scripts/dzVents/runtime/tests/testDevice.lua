@@ -576,6 +576,7 @@ describe('device', function()
 					"updateSetPoint",
 					"updateSoilMoisture",
 					"updateSoundLevel",
+					"updateTempBaro",
 					"updateTempHum",
 					"updateTempHumBaro",
 					"updateTemperature",
@@ -749,6 +750,17 @@ describe('device', function()
 			device.updateTempHumBaro(10, 12, 'wet', 1000, 'rain')
 			assert.is_same({ { ["UpdateDevice"] = '1|0|10;12;wet;1000;4' } }, commandArray)
 		end)
+
+		it('should detect a temp+barometer device', function()
+			local device = getDevice(domoticz, {
+				['name'] = 'myDevice',
+				['type'] = 'Temp + Baro'
+			})
+
+			device.updateTempBaro(10, 1000, 'thunderstorm')
+			assert.is_same({ { ["UpdateDevice"] = '1|0|10;1000;4' } }, commandArray)
+		end)
+
 
 		it('should detect a counter device', function()
 			local device = getDevice(domoticz, {

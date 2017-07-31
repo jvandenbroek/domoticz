@@ -345,6 +345,20 @@ local testTempHumBaro = function(name)
 	return res
 end
 
+local testTempBaro = function(name)
+	local dev = dz.devices(name)
+	local res = true
+	res = res and checkAttributes(dev, {
+		["temperature"] = 34,
+		["barometer"] = 1033,
+		["forecastString"] = "Cloudy";
+		["forecast"] = 2;
+	})
+	tstMsg('Test temperature+barometer device', res)
+	return res
+end
+
+
 local testText = function(name)
 	local dev = dz.devices(name)
 	local res = true
@@ -591,6 +605,7 @@ return {
 		res = res and testTemperature('vdTemperature')
 		res = res and testTempHum('vdTempHum')
 		res = res and testTempHumBaro('vdTempHumBaro')
+		res = res and testTempBaro('vdTempBaro')
 		res = res and testText('vdText')
 		res = res and testThermostatSetpoint("vdThermostatSetpoint")
 		res = res and testUsageElectric("vdUsageElectric")

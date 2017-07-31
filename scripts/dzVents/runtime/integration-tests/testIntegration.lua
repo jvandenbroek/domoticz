@@ -74,7 +74,8 @@ local VIRTUAL_DEVICES = {
 	VOLTAGE = {4, 'vdVoltage'},
 	WATERFLOW = {1000, 'vdWaterflow'},
 	WIND = {86, 'vdWind'},
-	WIND_TEMP_CHILL = {1001, 'vdWindTempChill'}
+	WIND_TEMP_CHILL = {1001, 'vdWindTempChill'},
+	TEMP_BARO = { 247, 'vdTempBaro' }
 }
 local VAR_TYPES = {
 	INT = {0, 'varInteger', 42},
@@ -629,6 +630,10 @@ describe('Integration test', function ()
 			ok = updateSwitch(idx, 'vdSwitchDimmer', 'desc%20vdSwitchDimmer', SWITCH_TYPES.DIMMER)
 			assert.is_true(ok)
 			ok = dimTo(idx, 'Set%20Level', 34) -- will end up like 33% for some weird reason
+			assert.is_true(ok)
+		end)
+		it('should create an TEMP_BARO device', function()
+			local ok, idx = createVirtualDevice(dummyIdx, VIRTUAL_DEVICES.TEMP_BARO[2], VIRTUAL_DEVICES.TEMP_BARO[1])
 			assert.is_true(ok)
 		end)
 	end)
