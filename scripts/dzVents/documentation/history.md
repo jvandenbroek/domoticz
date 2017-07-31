@@ -3,6 +3,7 @@
  - Fixed a problem where if you have two scripts for a device and one script uses the name and the other uses the id as trigger, the id-based script wasn't executed.
  - Added active to devices (more logical naming than bState). myDevice.active is true or false depending on a set of known state values (like On, Off, Open, Closed etc).
  - Added simple urlEncode method on the Domoticz object so you can prepare a string before using it in openURL().
+ - Updating text from dzVents in a text-device now triggers the event system.
 
 [2.2.0]
 

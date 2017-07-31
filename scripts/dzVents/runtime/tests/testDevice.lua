@@ -414,9 +414,15 @@ describe('device', function()
 				['rawData'] = { [1] = 'dzVents rocks' }
 			})
 
+			local res;
+
+			domoticz.openURL = function(url)
+				res = url;
+			end
+
 			assert.is_same('dzVents rocks', device.text)
 			device.updateText('foo')
-			assert.is_same({ { ["UpdateDevice"] = "1|0|foo" } }, commandArray)
+			assert.is_same('http://127.0.0.1:8080/json.htm?type=command&param=udevice&idx=1&nvalue=0&svalue=foo', res)
 
 		end)
 
