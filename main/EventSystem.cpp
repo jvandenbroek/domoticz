@@ -2888,13 +2888,6 @@ void CEventSystem::ExportDomoticzDataToLua(lua_State *lua_state, const uint64_t 
 		lua_pushstring(lua_state, sgitem.lastUpdate.c_str());
 		lua_rawset(lua_state, -3);
 
-		lua_pushstring(lua_state, "data");
-		lua_createtable(lua_state, 0, 0);
-
-		lua_pushstring(lua_state, "_state");
-		lua_pushstring(lua_state, sgitem.scenesgroupValue.c_str());
-		lua_rawset(lua_state, -3);
-
 		lua_pushstring(lua_state, "changed");
 		if (sgitem.ID == SceneGroupID)
 		{
@@ -2905,6 +2898,13 @@ void CEventSystem::ExportDomoticzDataToLua(lua_State *lua_state, const uint64_t 
 			lua_pushboolean(lua_state, false);
 		}
 		lua_settable(lua_state, -3);
+
+		lua_pushstring(lua_state, "data");
+		lua_createtable(lua_state, 0, 0);
+
+		lua_pushstring(lua_state, "_state");
+		lua_pushstring(lua_state, sgitem.scenesgroupValue.c_str());
+		lua_rawset(lua_state, -3);
 
 		lua_settable(lua_state, -3); // data table
 		lua_settable(lua_state, -3); // end entry
@@ -3471,10 +3471,6 @@ void CEventSystem::EvaluateLua(const std::string &reason, const std::string &fil
 			*/
 			lua_setglobal(lua_state, "devicechanged_ext");
 			// END OTO
-			if (!DeviceID)
-			{
-
-			}
 		}
 	}
 
