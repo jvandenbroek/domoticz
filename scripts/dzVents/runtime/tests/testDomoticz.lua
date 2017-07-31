@@ -228,6 +228,11 @@ describe('Domoticz', function()
 			assert.is_table(res)
 			assert.is_same({ { ['Group:group1'] = 'on' } }, domoticz.commandArray)
 		end)
+
+		it('should create a backup', function()
+			domoticz.backupDatabase('/path/to/db.db')
+			assert.is_same({ { ['BackupDatabase'] = '/path/to/db.db' } }, domoticz.commandArray)
+		end)
 	end)
 
 	describe('Interacting with the collections', function()

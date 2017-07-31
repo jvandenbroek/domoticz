@@ -369,6 +369,7 @@ The domoticz object holds all information about your Domoticz system. It has a c
 
 ### Domoticz object API:
 
+ - **backupDatabase(path)**: *Function*. Creates a backup of the Domoticz database. You have to provide the full path+name to the backup.
  - **changedDevices(idx/name)**: *Function*. A function returning the device by idx (or name).  To iterate over all changed devices do: `domoticz.changedDevices().forEach(..)`. See [Iterators](#Iterators). Note that you cannot do `for i, j in pairs(domoticz.changedDevices()) do .. end`.
  - **changedVariables(idx/name)**: *Function*. A function returning the user variable by idx or name. To iterate over all changed variables do: `domoticz.changedVariables().forEach(..)`. See [Iterators](#Iterators). Note that you cannot do `for i, j in pairs(domoticz.changedVariables()) do .. end`.
  - **devices(idx/name)**: *Function*. A function returning a device by idx or name: `domoticz.devices(123)` or `domoticz.devices('My switch')`. See [Device object API](#Device_object_API) below. To iterate over all devices do: `domoticz.devices().forEach(..)`. See [Iterators](#Iterators). Note that you cannot do `for i, j in pairs(domoticz.devices()) do .. end`.

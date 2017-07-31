@@ -199,6 +199,10 @@ local function Domoticz(settings)
 		return TimedCommand(self, 'Group:' .. group, value)
 	end
 
+	function self.backupDatabase(path)
+		self.sendCommand('BackupDatabase', path)
+	end
+
 	if (_G.TESTMODE) then
 		function self._getUtilsInstance()
 			return utils

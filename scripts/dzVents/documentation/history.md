@@ -6,6 +6,7 @@
  - Updating text from dzVents in a text-device now triggers the event system.
  - Added adapter for the new Temperature+Barometer device.
  - Added support for groups and scenes change events. Use "on = { scenes = { 'myScene1', 'myScene2' }, groups = {'myGroup1'} }"
+ - Added method backupDatabase to the domoticz object. Now you can create your own (timer) scripts to create backups.
 
 [2.2.0]
 
