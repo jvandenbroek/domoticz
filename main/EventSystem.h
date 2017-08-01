@@ -147,6 +147,7 @@ private:
 	int m_SecStatus;
 	std::string m_lua_Dir;
 	std::string m_dzv_Dir;
+	std::string m_szStartTime;
 
 	//our thread
 	void Do_Work();
