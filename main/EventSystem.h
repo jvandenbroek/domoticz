@@ -18,6 +18,16 @@ extern "C" {
 #include "LuaCommon.h"
 #include "concurrent_queue.h"
 
+static const std::string m_szReason[6] =
+{
+	"all",			// 0
+	"device",		// 1
+	"scenegroup"	// 2
+	"time",			// 3
+	"security",		// 4
+	"uservariable"	// 5
+};
+
 class CEventSystem : public CLuaCommon
 {
 	typedef struct lua_State lua_State;
@@ -46,6 +56,17 @@ class CEventSystem : public CLuaCommon
 	};
 
 public:
+	enum _eReason
+	{
+		R_All = 0,		// 0
+		R_Device,		// 1
+		R_SceneGroup,	// 2
+		R_Time,			// 3
+		R_Security,		// 4
+		R_Uservariable,	// 5
+		R_Log			// 6
+	};
+
 	struct _tDeviceStatus
 	{
 		uint64_t ID;
@@ -104,6 +125,12 @@ public:
 	void LoadEvents();
 	void ProcessUserVariable(const uint64_t varId);
 	void ProcessDevice(const int HardwareID, const uint64_t ulDevID, const unsigned char unit, const unsigned char devType, const unsigned char subType, const unsigned char signallevel, const unsigned char batterylevel, const int nValue, const char* sValue, const std::string &devname, const int varId);
+	void ProcessEvent(const uint64_t ulDevID, const int nValue, const std::string &sValue, const std::string &lastUpdate, const _eReason reason);
+	void ProcessEvent(
+	const int HardwareID, const uint64_t ulDevID, const unsigned char unit, const unsigned char devType,
+	const unsigned char subType, const unsigned char signallevel, const unsigned char batterylevel, const int nValue, const std::string &sValue,
+	const std::string &devname, const int varId, const std::string &lastUpdate, const int lastLevel, const _eSwitchType switchType, const std::string &Options,
+	const _eReason reason);
 	void RemoveSingleState(int ulDevID);
 	void WWWUpdateSingleState(const uint64_t ulDevID, const std::string &devname);
 	void WWWUpdateSecurityState(int securityStatus);
@@ -112,7 +139,7 @@ public:
 	void GetCurrentStates();
 	void GetCurrentScenesGroups();
 	void GetCurrentUserVariables();
-	void UpdateScenesGroups(const uint64_t ulDevID, const int nValue, const std::string &lastUpdate);
+	void UpdateSceneGroup(const uint64_t ulDevID, const int nValue);
 	void UpdateUserVariable(const uint64_t ulDevID, const std::string &varName, const std::string varValue, const int varType, const std::string &lastUpdate);
 	void ExportDeviceStatesToLua(lua_State *lua_state);
 	bool PythonScheduleEvent(std::string ID, const std::string &Action, const std::string &eventName);
@@ -120,7 +147,7 @@ public:
 private:
 	struct _tEventQueue
 	{
-		std::string reason;
+		_eReason reason;
 		uint64_t DeviceID;
 		std::string devname;
 		int nValue;
@@ -153,21 +180,21 @@ private:
 	void Do_Work();
 	void ProcessMinute();
 	void GetCurrentMeasurementStates();
-	std::string UpdateSingleState(const uint64_t ulDevID, const std::string &devname, const int nValue, const char* sValue, const unsigned char devType, const unsigned char subType, const _eSwitchType switchType, const std::string &lastUpdate, const unsigned char lastLevel, const std::map<std::string, std::string> & options);
-	void EvaluateEvent(const std::string &reason, const uint64_t DeviceID, const std::string &devname, const int nValue, const char* sValue, std::string nValueWording, const uint64_t varId);
-	void EvaluateBlockly(const std::string &reason, const uint64_t DeviceID, const std::string &devname, const int nValue, const char* sValue, std::string nValueWording, const uint64_t varId);
+	std::string UpdateSingleState(const uint64_t ulDevID, const std::string &devname, const int nValue, const std::string &sValue, const unsigned char devType, const unsigned char subType, const _eSwitchType switchType, const std::string &lastUpdate, const unsigned char lastLevel, const std::map<std::string, std::string> & options);
+	void EvaluateEvent(const _eReason reason, const uint64_t DeviceID, const std::string &devname, const int nValue, const char* sValue, std::string nValueWording, const uint64_t varId);
+	void EvaluateBlockly(const _eReason reason, const uint64_t DeviceID, const std::string &devname, const int nValue, const char* sValue, std::string nValueWording, const uint64_t varId);
 	bool parseBlocklyActions(const std::string &Actions, const std::string &eventName, const uint64_t eventID);
 	std::string ProcessVariableArgument(const std::string &Argument);
 #ifdef ENABLE_PYTHON
 	std::string m_python_Dir;
-	void EvaluatePython(const std::string &reason, const std::string &filename, const std::string &PyString, const uint64_t varId);
-	void EvaluatePython(const std::string &reason, const std::string &filename, const std::string &PyString);
-	void EvaluatePython(const std::string &reason, const std::string &filename, const std::string &PyString, const uint64_t DeviceID, const std::string &devname, const int nValue, const char* sValue, std::string nValueWording, const uint64_t varId);
+	void EvaluatePython(const _eReason reason, const std::string &filename, const std::string &PyString, const uint64_t varId);
+	void EvaluatePython(const _eReason reason, const std::string &filename, const std::string &PyString);
+	void EvaluatePython(const _eReason reason, const std::string &filename, const std::string &PyString, const uint64_t DeviceID, const std::string &devname, const int nValue, const char* sValue, std::string nValueWording, const uint64_t varId);
 #endif
-	void EvaluateLua(const std::string &reason, const std::string &filename, const std::string &LuaString, const uint64_t varId);
-	void EvaluateLua(const std::string &reason, const std::string &filename, const std::string &LuaString);
-	void ExportDomoticzDataToLua(lua_State *lua_state, const uint64_t deviceID, const int64_t varID, const uint64_t SceneGroupID);
-	void EvaluateLua(const std::string &reason, const std::string &filename, const std::string &LuaString, const uint64_t DeviceID, const std::string &devname, const int nValue, const char* sValue, std::string nValueWording, const uint64_t varId);
+	void EvaluateLua(const _eReason reason, const std::string &filename, const std::string &LuaString, const uint64_t varId);
+	void EvaluateLua(const _eReason reason, const std::string &filename, const std::string &LuaString);
+	void ExportDomoticzDataToLua(lua_State *lua_state, const uint64_t deviceID, const int64_t varID, const _eReason reason);
+	void EvaluateLua(const _eReason reason, const std::string &filename, const std::string &LuaString, const uint64_t DeviceID, const std::string &devname, const int nValue, const char* sValue, std::string nValueWording, const uint64_t varId);
 	void luaThread(lua_State *lua_state, const std::string &filename);
 	static void luaStop(lua_State *L, lua_Debug *ar);
 	std::string nValueToWording(const uint8_t dType, const uint8_t dSubType, const _eSwitchType switchtype, const int nValue, const std::string &sValue, const std::map<std::string, std::string> & options);
@@ -178,7 +205,7 @@ private:
 	bool ScheduleEvent(int deviceID, std::string Action, bool isScene, const std::string &eventName, int sceneType);
 	bool ScheduleEvent(std::string ID, const std::string &Action, const std::string &eventName);
 	void UpdateDevice(const std::string &DevParams);
-	void UpdateLastUpdate(const uint64_t ulDevID, const std::string &lastUpdate, const uint8_t lastLevel);
+	void UpdateLastUpdate(const uint64_t ulDevID, const std::string &lastUpdate, const uint8_t lastLevel, const _eReason reason);
 	lua_State *CreateBlocklyLuaState();
 
 	std::string ParseBlocklyString(const std::string &oString);
