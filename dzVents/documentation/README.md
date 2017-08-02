@@ -788,7 +788,7 @@ To specify a duration or a delay for the various switch command you can do this:
 Note that **dimTo()** doesn't support **forMin()**.
 
 ### Create your own device adapter
-It is possible that your device is not recognized by dzVents. You can still operate it using the generic device attributes and methods but it is much nicer if you have device specific attributes and methods. Take a look at the existing adapters. You can find them in `/path/to/domoticz/scripts/dzVents/runtime/device-adapters`.  Just copy an existing adapter and adapt it to your needs. You can turn debug logging on and inspect the file `domoticzData.lua` in the dzVents folder. There you can see what the unique signature is for your device type. Usually it is a combination of deviceType and deviceSubType. But you can use any of the device attributes in the `matches` function. The matches function checks if the device type is suitable for your adapter and the `process` function actually creates your specific attributes and methods.
+It is possible that your device is not recognized by dzVents. You can still operate it using the generic device attributes and methods but it is much nicer if you have device specific attributes and methods. Take a look at the existing adapters. You can find them in `/path/to/domoticz/dzVents/runtime/device-adapters`.  Just copy an existing adapter and adapt it to your needs. You can turn debug logging on and inspect the file `domoticzData.lua` in the dzVents folder. There you can see what the unique signature is for your device type. Usually it is a combination of deviceType and deviceSubType. But you can use any of the device attributes in the `matches` function. The matches function checks if the device type is suitable for your adapter and the `process` function actually creates your specific attributes and methods.
 Also, if you call `myDevice.dump()` you will see all attributes and methods and the attribute `_adapters` shows you a list of applied adapters for that device.
 Finally register your adapter in `Adapters.lua`. Please share your adapter when it is ready and working.
 
@@ -1268,10 +1268,8 @@ For every script file that defines persisted variables (using the `data={ .. }` 
 					__data_yourscript1.lua
 					__data_yourscript2.lua
 					__data_global_data.lua
-				documentation/
 				examples/
 				generated_scripts/
-				runtime/
 				scripts/
 					yourscript1.lua
 					yourscript2.lua
@@ -1447,6 +1445,7 @@ On the other hand, you have to make sure that dzVents can access the json withou
  - Added domoticz.startTime giving you the time at which the Domoticz service was started.
  - Fixed documentation about levelNames for selector switches and added the missing levelName.
  - Added silent argument (boolean) to device.switchOn() and device.switchOff() commands. When set to true, no follow-up events are triggered switching the device. Using switchOn(true) will not allow you to set timing options!
+ - Moved dzVents runtime code away from the /path/to/domoticz/scripts/dzVents folder as this scripts folder contains user stuff.
 
 [2.2.0]
 

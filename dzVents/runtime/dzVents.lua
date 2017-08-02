@@ -6,8 +6,8 @@ _G.generatedScriptsFolderPath = currentPath .. 'generated_scripts' -- global
 _G.dataFolderPath = currentPath .. 'data' -- global
 
 package.path = package.path .. ';' .. currentPath .. '?.lua'
-package.path = package.path .. ';' .. currentPath .. 'runtime/?.lua'
-package.path = package.path .. ';' .. currentPath .. 'runtime/device-adapters/?.lua'
+package.path = package.path .. ';' .. currentPath .. '../../dzVents/runtime/?.lua'
+package.path = package.path .. ';' .. currentPath .. '../../dzVents/runtime/device-adapters/?.lua'
 package.path = package.path .. ';' .. currentPath .. 'dzVents/?.lua'
 package.path = package.path .. ';' .. currentPath .. 'scripts/?.lua'
 package.path = package.path .. ';' .. currentPath .. 'generated_scripts/?.lua'

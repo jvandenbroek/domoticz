@@ -289,10 +289,10 @@ void CEventSystem::Do_Work()
 {
 #ifdef WIN32
 	m_lua_Dir = szUserDataFolder + "scripts\\lua\\";
-	m_dzv_Dir = szUserDataFolder + "scripts\\dzVents\\runtime\\";
+	m_dzv_Dir = szUserDataFolder + "dzVents\\runtime\\";
 #else
 	m_lua_Dir = szUserDataFolder + "scripts/lua/";
-	m_dzv_Dir = szUserDataFolder + "scripts/dzVents/runtime/";
+	m_dzv_Dir = szUserDataFolder + "dzVents/runtime/";
 #endif
 
 #ifdef ENABLE_PYTHON

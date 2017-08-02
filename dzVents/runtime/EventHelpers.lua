@@ -22,8 +22,6 @@ local function EventHelpers(domoticz, mainMethod)
 		package.path = package.path .. ';' .. currentPath .. 'scripts/?.lua'
 		package.path = package.path .. ';' .. currentPath .. 'data/?.lua'
 		package.path = package.path .. ';' .. currentPath .. '/../?.lua'
-
-
 	end
 
 	local settings = {

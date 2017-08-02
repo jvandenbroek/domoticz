@@ -1,6 +1,6 @@
 package.path = package.path ..
-		";../?.lua;../device-adapters/?.lua;./data/?.lua;./generated_scripts/?.lua;" ..
-		"../../../lua/?.lua"
+		";../?.lua;../device-adapters/?.lua;./data/?.lua;../../../scripts/dzVents/generated_scripts/?.lua;" ..
+		"../../../scripts/lua/?.lua"
 
 local _ = require 'lodash'
 local File = require('File')
@@ -85,6 +85,23 @@ local VAR_TYPES = {
 	TIME = {4, 'varTime', '23:59'}
 }
 
+local scriptSourcePath = './'
+local scriptTargetPath = '../../../scripts/dzVents/scripts/'
+local generatedScriptTargetPath = '../../../scripts/dzVents/generated_scripts/'
+local dataTargetPath = '../../../scripts/dzVents/data/'
+
+function getScriptSourcePath(name)
+	return scriptSourcePath .. name
+end
+
+function getScriptTargetPath(name)
+	return scriptTargetPath .. name
+end
+
+function copyScript(name)
+	File.remove(getScriptTargetPath(name))
+	File.copy(getScriptSourcePath(name), getScriptTargetPath(name))
+end
 
 function doAPICall(url)
 	local response = {}
@@ -421,14 +438,15 @@ describe('Integration test', function ()
 	end)
 
 	teardown(function()
-		os.remove('../../generated_scripts/stage1.lua')
-		os.remove('../../scripts/stage2.lua')
-		os.remove('../../scripts/vdSwitchDimmer.lua')
-		os.remove('../../scripts/secArmedAway.lua')
-		os.remove('../../scripts/varString.lua')
-		os.remove('../../scripts/scScene.lua')
-		os.remove('../../scripts/global_data.lua')
-		os.remove('../../data/__data_global_data.lua')
+		os.remove(generatedScriptTargetPath .. 'stage1.lua')
+		os.remove(getScriptTargetPath('stage2.lua'))
+		os.remove(getScriptTargetPath('vdSwitchDimmer.lua'))
+		os.remove(getScriptTargetPath('secArmedAway.lua'))
+		os.remove(getScriptTargetPath('varString.lua'))
+		os.remove(getScriptTargetPath('scScene.lua'))
+		os.remove(getScriptTargetPath('global_data.lua'))
+		os.remove(dataTargetPath .. '__data_global_data.lua')
+		os.remove(dataTargetPath .. '__data_secArmedAway.lua')
 	end)
 
 	before_each(function()
@@ -727,34 +745,27 @@ describe('Integration test', function ()
 		end)
 
 		it('Should move stage2 script in place', function()
-			File.remove('../../scripts/stage2.lua')
-			File.copy('./stage2.lua', '../../scripts/stage2.lua')
-
+			copyScript('stage2.lua')
 		end)
 
 		it('Should move vdSwitchDimmer script in place', function()
-			File.remove('../../scripts/vdSwitchDimmer.lua')
-			File.copy('./vdSwitchDimmer.lua', '../../scripts/vdSwitchDimmer.lua')
+			copyScript('vdSwitchDimmer.lua')
 		end)
 
 		it('Should move varString script in place', function()
-			File.remove('../../scripts/varString.lua')
-			File.copy('./varString.lua', '../../scripts/varString.lua')
+			copyScript('varString.lua')
 		end)
 
 		it('Should move scScene script in place', function()
-			File.remove('../../scripts/scScene.lua')
-			File.copy('./scScene.lua', '../../scripts/scScene.lua')
+			copyScript('scScene.lua')
 		end)
 
 		it('Should move secArmedAway script in place', function()
-			File.remove('../../scripts/secArmedAway.lua')
-			File.copy('./secArmedAway.lua', '../../scripts/secArmedAway.lua')
+			copyScript('secArmedAway.lua')
 		end)
 
 		it('Should move globaldata script in place', function()
-			File.remove('../../scripts/global_data.lua')
-			File.copy('./global_data.lua', '../../scripts/global_data.lua')
+			copyScript('global_data.lua')
 		end)
 
 		it('Should create the stage1 trigger switch', function()
