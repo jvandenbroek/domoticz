@@ -1008,6 +1008,16 @@ describe('device', function()
 				assert.is_same({ { ["s1"] = "Off" } }, commandArray)
 			end)
 
+			it('should switch on without triggering events', function()
+				switch.switchOn(true)
+				assert.is_same({ { ["UpdateDevice"] = '1|1|On' } }, commandArray)
+			end)
+
+			it('should switch off without triggering events', function()
+				switch.switchOff(true)
+				assert.is_same({ { ["UpdateDevice"] = "1|0|Off" } }, commandArray)
+			end)
+
 			it('should open', function()
 				switch.open()
 				assert.is_same({ { ["s1"] = "On" } }, commandArray)

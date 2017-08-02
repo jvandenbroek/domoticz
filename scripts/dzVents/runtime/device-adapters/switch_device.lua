@@ -74,12 +74,20 @@ return {
 			return nil
 		end
 
-		function device.switchOn()
-			return TimedCommand(domoticz, device.name, 'On')
+		function device.switchOn(silent)
+			if (silent) then
+				device.update(1, 'On')
+			else
+				return TimedCommand(domoticz, device.name, 'On')
+			end
 		end
 
-		function device.switchOff()
-			return TimedCommand(domoticz, device.name, 'Off')
+		function device.switchOff(silent)
+			if (silent) then
+				device.update(0, 'Off')
+			else
+				return TimedCommand(domoticz, device.name, 'Off')
+			end
 		end
 
 		function device.close()

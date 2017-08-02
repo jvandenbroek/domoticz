@@ -692,8 +692,8 @@ There are many switch-like devices. Not all methods are applicable for all switc
  - **maxDimLevel**: *Number*.
  - **open()**: *Function*. Set device to Open if it supports it. Supports timing options. See [below](#Switch_timing_options_.28delay.2C_duration.29).
  - **stop()**: *Function*. Set device to Stop if it supports it (e.g. blinds). Supports timing options. See [below](#Switch_timing_options_.28delay.2C_duration.29).
- - **switchOff()**: *Function*. Switch device off it is supports it. Supports timing options. See [below](#Switch_timing_options_.28delay.2C_duration.29).
- - **switchOn()**: *Function*. Switch device on if it supports it. Supports timing options. See [below](#Switch_timing_options_.28delay.2C_duration.29).
+ - **switchOff([silent=true/false])**: *Function*. Switch device off it is supports it. Supports timing options. See [below](#Switch_timing_options_.28delay.2C_duration.29). The `silent` argument is optional (default = false). When calling `switchOn(true)` the switch will be turned off without triggering events. Using silent=true will not give you timing options!
+ - **switchOn([silent=true/false])**: *Function*. Switch device on if it supports it. Supports timing options. See [below](#Switch_timing_options_.28delay.2C_duration.29). The `silent` argument is optional (default = false). When calling `switchOff(true)` the switch will be turned off without  triggering events. Using silent=true will not give you timing options!
  - **switchSelector(level)**: *Function*. Switches a selector switch to a specific level (numeric value, see the edit page in Domoticz for such a switch to get a list of the values). Supports timing options. See [below](#Switch_timing_options_.28delay.2C_duration.29).
  - **toggleSwitch()**: *Function*. Toggles the state of the switch (if it is togglable) like On/Off, Open/Close etc.
 
@@ -1446,6 +1446,7 @@ On the other hand, you have to make sure that dzVents can access the json withou
  - Added method backupDatabase to the domoticz object. Now you can create your own (timer) scripts to create backups.
  - Added domoticz.startTime giving you the time at which the Domoticz service was started.
  - Fixed documentation about levelNames for selector switches and added the missing levelName.
+ - Added silent argument (boolean) to device.switchOn() and device.switchOff() commands. When set to true, no follow-up events are triggered switching the device. Using switchOn(true) will not allow you to set timing options!
 
 [2.2.0]
 

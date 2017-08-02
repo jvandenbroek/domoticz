@@ -10,6 +10,7 @@
  - Added domoticz.startTime giving you the time at which the Domoticz service was started.
  - Added the lua Lodash library (http://axmat.github.io/lodash.lua, MIT license).
  - Fixed documentation about levelNames for selector switches and added the missing levelName.
+ - Added silent argument (boolean) to device.switchOn() and device.switchOff() commands. When set to true, no follow-up events are triggered switching the device. Using switchOn(true) will not allow you to set timing options!
 
 [2.2.0]
 
