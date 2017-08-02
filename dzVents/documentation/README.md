@@ -147,8 +147,9 @@ So, the module returns a table with these sections (keys):
 ## Sections in the script
 As you can see in the example above, the script has a couple of sections necessary for the script to do when and what you want:
 
-### active = { ... }
-If the active-setting is false then the script is not activated. dzVents will ignore the file completely.
+### active = true/false (optional)
+If the active-setting is false then the script is not activated. dzVents will ignore the file completely. If you don't have an active specified, true is assumed. This is handy if you write scripts using Domoticz' internal script editor as this one has its own way of activating and deactivating scripts.
+
 The active setting can either be:
 
  - **true**: the script file will be processed.
@@ -179,10 +180,10 @@ When al the above conditions are met (active == true and the on section has at l
 	* **triggerInfo.type**: (either domoticz.EVENT_TYPE_TIMER, domoticz.EVENT_TYPE_DEVICE, domoticz.EVENT_TYPE_SECURITY or domoticz.EVENT_TYPE_VARIABLE): was the script executed due to a timer event, device-change event, security-change or user variable-change event?
 	* **triggerInfo.trigger**: which timer rule triggered the script in case the script was called due to a timer event. or the security state that triggered the security trigger rule. See [below](#timer_trigger_options) for the possible timer trigger options. Note that dzVents lists the first timer definition that matches the current time so if there are more timer triggers that could have been triggering the script, dzVents only picks the first for this trigger property.
 
-### data = { ... }
+### data = { ... } (optional)
 The optional data section allows you to define variables that will be persisted between script runs. These variables can get a value in your execute function (e.g. `domoticz.data.previousTemperature = device.temperature`) and the next time the script is executed this value is again available in your code (e.g. `if (domoticz.data.previousTemperature < 20) then ...`. For more info see the section [persistent data](#Persistent_data). *Note that this functionality is kind of experimental. It can be a bit fragile so don't let your entire domotica system depend on the current state of these variables.*
 
-### logging = { ... }
+### logging = { ... } (optional)
 The optional logging setting allows you to override the global logging setting of dzVents as set in Setup > Settings > Other > EventSystem > dzVents Log Level. This can be handy when you only want this script to have extensive debug logging while the rest of your script execute silently. You have these options:
 
  - **level**: This is the log-level you want for this script. Can be either domoticz.LOG_INFO, domoticz.LOG_MODULE_EXEC_INFO, domoticz.LOG_DEBUG or domoticz.LOG_ERROR
@@ -1446,6 +1447,9 @@ On the other hand, you have to make sure that dzVents can access the json withou
  - Fixed documentation about levelNames for selector switches and added the missing levelName.
  - Added silent argument (boolean) to device.switchOn() and device.switchOff() commands. When set to true, no follow-up events are triggered switching the device. Using switchOn(true) will not allow you to set timing options!
  - Moved dzVents runtime code away from the /path/to/domoticz/scripts/dzVents folder as this scripts folder contains user stuff.
+ - Added more trigger examples in the documentation.
+ - active setion is now optional. If you don't specify an active = true/false then true is assumed (script is active). Handy for when you use Domoticz' internal script editor as it has its own way of activating and deactivating scripts.
+
 
 [2.2.0]
 

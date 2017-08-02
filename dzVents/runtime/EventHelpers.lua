@@ -142,9 +142,7 @@ local function EventHelpers(domoticz, mainMethod)
 
 	function self.callEventHandler(eventHandler, device, variable, security, scenegroup)
 
-
 		local useStorage = false
-
 
 		if (eventHandler['execute'] ~= nil) then
 
@@ -461,6 +459,7 @@ local function EventHelpers(domoticz, mainMethod)
 				else
 					if (type(module) == 'table') then
 						skip = false
+
 						if (module.active ~= nil) then
 							local active = false
 							if (type(module.active) == 'function') then
@@ -473,6 +472,9 @@ local function EventHelpers(domoticz, mainMethod)
 								skip = true
 							end
 						end
+
+
+
 						if (not skip) then
 							if (module.on ~= nil and module['execute'] ~= nil) then
 								module.name = moduleName
@@ -754,7 +756,6 @@ local function EventHelpers(domoticz, mainMethod)
 		self.dumpCommandArray(self.domoticz.commandArray)
 		return self.domoticz.commandArray
 	end
-
 
 	function self.dispatchTimerEventsToScripts()
 		local scriptsToExecute = self.getTimerHandlers()
