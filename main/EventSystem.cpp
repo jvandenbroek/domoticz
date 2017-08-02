@@ -154,6 +154,14 @@ void CEventSystem::StartEventSystem()
 
 	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CEventSystem::Do_Work, this)));
 	m_eventqueuethread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CEventSystem::EventQueueThread, this)));
+
+	extern time_t m_StartTime;
+	struct tm ltime;
+	localtime_r(&m_StartTime, &ltime);
+	std::stringstream ssStartTime;
+	ssStartTime << (ltime.tm_year + 1900) << "-" << std::setw(2) << std::setfill('0') << (ltime.tm_mon + 1) << "-" << std::setw(2) << std::setfill('0') << ltime.tm_mday
+	<< " " << std::setw(2) << std::setfill('0') << ltime.tm_hour << ":" << std::setw(2) << std::setfill('0') << ltime.tm_min << ":" << std::setw(2) << std::setfill('0') << ltime.tm_sec;
+	m_szStartTime = ssStartTime.str();
 }
 
 void CEventSystem::StopEventSystem()
@@ -3649,9 +3657,8 @@ void CEventSystem::EvaluateLua(const std::string &reason, const std::string &fil
 		//	lua_pushstring(lua_state, "8080");
 			lua_pushstring(lua_state, m_webservers.our_listener_port.c_str());
 			lua_rawset(lua_state, -3);
-			extern time_t m_StartTime;
 			lua_pushstring(lua_state, "domoticz_start_time");
-			lua_pushnumber(lua_state, (lua_Number)m_StartTime);
+			lua_pushstring(lua_state, m_szStartTime.c_str());
 			lua_rawset(lua_state, -3);
 		}
 	}
