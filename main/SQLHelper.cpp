@@ -3225,7 +3225,7 @@ uint64_t CSQLHelper::UpdateValue(const int HardwareID, const char* ID, const uns
 	localtime_r(&now,&ltime);
 
 	//Check if this switch was a Sub/Slave device for other devices, if so adjust the state of those other devices
-	result = safe_query("SELECT A.ParentID, B.Name, B.HardwareID, B.[Type], B.[SubType], B.Unit FROM LightSubDevices as A, DeviceStatus as B WHERE (A.DeviceRowID=='%q') AND (A.DeviceRowID!=A.ParentID) AND (B.[ID] == A.ParentID)", idx.c_str());
+	result = safe_query("SELECT A.ParentID, B.Name, B.HardwareID, B.[Type], B.[SubType], B.Unit, B.SwitchType, B.LastLevel, B.Options FROM LightSubDevices as A, DeviceStatus as B WHERE (A.DeviceRowID=='%q') AND (A.DeviceRowID!=A.ParentID) AND (B.[ID] == A.ParentID)", idx.c_str());
 	if (result.size()>0)
 	{
 		//This is a sub/slave device for another main device
@@ -3248,7 +3248,14 @@ uint64_t CSQLHelper::UpdateValue(const int HardwareID, const char* ID, const uns
 			unsigned char ParentType = (unsigned char)atoi(sd[3].c_str());
 			unsigned char ParentSubType = (unsigned char)atoi(sd[4].c_str());
 			unsigned char ParentUnit = (unsigned char)atoi(sd[5].c_str());
-			m_mainworker.m_eventsystem.ProcessDevice(ParentHardwareID, ParentID, ParentUnit, ParentType, ParentSubType, signallevel, batterylevel, nValue, sValue, ParentName, 0);
+			_eSwitchType stype = (_eSwitchType)atoi(result[0][6].c_str());
+			int LastLevel = atoi(result[0][7].c_str());
+			std::string sOption = result[0][8];
+			std::stringstream ssLastUpdate;
+			ssLastUpdate << (ltime.tm_year + 1900) << "-" << std::setw(2) << std::setfill('0') << (ltime.tm_mon + 1) << "-" << std::setw(2) << std::setfill('0') << ltime.tm_mday
+			<< " " << std::setw(2) << std::setfill('0') << ltime.tm_hour << ":" << std::setw(2) << std::setfill('0') << ltime.tm_min << ":" << std::setw(2) << std::setfill('0') << ltime.tm_sec;
+			m_mainworker.m_eventsystem.ProcessEvent(ParentHardwareID, ParentID, ParentUnit, ParentType, ParentSubType, signallevel,
+				batterylevel, nValue, sValue, ParentName, 0, ssLastUpdate.str(), LastLevel, stype, sOption, m_mainworker.m_eventsystem.R_Device);
 
 			//Set the status of all slave devices from this device (except the one we just received) to off
 			//Check if this switch was a Sub/Slave device for other devices, if so adjust the state of those other devices
@@ -3428,8 +3435,12 @@ uint64_t CSQLHelper::UpdateValueInt(const int HardwareID, const char* ID, const 
 	uint64_t ulID=0;
 	bool bDeviceUsed = false;
 	bool bSameDeviceStatusValue = false;
+	int LastLevel;
+	std::string sLastUpdate;
+	_eSwitchType stype;
+	std::string sOption;
 	std::vector<std::vector<std::string> > result;
-	result = safe_query("SELECT ID,Name, Used, SwitchType, nValue, sValue, LastUpdate, Options FROM DeviceStatus WHERE (HardwareID=%d AND DeviceID='%q' AND Unit=%d AND Type=%d AND SubType=%d)",HardwareID, ID, unit, devType, subType);
+	result = safe_query("SELECT ID, Name, Used, SwitchType, nValue, sValue, LastUpdate, LastLevel, Options FROM DeviceStatus WHERE (HardwareID=%d AND DeviceID='%q' AND Unit=%d AND Type=%d AND SubType=%d)",HardwareID, ID, unit, devType, subType);
 	if (result.size()==0)
 	{
 		//Insert
@@ -3466,15 +3477,17 @@ uint64_t CSQLHelper::UpdateValueInt(const int HardwareID, const char* ID, const 
 		//Update
 		std::stringstream s_str( result[0][0] );
 		s_str >> ulID;
-		std::string sOption=result[0][7];
+		sOption=result[0][8];
 		devname=result[0][1];
 		bDeviceUsed= atoi(result[0][2].c_str())!=0;
-		_eSwitchType stype = (_eSwitchType)atoi(result[0][3].c_str());
+		stype = (_eSwitchType)atoi(result[0][3].c_str());
 		int old_nValue = atoi(result[0][4].c_str());
 		std::string old_sValue = result[0][5];
 		time_t now = time(0);
 		struct tm ltime;
 		localtime_r(&now,&ltime);
+		sLastUpdate = result[0][6];
+		LastLevel = atoi(result[0][7].c_str());
 		//Commit: If Option 1: energy is computed as usage*time
 		//Default is option 0, read from device
 		if (sOption == "1" && devType == pTypeGeneral && subType == sTypeKwh)
@@ -3484,7 +3497,6 @@ uint64_t CSQLHelper::UpdateValueInt(const int HardwareID, const char* ID, const 
 			double interval;
 			float nEnergy;
 			char sCompValue[100];
-			std::string sLastUpdate = result[0][6];
 			time_t lutime;
 			ParseSQLdatetime(lutime, ntime, sLastUpdate, ltime.tm_isdst);
 
@@ -3827,7 +3839,7 @@ uint64_t CSQLHelper::UpdateValueInt(const int HardwareID, const char* ID, const 
 	if (_log.isTraceEnabled()) _log.Log(LOG_TRACE,"SQLH UpdateValueInt %s HwID:%d  DevID:%s Type:%d  sType:%d nValue:%d sValue:%s ", devname.c_str(),HardwareID, ID, devType, subType, nValue, sValue );
 
 	if (bDeviceUsed)
-		m_mainworker.m_eventsystem.ProcessDevice(HardwareID, ulID, unit, devType, subType, signallevel, batterylevel, nValue, sValue, devname, 0);
+		m_mainworker.m_eventsystem.ProcessEvent(HardwareID, ulID, unit, devType, subType, signallevel, batterylevel, nValue, sValue, devname, 0, sLastUpdate, LastLevel, stype, sOption, m_mainworker.m_eventsystem.R_Device);
 	return ulID;
 }
 
