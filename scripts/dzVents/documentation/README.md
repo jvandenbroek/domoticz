@@ -687,7 +687,8 @@ There are many switch-like devices. Not all methods are applicable for all switc
  - **lastLevel**: Number. The level of a dimmer just before it was switched off. **Note: lastLevel only shows you the previous level if you have a trigger for the device itself. So for instance you have a on-trigger for 'myDimmer' and the dimmer is set from 20% to 30%, in your script `myDimmer.level == 30` and `myDimmer.lastLevel == 20`. **
  - **level**: *Number*. For dimmers and other 'Set Level..%' devices this holds the level like selector switches.
  - **levelActions**: *String*. |-separated list of url actions for selector switches.
- - **levelName**: *Table*. Table holding the level names for selector switch devices.
+ - **levelName**: *String*. Current level name for selector switches.
+ - **levelNames**: *Table*. Table holding the level names for selector switch devices.
  - **maxDimLevel**: *Number*.
  - **open()**: *Function*. Set device to Open if it supports it. Supports timing options. See [below](#Switch_timing_options_.28delay.2C_duration.29).
  - **stop()**: *Function*. Set device to Stop if it supports it (e.g. blinds). Supports timing options. See [below](#Switch_timing_options_.28delay.2C_duration.29).
@@ -1444,6 +1445,7 @@ On the other hand, you have to make sure that dzVents can access the json withou
  - Added support for groups and scenes change events. Use "on = { scenes = { 'myScene1', 'myScene2' }, groups = {'myGroup1'} }"
  - Added method backupDatabase to the domoticz object. Now you can create your own (timer) scripts to create backups.
  - Added domoticz.startTime giving you the time at which the Domoticz service was started.
+ - Fixed documentation about levelNames for selector switches and added the missing levelName.
 
 [2.2.0]
 
