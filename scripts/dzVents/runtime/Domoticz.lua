@@ -51,6 +51,7 @@ local function Domoticz(settings)
 		['security'] = globalvariables['Security'],
 		['radixSeparator'] = globalvariables['radix_separator'],
 		['time'] = nowTime,
+		['startTime'] = Time(globalvariables['domoticz_start_time']),
 		['variables'] = {},
 		['PRIORITY_LOW'] = -2,
 		['PRIORITY_MODERATE'] = -1,

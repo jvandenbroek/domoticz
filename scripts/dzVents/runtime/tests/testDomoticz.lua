@@ -28,6 +28,7 @@ describe('Domoticz', function()
 		_G.globalvariables = {
 			Security = 'sec',
 			['radix_separator'] = '.',
+			['domoticz_start_time'] = '2017-08-02 08:30:00',
 			['script_reason'] = 'device',
 			['script_path'] = scriptPath,
 			['domoticz_listening_port'] = '8080'
@@ -75,6 +76,10 @@ describe('Domoticz', function()
 			assert.is_same(domoticz.time.sunsetInMinutes, 'sunsetmin')
 			-- check for basic time props
 			assert.is_same(now.hour, domoticz.time.hour)
+		end)
+
+		it('should return the start time', function()
+			assert.is_same('2017-08-02 08:30:00', domoticz.startTime.raw)
 		end)
 
 		it('should have settings', function()

@@ -383,6 +383,7 @@ The domoticz object holds all information about your Domoticz system. It has a c
  - **security**: Holds the state of the security system e.g. `Armed Home` or `Armed Away`.
  - **sendCommand(command, value)**: Generic (low-level)command method (adds it to the commandArray) to the list of commands that are being sent back to domoticz. *There is likely no need to use this directly. Use any of the device methods instead (see below).*
  - **sms(message)**: *Function*. Sends an sms if it is configured in Domoticz.
+ - **startTime()**: *Function*. Returns the startup time of the Domoticz service. Returns a Time object (see the time attribute below).
  - **time**: Current system time:
 	 - **day**: *Number*
 	 - **getISO**: *Function*. Returns the ISO 8601 formatted date.
@@ -1421,6 +1422,8 @@ On the other hand, you have to make sure that dzVents can access the json withou
  - Updating text from dzVents in a text-device now triggers the event system.
  - Added adapter for the new Temperature+Barometer device.
  - Added support for groups and scenes change events. Use "on = { scenes = { 'myScene1', 'myScene2' }, groups = {'myGroup1'} }"
+ - Added method backupDatabase to the domoticz object. Now you can create your own (timer) scripts to create backups.
+ - Added domoticz.startTime giving you the time at which the Domoticz service was started.
 
 [2.2.0]
 
