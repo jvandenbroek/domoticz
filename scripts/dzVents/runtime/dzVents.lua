@@ -28,6 +28,7 @@ end
 --print('!!!!!!!!!! remove')print('!!!!!!!!!! remove')
 --local persistence = require('persistence')
 --persistence.store(currentPath .. '/domoticzData.lua', domoticzData)
+
 commandArray = {}
 
 utils.log('dzVents version: 2.2.1', utils.LOG_DEBUG)

@@ -1292,6 +1292,26 @@ There are a couple of settings for dzVents. They can be found in Domoticz GUI: *
     - *Debug*. Shows everything and dzVents will create a file `domoticzData.lua` in the dzVents folder. This is a dump of all the data that is received by dzVents from Domoticz.. That data is used to create the entire dzVents data structure.
     - *No logging*. As silent as possible.
 
+# Other interesting stuff
+
+## Lodash for Lua
+
+Lodash is a well known and very popular Javascript library filled with dozens of handy helper functions that really make you life a lot easier. Fortunately there is also a Lua version. When using dzVents you also have access to this library as it comes with dzVents. All you have to do is require it in your code:
+
+```
+local _ = require('lodash')
+_.print(_.indexOf({2, 3, 'x', 4}, 'x'))
+```
+
+Or if you want to have it available in all your scripts automatically (as a global), add this line at the top of your global_data.lua script:
+
+```
+_G._ = require('lodash') -- create a global _
+```
+
+Check out the great documentation [here](http://axmat.github.io/lodash.lua/).
+
+
 # Migrating from version 1.x.x
 As you can read in the change log below there are a couple of changes in 2.0 that will break older scrtips.
 

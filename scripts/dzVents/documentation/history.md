@@ -8,6 +8,7 @@
  - Added support for groups and scenes change events. Use "on = { scenes = { 'myScene1', 'myScene2' }, groups = {'myGroup1'} }"
  - Added method backupDatabase to the domoticz object. Now you can create your own (timer) scripts to create backups.
  - Added domoticz.startTime giving you the time at which the Domoticz service was started.
+ - Added the lua Lodash library (http://axmat.github.io/lodash.lua, MIT license).
 
 [2.2.0]
 
