@@ -411,6 +411,9 @@ public:
 	int			m_ShortLogInterval;
 	bool		m_bLogEventScriptTrigger;
 	bool		m_bDisableDzVentsSystem;
+
+	std::vector<std::string> *ptrSqlitePragma = new std::vector<std::string>;
+
 private:
 	boost::mutex	m_sqlQueryMutex;
 	sqlite3			*m_dbase;

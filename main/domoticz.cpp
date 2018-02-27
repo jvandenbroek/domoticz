@@ -41,7 +41,7 @@
 	#include <syslog.h>
 	#include <errno.h>
 	#include <fcntl.h>
-	#include <string.h> 
+	#include <string.h>
 #endif
 
 #ifdef HAVE_EXECINFO_H
@@ -108,12 +108,13 @@ const char *szHelp =
 "\t-debug    allow log trace level 3 \n"
 "\t-notimestamps (do not prepend timestamps to logs; useful with syslog, etc.)\n"
 "\t-logthreadids (log thread ids; useful for trouble shooting.)\n"
-	"\t-php_cgi_path (for example /usr/bin/php-cgi)\n"
+"\t-php_cgi_path (for example /usr/bin/php-cgi)\n"
 #ifndef WIN32
 	"\t-daemon (run as background daemon)\n"
 	"\t-pidfile pid file location (for example /var/run/domoticz.pid)\n"
 	"\t-syslog [user|daemon|local0 .. local7] (use syslog as log output, defaults to facility 'user')\n"
 #endif
+"\t-sqlite pragma_name=value (multiple arguments allowed space seperated, for example journal_mode=memory)"
 	"";
 
 #ifndef WIN32
@@ -134,7 +135,7 @@ static const _facilities facilities[] =
 	{ "local5", LOG_LOCAL5 },
 	{ "local6", LOG_LOCAL6 },
 	{ "local7", LOG_LOCAL7 }
-}; 
+};
 std::string logfacname = "user";
 #endif
 std::string szStartupFolder;
@@ -172,7 +173,7 @@ bool g_bDontCacheWWW = false;
 int pidFilehandle = 0;
 
 #define DAEMON_NAME "domoticz"
-#define PID_FILE "/var/run/domoticz.pid" 
+#define PID_FILE "/var/run/domoticz.pid"
 
 int fatal_handling = 0;
 
@@ -211,7 +212,7 @@ void signal_handler(int sig_num)
 		signal(sig_num, SIG_DFL);
 		raise(sig_num);
 		break;
-	} 
+	}
 }
 
 #ifndef WIN32
@@ -252,7 +253,7 @@ void daemonize(const char *rundir, const char *pidfile)
 #ifndef WIN32
 	sigaction(SIGHUP,  &newSigAction, NULL);    // catch HUP, for log rotation
 #endif
-	
+
 	/* Fork*/
 	pid = fork();
 
@@ -507,10 +508,10 @@ int main(int argc, char**argv)
 {
 #if defined WIN32
 #ifndef _DEBUG
-	CreateMutexA(0, FALSE, "Local\\Domoticz"); 
-	if(GetLastError() == ERROR_ALREADY_EXISTS) { 
+	CreateMutexA(0, FALSE, "Local\\Domoticz");
+	if(GetLastError() == ERROR_ALREADY_EXISTS) {
 		MessageBox(HWND_DESKTOP,"Another instance of Domoticz is already running!","Domoticz",MB_OK);
-		return 1; 
+		return 1;
 	}
 #endif //_DEBUG
 	bool bStartWebBrowser = true;
@@ -520,10 +521,10 @@ int main(int argc, char**argv)
 	szStartupFolder = "";
 	szWWWFolder = "";
 	szWebRoot = "";
-	
+
 	CCmdLine cmdLine;
 
-	// parse argc,argv 
+	// parse argc,argv
 #if defined WIN32
 	cmdLine.SplitLine(__argc, __argv);
 #else
@@ -568,7 +569,7 @@ int main(int argc, char**argv)
 	{
 		_log.EnableLogThreadIDs(true);
 	}
-	
+
 	if (cmdLine.HasSwitch("-approot"))
 	{
 		if (cmdLine.GetArgumentCount("-approot") != 1)
@@ -946,6 +947,22 @@ int main(int argc, char**argv)
 	CoInitializeEx(0, COINIT_MULTITHREADED);
 	CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
 #endif
+	if (cmdLine.HasSwitch("-sqlite"))
+	{
+		int argCount = cmdLine.GetArgumentCount("-sqlite");
+		std::string argValue;
+		for (uint8_t i = 0; i < argCount; i++)
+		{
+			argValue = cmdLine.GetSafeArgument("-sqlite", i, "error");
+			if (argValue.find("=") == std::string::npos || argValue.find("error") != std::string::npos)
+			{
+				_log.Log(LOG_ERROR, "Invalid arguments specified for sqlite (eg. journal_mode=WAL)");
+				return 1;
+			}
+			if (m_sql.ptrSqlitePragma != nullptr)
+				m_sql.ptrSqlitePragma->push_back(argValue);
+		}
+	}
 #ifndef WIN32
 	if (cmdLine.HasSwitch("-daemon"))
 	{
@@ -968,7 +985,7 @@ int main(int argc, char**argv)
 	{
 		g_bUseSyslog = true;
 		logfacname = cmdLine.GetSafeArgument("-syslog", 0, "");
-		if ( logfacname.length() == 0 ) 
+		if ( logfacname.length() == 0 )
 		{
 			logfacname = "user";
 		}
@@ -978,15 +995,15 @@ int main(int argc, char**argv)
 	{
 		int idx, logfacility = 0;
 
-		for ( idx = 0; idx < sizeof(facilities)/sizeof(facilities[0]); idx++ ) 
+		for ( idx = 0; idx < sizeof(facilities)/sizeof(facilities[0]); idx++ )
 		{
-			if (strcmp(facilities[idx].facname, logfacname.c_str()) == 0) 
+			if (strcmp(facilities[idx].facname, logfacname.c_str()) == 0)
 			{
 				logfacility = facilities[idx].facvalue;
 				break;
 			}
-		} 
-		if ( logfacility == 0 ) 
+		}
+		if ( logfacility == 0 )
 		{
 			_log.Log(LOG_ERROR, "%s is an unknown syslog facility", logfacname.c_str());
 			return 1;

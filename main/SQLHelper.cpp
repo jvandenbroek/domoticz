@@ -684,14 +684,42 @@ bool CSQLHelper::OpenDatabase()
 		sqlite3_close(m_dbase);
 		return false;
 	}
+	bool synchronous = false;
+	bool journal_mode = false;
+	bool foreign_keys = false;
+	if (ptrSqlitePragma != nullptr)
+	{
+		if (ptrSqlitePragma->size() > 0)
+		{
+			std::string pragma;
+			std::vector<std::string>::const_iterator itt;
+			for (itt = ptrSqlitePragma->begin(); itt != ptrSqlitePragma->end(); itt++)
+			{
+				pragma = "PRAGMA " + *itt;
+				sqlite3_exec(m_dbase, pragma.c_str(), NULL, NULL, NULL);
+				_log.Log(LOG_STATUS, "SQLite3: %s", pragma.c_str());
+				if (pragma.find("synchronous") != std::string::npos)
+					synchronous = true;
+				if (pragma.find("journal_mode") != std::string::npos)
+					journal_mode = true;
+				if (pragma.find("foreign_keys") != std::string::npos)
+					foreign_keys = true;
+			}
+		}
+		delete ptrSqlitePragma; // we no longer need it
+	}
 #ifndef WIN32
 	//test, this could improve performance
-	sqlite3_exec(m_dbase, "PRAGMA synchronous = NORMAL", NULL, NULL, NULL);
-	sqlite3_exec(m_dbase, "PRAGMA journal_mode = WAL", NULL, NULL, NULL);
+	if (!synchronous)
+		sqlite3_exec(m_dbase, "PRAGMA synchronous = NORMAL", NULL, NULL, NULL);
+	if (!journal_mode)
+		sqlite3_exec(m_dbase, "PRAGMA journal_mode = WAL", NULL, NULL, NULL);
 #else
-	sqlite3_exec(m_dbase, "PRAGMA journal_mode=DELETE", NULL, NULL, NULL);
+	if (!journal_mode)
+		sqlite3_exec(m_dbase, "PRAGMA journal_mode=DELETE", NULL, NULL, NULL);
 #endif
-    sqlite3_exec(m_dbase, "PRAGMA foreign_keys = ON;", NULL, NULL, NULL);
+	if (!foreign_keys)
+	    sqlite3_exec(m_dbase, "PRAGMA foreign_keys = ON;", NULL, NULL, NULL);
 	std::vector<std::vector<std::string> > result=query("SELECT name FROM sqlite_master WHERE type='table' AND name='DeviceStatus'");
 	bool bNewInstall=(result.size()==0);
 	int dbversion=0;
