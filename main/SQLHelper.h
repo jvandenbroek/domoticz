@@ -412,7 +412,7 @@ public:
 	bool		m_bLogEventScriptTrigger;
 	bool		m_bDisableDzVentsSystem;
 
-	std::vector<std::string> *ptrSqlitePragma = new std::vector<std::string>;
+	std::vector<std::string> *ptrSqlitePragma;
 
 private:
 	boost::mutex	m_sqlQueryMutex;

@@ -612,6 +612,27 @@ int main(int argc, char**argv)
 #endif
 	}
 	GetAppVersion();
+ //set log level / log output file name verbose level if set on command line
+  //the value as been taken from database in call of GetLogPreference m_mainworker.Start()
+	if (cmdLine.HasSwitch("-log"))
+	{
+		logfile = cmdLine.GetSafeArgument("-log", 0, "domoticz.log");
+		_log.SetOutputFile(logfile.c_str());
+	}
+	if (cmdLine.HasSwitch("-loglevel"))
+	{
+		int Level = atoi(cmdLine.GetSafeArgument("-loglevel", 0, "").c_str());
+		if     (Level==0) _log.SetVerboseLevel(VBL_ALL);
+		else if(Level==1) _log.SetVerboseLevel(VBL_STATUS_ERROR);
+		else if(Level==2) _log.SetVerboseLevel(VBL_ERROR);
+		else if ((Level == 3) && (_log.GetLogDebug())) _log.SetVerboseLevel(VBL_TRACE);
+	}
+	if (cmdLine.HasSwitch("-verbose"))
+	{
+		int Level = atoi(cmdLine.GetSafeArgument("-verbose", 0, "").c_str());
+		m_mainworker.SetVerboseLevel((eVerboseLevel)Level);
+	}
+
 	_log.Log(LOG_STATUS, "Domoticz V%s (c)2012-%d GizMoCuz", szAppVersion.c_str(), ActYear);
 	_log.Log(LOG_STATUS, "Build Hash: %s, Date: %s", szAppHash.c_str(), szAppDate.c_str());
 
@@ -959,7 +980,7 @@ int main(int argc, char**argv)
 				_log.Log(LOG_ERROR, "Invalid arguments specified for sqlite (eg. journal_mode=WAL)");
 				return 1;
 			}
-			if (m_sql.ptrSqlitePragma != nullptr)
+			if (m_sql.ptrSqlitePragma != NULL)
 				m_sql.ptrSqlitePragma->push_back(argValue);
 		}
 	}
@@ -1015,8 +1036,7 @@ int main(int argc, char**argv)
 
 		syslog(LOG_INFO, "Domoticz is starting up....");
 	}
-
-	if (g_bRunAsDaemon)
+ 	if (g_bRunAsDaemon)
 	{
 		/* Deamonize */
 		daemonize(szStartupFolder.c_str(), pidfile.c_str());
@@ -1032,34 +1052,11 @@ int main(int argc, char**argv)
 		signal(SIGINT, signal_handler);
 		signal(SIGTERM, signal_handler);
 	}
-
 	if (!m_mainworker.Start())
 	{
 		return 1;
 	}
 	m_StartTime = time(NULL);
-
-  //set log level / log output file name verbose level if set on command line
-  //the value as been taken from database in call of GetLogPreference m_mainworker.Start()
-	if (cmdLine.HasSwitch("-log"))
-	{
-		logfile = cmdLine.GetSafeArgument("-log", 0, "domoticz.log");
-		_log.SetOutputFile(logfile.c_str());
-	}
-	if (cmdLine.HasSwitch("-loglevel"))
-	{
-		int Level = atoi(cmdLine.GetSafeArgument("-loglevel", 0, "").c_str());
-		if     (Level==0) _log.SetVerboseLevel(VBL_ALL);
-		else if(Level==1) _log.SetVerboseLevel(VBL_STATUS_ERROR);
-		else if(Level==2) _log.SetVerboseLevel(VBL_ERROR);
-		else if ((Level == 3) && (_log.GetLogDebug())) _log.SetVerboseLevel(VBL_TRACE);
-	}
-	if (cmdLine.HasSwitch("-verbose"))
-	{
-		int Level = atoi(cmdLine.GetSafeArgument("-verbose", 0, "").c_str());
-		m_mainworker.SetVerboseLevel((eVerboseLevel)Level);
-	}
-
 
 	/* now, lets get into an infinite loop of doing nothing. */
 #if defined WIN32

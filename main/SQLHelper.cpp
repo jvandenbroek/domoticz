@@ -655,6 +655,7 @@ CSQLHelper::CSQLHelper(void)
 	m_bDisableDzVentsSystem = false;
 	m_ShortLogInterval = 5;
 	m_bPreviousAcceptNewHardware = false;
+	ptrSqlitePragma = new std::vector<std::string>;
 
 	SetDatabaseName("domoticz.db");
 }
@@ -687,17 +688,18 @@ bool CSQLHelper::OpenDatabase()
 	bool synchronous = false;
 	bool journal_mode = false;
 	bool foreign_keys = false;
-	if (ptrSqlitePragma != nullptr)
+	if (ptrSqlitePragma != NULL)
 	{
 		if (ptrSqlitePragma->size() > 0)
 		{
 			std::string pragma;
+			std::string log;
 			std::vector<std::string>::const_iterator itt;
 			for (itt = ptrSqlitePragma->begin(); itt != ptrSqlitePragma->end(); itt++)
 			{
 				pragma = "PRAGMA " + *itt;
+				!log.empty() ? log += ", " + *itt : log = *itt;
 				sqlite3_exec(m_dbase, pragma.c_str(), NULL, NULL, NULL);
-				_log.Log(LOG_STATUS, "SQLite3: %s", pragma.c_str());
 				if (pragma.find("synchronous") != std::string::npos)
 					synchronous = true;
 				if (pragma.find("journal_mode") != std::string::npos)
@@ -705,6 +707,7 @@ bool CSQLHelper::OpenDatabase()
 				if (pragma.find("foreign_keys") != std::string::npos)
 					foreign_keys = true;
 			}
+			_log.Log(LOG_STATUS, "SQLite3: %s", log.c_str());
 		}
 		delete ptrSqlitePragma; // we no longer need it
 	}
