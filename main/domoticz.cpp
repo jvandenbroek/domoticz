@@ -156,6 +156,7 @@ std::string szInternalCurrentCommand = "";
 std::string szAppVersion="???";
 std::string szAppHash="???";
 std::string szAppDate="???";
+std::string szPyVersion="None";
 int ActYear;
 time_t m_StartTime=time(NULL);
 
