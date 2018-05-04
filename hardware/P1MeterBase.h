@@ -43,6 +43,8 @@ private:
 	double m_gasclockskew;
 	time_t m_gasoktime;
 
+	uint32_t m_counter;
+
 	void Init();
 	bool MatchLine();
 	void ParseData(const unsigned char *pData, const int Len, const bool disable_crc, int ratelimit);

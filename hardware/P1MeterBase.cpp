@@ -134,6 +134,8 @@ void P1MeterBase::Init()
 	m_gasclockskew=0;
 	m_gasoktime=0;
 
+	m_counter = 0;
+
 	std::vector<std::vector<std::string> > result;
 	result = m_sql.safe_query("SELECT Value FROM UserVariables WHERE (Name='P1GasMeterChannel')");
 	if (!result.empty())
@@ -219,17 +221,38 @@ bool P1MeterBase::MatchLine()
 				_log.Log(LOG_STATUS,"P1 Smart Meter: Meter is pre DSMR 4.0 - using DSMR 2.2 compatibility");
 				m_p1version=2;
 			}
+			m_counter++;
 			time_t atime=mytime(NULL);
-			if (difftime(atime,m_lastUpdateTime)>=m_ratelimit) {
+			if (difftime(atime,m_lastUpdateTime)>=m_ratelimit) 
+			{
 				m_lastUpdateTime=atime;
+				m_power.powerusage1 = m_power.powerusage1 / m_counter;
+				m_power.powerusage2 = m_power.powerusage2 / m_counter;
+				m_power.powerdeliv1 = m_power.powerdeliv1 / m_counter;
+				m_power.powerdeliv2 = m_power.powerdeliv2 / m_counter;
 				sDecodeRXMessage(this, (const unsigned char *)&m_power, "Power", 255);
-				if (m_voltagel1) {
-					SendVoltageSensor(0, 1, 255, m_voltagel1, "Voltage L1");
+				m_power.powerusage1 = 0;
+				m_power.powerusage2 = 0;
+				m_power.powerdeliv1 = 0;
+				m_power.powerdeliv2 = 0;
+				
+				if (m_voltagel1) 
+				{
+					SendVoltageSensor(0, 1, 255, m_voltagel1 / m_counter, "Voltage L1");
+					m_voltagel1 = 0;
 					if (m_voltagel2)
-						SendVoltageSensor(0, 2, 255, m_voltagel2, "Voltage L2");
+					{
+						SendVoltageSensor(0, 2, 255, m_voltagel2 / m_counter, "Voltage L2");
+						m_voltagel2 = 0;
+					}
 					if (m_voltagel3)
-						SendVoltageSensor(0, 3, 255, m_voltagel3, "Voltage L3");
+					{
+						SendVoltageSensor(0, 3, 255, m_voltagel3 / m_counter, "Voltage L3");
+						m_voltagel3 = 0;
+					}
 				}
+				m_counter = 0;
+
 				if ( (m_gas.gasusage>0)&&( (m_gas.gasusage!=m_lastgasusage)||(difftime(atime,m_lastSharedSendGas)>=300) ) ){
 					//only update gas when there is a new value, or 5 minutes are passed
 					if (m_gasclockskew>=300){ // just accept it - we cannot sync to our clock
@@ -280,6 +303,7 @@ bool P1MeterBase::MatchLine()
 					}
 				}
 			}
+
 			m_linecount=0;
 			l_exclmarkfound=0;
 		}
@@ -333,30 +357,30 @@ bool P1MeterBase::MatchLine()
 			case P1TYPE_POWERUSAGE1:
 				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);
 				if (!m_power.powerusage1 || m_p1version >= 4)
-					m_power.powerusage1 = temp_usage;
-				else if (temp_usage - m_power.powerusage1 < 10000)
-					m_power.powerusage1 = temp_usage;
+					m_power.powerusage1 += temp_usage;
+				else if (temp_usage - (m_counter ? m_power.powerusage1 / m_counter : m_power.powerusage1) < 10000)
+					m_power.powerusage1 += temp_usage;
 				break;
 			case P1TYPE_POWERUSAGE2:
 				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);
 				if (!m_power.powerusage2 || m_p1version >= 4)
-					m_power.powerusage2 = temp_usage;
-				else if (temp_usage - m_power.powerusage2 < 10000)
-					m_power.powerusage2 = temp_usage;
+					m_power.powerusage2 += temp_usage;
+				else if (temp_usage - (m_counter ? m_power.powerusage2 / m_counter : m_power.powerusage2) < 10000)
+					m_power.powerusage2 += temp_usage;
 				break;
 			case P1TYPE_POWERDELIV1:
 				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);
 				if (!m_power.powerdeliv1 || m_p1version >= 4)
-					m_power.powerdeliv1 = temp_usage;
-				else if (temp_usage - m_power.powerdeliv1 < 10000)
-					m_power.powerdeliv1 = temp_usage;
+					m_power.powerdeliv1 += temp_usage;
+				else if (temp_usage - (m_counter ? m_power.powerdeliv1 / m_counter : m_power.powerdeliv1) < 10000)
+					m_power.powerdeliv1 += temp_usage;
 				break;
 			case P1TYPE_POWERDELIV2:
 				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);
 				if (!m_power.powerdeliv2 || m_p1version >= 4)
-					m_power.powerdeliv2 = temp_usage;
-				else if (temp_usage - m_power.powerdeliv2 < 10000)
-					m_power.powerdeliv2 = temp_usage;
+					m_power.powerdeliv2 += temp_usage;
+				else if (temp_usage - (m_counter ? m_power.powerdeliv2 / m_counter : m_power.powerdeliv2) < 10000)
+					m_power.powerdeliv2 += temp_usage;
 				break;
 			case P1TYPE_USAGECURRENT:
 				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);	//Watt
@@ -371,17 +395,17 @@ bool P1MeterBase::MatchLine()
 			case P1TYPE_VOLTAGEL1:
 				temp_volt = strtof(value,&validate);
 				if (temp_volt < 300)
-					m_voltagel1 = temp_volt; //Voltage L1;
+					m_voltagel1 += temp_volt; //Voltage L1;
 				break;
 			case P1TYPE_VOLTAGEL2:
 				temp_volt = strtof(value,&validate);
 				if (temp_volt < 300)
-					m_voltagel2 = temp_volt; //Voltage L2;
+					m_voltagel2 += temp_volt; //Voltage L2;
 				break;
 			case P1TYPE_VOLTAGEL3:
 				temp_volt = strtof(value,&validate);
 				if (temp_volt < 300)
-					m_voltagel3 = temp_volt; //Voltage L3;
+					m_voltagel3 += temp_volt; //Voltage L3;
 				break;
 			case P1TYPE_GASTIMESTAMP:
 				m_gastimestamp = std::string(value);
