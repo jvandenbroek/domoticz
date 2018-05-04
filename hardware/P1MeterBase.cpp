@@ -223,31 +223,34 @@ bool P1MeterBase::MatchLine()
 			}
 			m_counter++;
 			time_t atime=mytime(NULL);
-			if (difftime(atime,m_lastUpdateTime)>=m_ratelimit) 
+			if (difftime(atime,m_lastUpdateTime) >= m_ratelimit)
 			{
 				m_lastUpdateTime=atime;
-				m_power.powerusage1 = m_power.powerusage1 / m_counter;
-				m_power.powerusage2 = m_power.powerusage2 / m_counter;
-				m_power.powerdeliv1 = m_power.powerdeliv1 / m_counter;
-				m_power.powerdeliv2 = m_power.powerdeliv2 / m_counter;
+				if (m_counter > 1)
+				{
+					m_power.powerusage1 /= m_counter;
+					m_power.powerusage2 /= m_counter;
+					m_power.powerdeliv1 /= m_counter;
+					m_power.powerdeliv2 /= m_counter;
+				}
 				sDecodeRXMessage(this, (const unsigned char *)&m_power, "Power", 255);
 				m_power.powerusage1 = 0;
 				m_power.powerusage2 = 0;
 				m_power.powerdeliv1 = 0;
 				m_power.powerdeliv2 = 0;
-				
-				if (m_voltagel1) 
+
+				if (m_voltagel1)
 				{
-					SendVoltageSensor(0, 1, 255, m_voltagel1 / m_counter, "Voltage L1");
+					SendVoltageSensor(0, 1, 255, (m_counter > 1) ? m_voltagel1 / m_counter : m_voltagel1, "Voltage L1");
 					m_voltagel1 = 0;
 					if (m_voltagel2)
 					{
-						SendVoltageSensor(0, 2, 255, m_voltagel2 / m_counter, "Voltage L2");
+						SendVoltageSensor(0, 2, 255, (m_counter > 1) ? m_voltagel2 / m_counter : m_voltagel2, "Voltage L2");
 						m_voltagel2 = 0;
 					}
 					if (m_voltagel3)
 					{
-						SendVoltageSensor(0, 3, 255, m_voltagel3 / m_counter, "Voltage L3");
+						SendVoltageSensor(0, 3, 255, (m_counter > 1) ? m_voltagel3 / m_counter : m_voltagel3, "Voltage L3");
 						m_voltagel3 = 0;
 					}
 				}
