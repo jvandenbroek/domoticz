@@ -44,6 +44,8 @@ private:
 	time_t m_gasoktime;
 
 	uint32_t m_counter;
+	uint32_t m_powerMin;
+	uint32_t m_powerMax;
 
 	void Init();
 	bool MatchLine();

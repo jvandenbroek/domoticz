@@ -135,6 +135,8 @@ void P1MeterBase::Init()
 	m_gasoktime=0;
 
 	m_counter = 0;
+	m_powerMin = 0;
+	m_powerMax = 0;
 
 	std::vector<std::vector<std::string> > result;
 	result = m_sql.safe_query("SELECT Value FROM UserVariables WHERE (Name='P1GasMeterChannel')");
@@ -225,6 +227,8 @@ bool P1MeterBase::MatchLine()
 			time_t atime=mytime(NULL);
 			if (difftime(atime,m_lastUpdateTime) >= m_ratelimit)
 			{
+				_log.Log(LOG_STATUS, "P1 Smart Meter: counter: %d, Power: [ min: %d, max: %d, avg: %d ]",
+				m_counter, m_powerMin, m_powerMax, m_power.powerusage1 / m_counter);
 				m_lastUpdateTime=atime;
 				if (m_counter > 1)
 				{
@@ -238,6 +242,8 @@ bool P1MeterBase::MatchLine()
 				m_power.powerusage2 = 0;
 				m_power.powerdeliv1 = 0;
 				m_power.powerdeliv2 = 0;
+				m_powerMin = 0;
+				m_powerMax = 0;
 
 				if (m_voltagel1)
 				{
@@ -360,29 +366,35 @@ bool P1MeterBase::MatchLine()
 			case P1TYPE_POWERUSAGE1:
 				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);
 				if (!m_power.powerusage1 || m_p1version >= 4)
+				{
+					if (!m_powerMin || m_powerMin > temp_usage)
+						m_powerMin = temp_usage;
+					if (m_powerMax < temp_usage)
+						m_powerMax = temp_usage;
 					m_power.powerusage1 += temp_usage;
-				else if (temp_usage - (m_counter ? m_power.powerusage1 / m_counter : m_power.powerusage1) < 10000)
+				}
+				else if (temp_usage - (m_counter > 1 ? m_power.powerusage1 / m_counter : m_power.powerusage1) < 10000)
 					m_power.powerusage1 += temp_usage;
 				break;
 			case P1TYPE_POWERUSAGE2:
 				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);
 				if (!m_power.powerusage2 || m_p1version >= 4)
 					m_power.powerusage2 += temp_usage;
-				else if (temp_usage - (m_counter ? m_power.powerusage2 / m_counter : m_power.powerusage2) < 10000)
+				else if (temp_usage - (m_counter > 1 ? m_power.powerusage2 / m_counter : m_power.powerusage2) < 10000)
 					m_power.powerusage2 += temp_usage;
 				break;
 			case P1TYPE_POWERDELIV1:
 				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);
 				if (!m_power.powerdeliv1 || m_p1version >= 4)
 					m_power.powerdeliv1 += temp_usage;
-				else if (temp_usage - (m_counter ? m_power.powerdeliv1 / m_counter : m_power.powerdeliv1) < 10000)
+				else if (temp_usage - (m_counter > 1 ? m_power.powerdeliv1 / m_counter : m_power.powerdeliv1) < 10000)
 					m_power.powerdeliv1 += temp_usage;
 				break;
 			case P1TYPE_POWERDELIV2:
 				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);
 				if (!m_power.powerdeliv2 || m_p1version >= 4)
 					m_power.powerdeliv2 += temp_usage;
-				else if (temp_usage - (m_counter ? m_power.powerdeliv2 / m_counter : m_power.powerdeliv2) < 10000)
+				else if (temp_usage - (m_counter > 1 ? m_power.powerdeliv2 / m_counter : m_power.powerdeliv2) < 10000)
 					m_power.powerdeliv2 += temp_usage;
 				break;
 			case P1TYPE_USAGECURRENT:
