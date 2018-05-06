@@ -228,20 +228,17 @@ bool P1MeterBase::MatchLine()
 			if (difftime(atime,m_lastUpdateTime) >= m_ratelimit)
 			{
 				_log.Log(LOG_STATUS, "P1 Smart Meter: counter: %d, Power: [ min: %d, max: %d, avg: %d ]",
-				m_counter, m_powerMin, m_powerMax, m_power.powerusage1 / m_counter);
+				m_counter, m_powerMin, m_powerMax, m_power.usagecurrent / m_counter);
 				m_lastUpdateTime=atime;
 				if (m_counter > 1)
 				{
-					m_power.powerusage1 /= m_counter;
-					m_power.powerusage2 /= m_counter;
-					m_power.powerdeliv1 /= m_counter;
-					m_power.powerdeliv2 /= m_counter;
+					m_power.usagecurrent /= m_counter;
+					if (m_power.delivcurrent)
+						m_power.delivcurrent /= m_counter;
 				}
 				sDecodeRXMessage(this, (const unsigned char *)&m_power, "Power", 255);
-				m_power.powerusage1 = 0;
-				m_power.powerusage2 = 0;
-				m_power.powerdeliv1 = 0;
-				m_power.powerdeliv2 = 0;
+				m_power.usagecurrent = 0;
+				m_power.delivcurrent = 0;
 				m_powerMin = 0;
 				m_powerMax = 0;
 
@@ -366,46 +363,46 @@ bool P1MeterBase::MatchLine()
 			case P1TYPE_POWERUSAGE1:
 				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);
 				if (!m_power.powerusage1 || m_p1version >= 4)
+					m_power.powerusage1 = temp_usage;
+				else if (temp_usage - m_power.powerusage1 < 10000)
+					m_power.powerusage1 = temp_usage;
+				break;
+			case P1TYPE_POWERUSAGE2:
+				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);
+				if (!m_power.powerusage2 || m_p1version >= 4)
+					m_power.powerusage2 = temp_usage;
+				else if (temp_usage - m_power.powerusage2 < 10000)
+					m_power.powerusage2 = temp_usage;
+				break;
+			case P1TYPE_POWERDELIV1:
+				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);
+				if (!m_power.powerdeliv1 || m_p1version >= 4)
+					m_power.powerdeliv1 = temp_usage;
+				else if (temp_usage - m_power.powerdeliv1 < 10000)
+					m_power.powerdeliv1 = temp_usage;
+				break;
+			case P1TYPE_POWERDELIV2:
+				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);
+				if (!m_power.powerdeliv2 || m_p1version >= 4)
+					m_power.powerdeliv2 = temp_usage;
+				else if (temp_usage - m_power.powerdeliv2 < 10000)
+					m_power.powerdeliv2 = temp_usage;
+				break;
+			case P1TYPE_USAGECURRENT:
+				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);	//Watt
+				if (temp_usage < 17250)
 				{
 					if (!m_powerMin || m_powerMin > temp_usage)
 						m_powerMin = temp_usage;
 					if (m_powerMax < temp_usage)
 						m_powerMax = temp_usage;
-					m_power.powerusage1 += temp_usage;
+					m_power.usagecurrent += temp_usage;
 				}
-				else if (temp_usage - (m_counter > 1 ? m_power.powerusage1 / m_counter : m_power.powerusage1) < 10000)
-					m_power.powerusage1 += temp_usage;
-				break;
-			case P1TYPE_POWERUSAGE2:
-				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);
-				if (!m_power.powerusage2 || m_p1version >= 4)
-					m_power.powerusage2 += temp_usage;
-				else if (temp_usage - (m_counter > 1 ? m_power.powerusage2 / m_counter : m_power.powerusage2) < 10000)
-					m_power.powerusage2 += temp_usage;
-				break;
-			case P1TYPE_POWERDELIV1:
-				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);
-				if (!m_power.powerdeliv1 || m_p1version >= 4)
-					m_power.powerdeliv1 += temp_usage;
-				else if (temp_usage - (m_counter > 1 ? m_power.powerdeliv1 / m_counter : m_power.powerdeliv1) < 10000)
-					m_power.powerdeliv1 += temp_usage;
-				break;
-			case P1TYPE_POWERDELIV2:
-				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);
-				if (!m_power.powerdeliv2 || m_p1version >= 4)
-					m_power.powerdeliv2 += temp_usage;
-				else if (temp_usage - (m_counter > 1 ? m_power.powerdeliv2 / m_counter : m_power.powerdeliv2) < 10000)
-					m_power.powerdeliv2 += temp_usage;
-				break;
-			case P1TYPE_USAGECURRENT:
-				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);	//Watt
-				if (temp_usage < 17250)
-					m_power.usagecurrent = temp_usage;
 				break;
 			case P1TYPE_DELIVCURRENT:
 				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);	//Watt;
 				if (temp_usage < 17250)
-					m_power.delivcurrent = temp_usage;
+					m_power.delivcurrent += temp_usage;
 				break;
 			case P1TYPE_VOLTAGEL1:
 				temp_volt = strtof(value,&validate);
