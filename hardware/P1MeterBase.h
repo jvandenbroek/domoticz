@@ -14,8 +14,16 @@ public:
 	P1Power	m_power;
 	P1Gas	m_gas;
 private:
+	enum _eCalcMethod
+	{
+		LAST,
+		MIN,
+		MAX,
+		AVG
+	};
 	bool m_bDisableCRC;
 	int m_ratelimit;
+	int m_calcMethod;
 
 	unsigned char m_p1version;
 
@@ -44,12 +52,14 @@ private:
 	time_t m_gasoktime;
 
 	uint32_t m_counter;
-	uint32_t m_powerMin;
-	uint32_t m_powerMax;
+	uint32_t m_usageMin;
+	uint32_t m_usageMax;
+	uint32_t m_delivMin;
+	uint32_t m_delivMax;
 
-	void Init();
+	void Init(const int calcMethod = 0);
 	bool MatchLine();
-	void ParseData(const unsigned char *pData, const int Len, const bool disable_crc, int ratelimit);
+	void ParseData(const unsigned char *pData, const int Len, const bool disable_crc, const int ratelimit);
 
 	bool CheckCRC();
 };

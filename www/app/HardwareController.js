@@ -239,6 +239,11 @@ define(['app'], function (app) {
 						ratelimitp1 = "0";
 					}
 					Mode3 = ratelimitp1;
+					var calcmethodp1 = $("#hardwarecontent #hardwareparamsratelimitp1 #calcmethodp1").val();
+					if (calcmethodp1 == "") {
+						calcmethodp1 = "0";
+					}
+					Mode4 = calcmethodp1;
 				}
 				if (text.indexOf("Teleinfo EDF") >= 0) {
 					var baudrate = $("#hardwarecontent #divbaudrateteleinfo #combobaudrateteleinfo option:selected").val();
@@ -807,7 +812,7 @@ define(['app'], function (app) {
 				(text.indexOf("Nest Th") >= 0 && text.indexOf("OAuth") === -1) ||
 				(text.indexOf("PVOutput") >= 0) ||
 				(text.indexOf("Netatmo") >= 0) ||
-				(text.indexOf("Thermosmart") >= 0) || 
+				(text.indexOf("Thermosmart") >= 0) ||
                 (text.indexOf("Tado") >= 0)
 			) {
 				var username = $("#hardwarecontent #divlogin #username").val();
@@ -5342,15 +5347,15 @@ define(['app'], function (app) {
 							}
 						}
 						else if (
-							(((data["Type"].indexOf("LAN") >= 0) || data["Type"].indexOf("MySensors Gateway with MQTT") >= 0) && (data["Type"].indexOf("YouLess") >= 0)) || 
-							(data["Type"].indexOf("Domoticz") >= 0) || 
-							(data["Type"].indexOf("Denkovi") >= 0) || 
-							(data["Type"].indexOf("Relay-Net") >= 0) || 
-							(data["Type"].indexOf("Satel Integra") >= 0) || 
-							(data["Type"].indexOf("eHouse") >= 0) || 
-							(data["Type"].indexOf("Logitech Media Server") >= 0) || 
-							(data["Type"].indexOf("HEOS by DENON") >= 0) || 
-							(data["Type"].indexOf("Xiaomi Gateway") >= 0) || 
+							(((data["Type"].indexOf("LAN") >= 0) || data["Type"].indexOf("MySensors Gateway with MQTT") >= 0) && (data["Type"].indexOf("YouLess") >= 0)) ||
+							(data["Type"].indexOf("Domoticz") >= 0) ||
+							(data["Type"].indexOf("Denkovi") >= 0) ||
+							(data["Type"].indexOf("Relay-Net") >= 0) ||
+							(data["Type"].indexOf("Satel Integra") >= 0) ||
+							(data["Type"].indexOf("eHouse") >= 0) ||
+							(data["Type"].indexOf("Logitech Media Server") >= 0) ||
+							(data["Type"].indexOf("HEOS by DENON") >= 0) ||
+							(data["Type"].indexOf("Xiaomi Gateway") >= 0) ||
 							(data["Type"].indexOf("MyHome OpenWebNet with LAN interface") >= 0)
 							) {
 							$("#hardwarecontent #hardwareparamsremote #tcpaddress").val(data["Address"]);
@@ -5869,7 +5874,7 @@ define(['app'], function (app) {
 				(text.indexOf("Nest Th") >= 0 && text.indexOf("OAuth") === -1) ||
 				(text.indexOf("PVOutput") >= 0) ||
 				(text.indexOf("Netatmo") >= 0) ||
-				(text.indexOf("Thermosmart") >= 0) || 
+				(text.indexOf("Thermosmart") >= 0) ||
                 (text.indexOf("Tado") >= 0)
 			) {
 				$("#hardwarecontent #divserial").hide();

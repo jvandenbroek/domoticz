@@ -21,7 +21,7 @@
 //
 //Class P1MeterSerial
 //
-P1MeterSerial::P1MeterSerial(const int ID, const std::string& devname, const unsigned int baud_rate, const bool disable_crc, const int ratelimit):
+P1MeterSerial::P1MeterSerial(const int ID, const std::string& devname, const unsigned int baud_rate, const bool disable_crc, const int ratelimit, const int calcMethod) :
 m_szSerialPort(devname)
 {
 	m_HwdID=ID;
@@ -29,6 +29,7 @@ m_szSerialPort(devname)
 	m_stoprequested = false;
 	m_bDisableCRC = disable_crc;
 	m_ratelimit = ratelimit;
+	m_calcMethod = calcMethod;
 }
 
 P1MeterSerial::P1MeterSerial(const std::string& devname,
@@ -109,7 +110,7 @@ bool P1MeterSerial::StartHardware()
 		return false;
 	}
 
-	Init();
+	Init(m_calcMethod);
 
 	m_bIsStarted=true;
 	setReadCallback(boost::bind(&P1MeterSerial::readCallback, this, _1, _2));

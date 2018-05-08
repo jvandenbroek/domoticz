@@ -103,7 +103,7 @@ bool P1MeterTCP::ConnectInternal()
 		_log.Log(LOG_STATUS,"P1 Smart Meter: CRC validation disabled through hardware control");
 	}
 
-	Init();
+	Init(0);
 
 	sOnConnected(this);
 	return true;
