@@ -59,7 +59,7 @@ private:
 
 	void Init(const int calcMethod = 0);
 	bool MatchLine();
-	void ParseData(const unsigned char *pData, const int Len, const bool disable_crc, const int ratelimit);
+	void ParseData(const unsigned char *pData, const int Len, const bool disable_crc);
 
 	bool CheckCRC();
 };

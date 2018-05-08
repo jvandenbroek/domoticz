@@ -567,10 +567,9 @@ bool P1MeterBase::CheckCRC()
 /	done if the message passes all other validation rules
 */
 
-void P1MeterBase::ParseData(const unsigned char *pData, const int Len, const bool disable_crc, const int ratelimit)
+void P1MeterBase::ParseData(const unsigned char *pData, const int Len, const bool disable_crc)
 {
 	int ii=0;
-	m_ratelimit=ratelimit;
 	// a new message should not start with an empty line, but just in case it does (crude check is sufficient here)
 	while ((m_linecount==0) && (pData[ii]<0x10)){
 		ii++;

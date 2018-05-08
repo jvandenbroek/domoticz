@@ -239,7 +239,7 @@ define(['app'], function (app) {
 						ratelimitp1 = "0";
 					}
 					Mode3 = ratelimitp1;
-					var calcmethodp1 = $("#hardwarecontent #hardwareparamsratelimitp1 #calcmethodp1").val();
+					var calcmethodp1 = $("#hardwarecontent #hardwareparamscalcmethodp1 #calcmethodp1").val();
 					if (calcmethodp1 == "") {
 						calcmethodp1 = "0";
 					}
@@ -1400,6 +1400,11 @@ define(['app'], function (app) {
 						ratelimitp1 = "60";
 					}
 					Mode3 = ratelimitp1;
+					var calcmethodp1 = $("#hardwarecontent #hardwareparamscalcmethodp1 #calcmethodp1").val();
+					if (calcmethodp1 == "") {
+						calcmethodp1 = "0";
+					}
+					Mode4 = calcmethodp1;
 				}
 
 				if (text.indexOf("USBtin") >= 0) {
@@ -5305,6 +5310,7 @@ define(['app'], function (app) {
 								$("#hardwarecontent #divbaudratep1 #combobaudratep1").val(data["Mode1"]);
 								$("#hardwarecontent #divcrcp1 #disablecrcp1").prop("checked", data["Mode2"] == 0);
 								$("#hardwarecontent #hardwareparamsratelimitp1 #ratelimitp1").val(data["Mode3"]);
+								$("#hardwarecontent #hardwareparamscalcmethodp1 #calcmethodp1").val(data["Mode4"]);
 								if (data["Mode1"] == 0) {
 									$("#hardwarecontent #divcrcp1").hide();
 								}
