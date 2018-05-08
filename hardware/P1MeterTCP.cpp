@@ -103,7 +103,7 @@ bool P1MeterTCP::ConnectInternal()
 		_log.Log(LOG_STATUS,"P1 Smart Meter: CRC validation disabled through hardware control");
 	}
 
-	Init(0);
+	Init();
 
 	sOnConnected(this);
 	return true;
@@ -168,7 +168,7 @@ void P1MeterTCP::Do_Work()
 			else
 			{
 				boost::lock_guard<boost::mutex> l(readQueueMutex);
-				ParseData((const unsigned char*)&data, bread, m_bDisableCRC, m_ratelimit);
+				ParseData((const unsigned char*)&data, bread);
 			}
 		}
 	}

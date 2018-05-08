@@ -110,7 +110,7 @@ bool P1MeterSerial::StartHardware()
 		return false;
 	}
 
-	Init(m_calcMethod);
+	Init();
 
 	m_bIsStarted=true;
 	setReadCallback(boost::bind(&P1MeterSerial::readCallback, this, _1, _2));
@@ -140,7 +140,7 @@ void P1MeterSerial::readCallback(const char *data, size_t len)
 
 	if (!m_bEnableReceive)
 		return; //receiving not enabled
-	ParseData((const unsigned char*)data, static_cast<int>(len), m_bDisableCRC);
+	ParseData((const unsigned char*)data, static_cast<int>(len));
 }
 
 bool P1MeterSerial::WriteToHardware(const char *pdata, const unsigned char length)

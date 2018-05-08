@@ -41,9 +41,9 @@ private:
 	time_t m_lastSharedSendGas;
 	time_t m_lastUpdateTime;
 
-	float m_voltagel1;
-	float m_voltagel2;
-	float m_voltagel3;
+	float m_voltagel1[3];
+	float m_voltagel2[3];
+	float m_voltagel3[3];
 
 	unsigned char m_gasmbuschannel;
 	std::string m_gasprefix;
@@ -57,9 +57,9 @@ private:
 	uint32_t m_delivMin;
 	uint32_t m_delivMax;
 
-	void Init(const int calcMethod = 0);
+	void Init();
 	bool MatchLine();
-	void ParseData(const unsigned char *pData, const int Len, const bool disable_crc);
+	void ParseData(const unsigned char *pData, const int Len);
 
 	bool CheckCRC();
 };

@@ -93,7 +93,7 @@ P1MeterBase::~P1MeterBase(void)
 {
 }
 
-void P1MeterBase::Init(const int calcMethod)
+void P1MeterBase::Init()
 {
 	m_p1version=0;
 	m_linecount=0;
@@ -107,9 +107,9 @@ void P1MeterBase::Init(const int calcMethod)
 	l_exclmarkfound=0;
 	l_bufferpos=0;
 
-	m_voltagel1=0;
-	m_voltagel2=0;
-	m_voltagel3=0;
+	m_voltagel1[3] = { 0 };
+	m_voltagel2[3] = { 0 };
+	m_voltagel3[3] = { 0 };
 
 	memset(&m_buffer,0,sizeof(m_buffer));
 	memset(&l_buffer,0,sizeof(l_buffer));
@@ -139,10 +139,6 @@ void P1MeterBase::Init(const int calcMethod)
 	m_usageMax = 0;
 	m_delivMin = 0;
 	m_delivMax = 0;
-
-	//m_calcMethod = calcMethod;
-
-	_log.Log(LOG_STATUS, "Lol!!! calcMethod: %d", m_calcMethod);
 
 	std::vector<std::vector<std::string> > result;
 	result = m_sql.safe_query("SELECT Value FROM UserVariables WHERE (Name='P1GasMeterChannel')");
@@ -268,18 +264,24 @@ bool P1MeterBase::MatchLine()
 					m_delivMax = 0;
 				}
 
-				if (m_voltagel1)
+				if (m_voltagel1[0])
 				{
-					SendVoltageSensor(0, 1, 255, (m_counter > 1) ? m_voltagel1 / m_counter : m_voltagel1, "Voltage L1");
-					m_voltagel1 = 0;
-					if (m_voltagel2)
+					if (m_calcMethod == AVG)
+						m_voltagel1[3] /= m_counter;
+					SendVoltageSensor(0, 1, 255, m_voltagel1[m_calcMethod], "Voltage L1");
+					m_voltagel1[3] = { 0 };
+					if (m_voltagel2[0])
 					{
-						SendVoltageSensor(0, 2, 255, (m_counter > 1) ? m_voltagel2 / m_counter : m_voltagel2, "Voltage L2");
-						m_voltagel2 = 0;
-						if (m_voltagel3)
+						if (m_calcMethod == AVG)
+							m_voltagel2[3] /= m_counter;
+						SendVoltageSensor(0, 2, 255, m_voltagel2[m_calcMethod], "Voltage L2");
+						m_voltagel2[3] = { 0 };
+						if (m_voltagel3[0])
 						{
-							SendVoltageSensor(0, 3, 255, (m_counter > 1) ? m_voltagel3 / m_counter : m_voltagel3, "Voltage L3");
-							m_voltagel3 = 0;
+							if (m_calcMethod == AVG)
+								m_voltagel3[3] /= m_counter;
+							SendVoltageSensor(0, 3, 255, m_voltagel3[m_calcMethod], "Voltage L3");
+							m_voltagel3[3] = { 0 };
 						}
 					}
 				}
@@ -450,17 +452,53 @@ bool P1MeterBase::MatchLine()
 			case P1TYPE_VOLTAGEL1:
 				temp_volt = strtof(value,&validate);
 				if (temp_volt < 300)
-					m_voltagel1 += temp_volt; //Voltage L1;
+				{
+					if (m_calcMethod != LAST)
+					{
+						if (!m_voltagel1[MIN] || m_voltagel1[MIN] > temp_volt)
+							m_voltagel1[MIN] = temp_volt;
+						if ( m_voltagel1[MAX] < temp_volt)
+							m_voltagel1[MAX] = temp_volt;
+						if (m_calcMethod != LAST)
+							m_voltagel1[AVG] += temp_volt;
+					}
+					else
+						m_voltagel1[LAST] = temp_volt; //Voltage L1;
+				}
 				break;
 			case P1TYPE_VOLTAGEL2:
 				temp_volt = strtof(value,&validate);
 				if (temp_volt < 300)
-					m_voltagel2 += temp_volt; //Voltage L2;
+				{
+					if (m_calcMethod != LAST)
+					{
+						if (!m_voltagel2[MIN] || m_voltagel2[MIN] > temp_volt)
+							m_voltagel2[MIN] = temp_volt;
+						if ( m_voltagel2[MAX] < temp_volt)
+							m_voltagel2[MAX] = temp_volt;
+						if (m_calcMethod != LAST)
+							m_voltagel2[AVG] += temp_volt;
+					}
+					else
+						m_voltagel2[LAST] = temp_volt; //Voltage L2;
+				}
 				break;
 			case P1TYPE_VOLTAGEL3:
 				temp_volt = strtof(value,&validate);
 				if (temp_volt < 300)
-					m_voltagel3 += temp_volt; //Voltage L3;
+				{
+					if (m_calcMethod != LAST)
+					{
+						if (!m_voltagel3[MIN] || m_voltagel3[MIN] > temp_volt)
+							m_voltagel3[MIN] = temp_volt;
+						if ( m_voltagel3[MAX] < temp_volt)
+							m_voltagel3[MAX] = temp_volt;
+						if (m_calcMethod != LAST)
+							m_voltagel3[AVG] += temp_volt;
+					}
+					else
+						m_voltagel3[LAST] = temp_volt; //Voltage L3;
+				}
 				break;
 			case P1TYPE_GASTIMESTAMP:
 				m_gastimestamp = std::string(value);
@@ -567,7 +605,7 @@ bool P1MeterBase::CheckCRC()
 /	done if the message passes all other validation rules
 */
 
-void P1MeterBase::ParseData(const unsigned char *pData, const int Len, const bool disable_crc)
+void P1MeterBase::ParseData(const unsigned char *pData, const int Len)
 {
 	int ii=0;
 	// a new message should not start with an empty line, but just in case it does (crude check is sufficient here)
@@ -581,7 +619,7 @@ void P1MeterBase::ParseData(const unsigned char *pData, const int Len, const boo
 		if ((l_buffer[0]==0x21) && !l_exclmarkfound && (m_linecount>0)) {
 			_log.Log(LOG_STATUS,"P1 Smart Meter: WARNING: got new message but buffer still contains unprocessed data from previous message.");
 			l_buffer[l_bufferpos] = 0;
-			if (disable_crc || CheckCRC()) {
+			if (m_bDisableCRC || CheckCRC()) {
 				MatchLine();
 			}
 		}
@@ -632,7 +670,7 @@ void P1MeterBase::ParseData(const unsigned char *pData, const int Len, const boo
 			if ((l_bufferpos>0) && (l_bufferpos<sizeof(l_buffer))) {
 				// don't try to match empty or oversized lines
 				l_buffer[l_bufferpos] = 0;
-				if(l_buffer[0]==0x21 && !disable_crc){
+				if(l_buffer[0]==0x21 && !m_bDisableCRC){
 					if (!CheckCRC()) {
 						m_linecount = 0;
 						return;
