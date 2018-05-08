@@ -264,22 +264,22 @@ bool P1MeterBase::MatchLine()
 					m_delivMax = 0;
 				}
 
-				if (m_voltagel1[0])
+				if (m_voltagel1[LAST] || m_voltagel1[MIN])
 				{
 					if (m_calcMethod == AVG)
-						m_voltagel1[3] /= m_counter;
+						m_voltagel1[AVG] /= m_counter;
 					SendVoltageSensor(0, 1, 255, m_voltagel1[m_calcMethod], "Voltage L1");
 					m_voltagel1[3] = { 0 };
-					if (m_voltagel2[0])
+					if (m_voltagel2[LAST] || m_voltagel2[MIN] )
 					{
 						if (m_calcMethod == AVG)
-							m_voltagel2[3] /= m_counter;
+							m_voltagel2[AVG] /= m_counter;
 						SendVoltageSensor(0, 2, 255, m_voltagel2[m_calcMethod], "Voltage L2");
 						m_voltagel2[3] = { 0 };
-						if (m_voltagel3[0])
+						if (m_voltagel3[LAST]  || m_voltagel3[MIN])
 						{
 							if (m_calcMethod == AVG)
-								m_voltagel3[3] /= m_counter;
+								m_voltagel3[AVG] /= m_counter;
 							SendVoltageSensor(0, 3, 255, m_voltagel3[m_calcMethod], "Voltage L3");
 							m_voltagel3[3] = { 0 };
 						}
