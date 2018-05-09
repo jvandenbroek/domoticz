@@ -16,10 +16,10 @@ public:
 private:
 	enum _eCalcMethod
 	{
-		LAST,
-		MIN,
-		MAX,
-		AVG
+		LAST,	// 0
+		MIN,	// 1
+		MAX,	// 2
+		AVG		// 3
 	};
 	bool m_bDisableCRC;
 	int m_ratelimit;
@@ -52,14 +52,12 @@ private:
 	time_t m_gasoktime;
 
 	uint32_t m_counter;
-	uint32_t m_usageMin;
-	uint32_t m_usageMax;
-	uint32_t m_delivMin;
-	uint32_t m_delivMax;
+	uint32_t m_usage[4];
+	uint32_t m_deliv[4];
 
 	void Init();
 	bool MatchLine();
-	void ParseData(const unsigned char *pData, const int Len);
+	void ParseData(const unsigned char *pData, const int Len, const bool disable_crc);
 
 	bool CheckCRC();
 };

@@ -135,10 +135,8 @@ void P1MeterBase::Init()
 	m_gasoktime=0;
 
 	m_counter = 0;
-	m_usageMin = 0;
-	m_usageMax = 0;
-	m_delivMin = 0;
-	m_delivMax = 0;
+	m_usage[3] = 0;
+	m_deliv[3] = 0;
 
 	std::vector<std::vector<std::string> > result;
 	result = m_sql.safe_query("SELECT Value FROM UserVariables WHERE (Name='P1GasMeterChannel')");
@@ -230,53 +228,38 @@ bool P1MeterBase::MatchLine()
 			if (difftime(atime,m_lastUpdateTime) >= m_ratelimit)
 			{
 				_log.Log(LOG_STATUS, "P1 Smart Meter: counter: %d, Power: [ min: %d, max: %d, avg: %d, calcMethod: %d ]",
-					m_counter, m_usageMin, m_usageMax, m_power.usagecurrent / m_counter, m_calcMethod);
+					m_counter, m_usage[MIN], m_usage[MAX], m_usage[AVG] / m_counter, m_calcMethod);
 				m_lastUpdateTime=atime;
 				if (m_calcMethod != LAST && m_counter > 1)
 				{
-					if (m_calcMethod == MIN)
+					if (m_calcMethod == AVG)
+						m_usage[m_calcMethod] /= m_counter;
+					m_power.usagecurrent = m_usage[m_calcMethod];
+
+					if (m_deliv[m_calcMethod])
 					{
-						m_power.usagecurrent = m_usageMin;
-						if (m_power.delivcurrent)
-							m_power.delivcurrent = m_delivMin;
+						if (m_calcMethod == AVG)
+							m_deliv[m_calcMethod] /= m_counter;
+						m_power.delivcurrent = m_deliv[m_calcMethod];
 					}
-					else if (m_calcMethod == MAX)
-					{
-						m_power.usagecurrent = m_usageMax;
-						if (m_power.delivcurrent)
-							m_power.delivcurrent = m_delivMax;
-					}
-					else if (m_calcMethod == AVG)
-					{
-						m_power.usagecurrent /= m_counter;
-						if (m_power.delivcurrent)
-							m_power.delivcurrent /= m_counter;
-					}
+					m_usage[4] = {};
+					m_deliv[4] = {};
 				}
 				sDecodeRXMessage(this, (const unsigned char *)&m_power, "Power", 255);
-				if (m_calcMethod != LAST)
-				{
-					m_power.usagecurrent = 0;
-					m_power.delivcurrent = 0;
-					m_usageMin = 0;
-					m_usageMax = 0;
-					m_delivMin = 0;
-					m_delivMax = 0;
-				}
 
-				if (m_voltagel1[LAST] || m_voltagel1[MIN])
+				if (m_voltagel1[m_calcMethod])
 				{
 					if (m_calcMethod == AVG)
 						m_voltagel1[AVG] /= m_counter;
 					SendVoltageSensor(0, 1, 255, m_voltagel1[m_calcMethod], "Voltage L1");
 					m_voltagel1[4] = {};
-					if (m_voltagel2[LAST] || m_voltagel2[MIN] )
+					if (m_voltagel2[m_calcMethod])
 					{
 						if (m_calcMethod == AVG)
 							m_voltagel2[AVG] /= m_counter;
 						SendVoltageSensor(0, 2, 255, m_voltagel2[m_calcMethod], "Voltage L2");
 						m_voltagel2[4] = {};
-						if (m_voltagel3[LAST]  || m_voltagel3[MIN])
+						if (m_voltagel3[m_calcMethod])
 						{
 							if (m_calcMethod == AVG)
 								m_voltagel3[AVG] /= m_counter;
@@ -420,16 +403,16 @@ bool P1MeterBase::MatchLine()
 				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);	//Watt
 				if (temp_usage < 17250)
 				{
-					if (m_calcMethod != LAST)
+					if (m_calcMethod == LAST)
 					{
-						if (!m_usageMin || m_usageMin > temp_usage)
-							m_usageMin = temp_usage;
-						if (m_usageMax < temp_usage)
-							m_usageMax = temp_usage;
-						m_power.usagecurrent += temp_usage;
+						m_usage[LAST] = temp_usage;
+						break;
 					}
-					else
-						m_power.usagecurrent = temp_usage;
+					if (!m_usage[MIN] || m_usage[MIN] > temp_usage)
+						m_usage[MIN] = temp_usage;
+					if (m_usage[MAX] < temp_usage)
+						m_usage[MAX] = temp_usage;
+					m_usage[AVG] += temp_usage;
 				}
 				break;
 			case P1TYPE_DELIVCURRENT:
@@ -438,15 +421,15 @@ bool P1MeterBase::MatchLine()
 				{
 					if (m_calcMethod != LAST)
 					{
-						if (!m_delivMin || m_delivMin > temp_usage)
-							m_delivMin = temp_usage;
-						if (m_delivMax < temp_usage)
-							m_delivMax = temp_usage;
+						if (!m_deliv[MIN] || m_deliv[MIN] > temp_usage)
+							m_deliv[MIN] = temp_usage;
+						if (m_deliv[MAX] < temp_usage)
+							m_deliv[MAX] = temp_usage;
 						if (m_calcMethod != LAST)
-							m_power.delivcurrent += temp_usage;
+							m_deliv[AVG] += temp_usage;
 					}
 					else
-						m_power.delivcurrent = temp_usage;
+						m_deliv[LAST] = temp_usage;
 				}
 				break;
 			case P1TYPE_VOLTAGEL1:
@@ -605,7 +588,7 @@ bool P1MeterBase::CheckCRC()
 /	done if the message passes all other validation rules
 */
 
-void P1MeterBase::ParseData(const unsigned char *pData, const int Len)
+void P1MeterBase::ParseData(const unsigned char *pData, const int Len, const bool disable_crc)
 {
 	int ii=0;
 	// a new message should not start with an empty line, but just in case it does (crude check is sufficient here)
@@ -619,7 +602,7 @@ void P1MeterBase::ParseData(const unsigned char *pData, const int Len)
 		if ((l_buffer[0]==0x21) && !l_exclmarkfound && (m_linecount>0)) {
 			_log.Log(LOG_STATUS,"P1 Smart Meter: WARNING: got new message but buffer still contains unprocessed data from previous message.");
 			l_buffer[l_bufferpos] = 0;
-			if (m_bDisableCRC || CheckCRC()) {
+			if (disable_crc || CheckCRC()) {
 				MatchLine();
 			}
 		}
@@ -670,7 +653,7 @@ void P1MeterBase::ParseData(const unsigned char *pData, const int Len)
 			if ((l_bufferpos>0) && (l_bufferpos<sizeof(l_buffer))) {
 				// don't try to match empty or oversized lines
 				l_buffer[l_bufferpos] = 0;
-				if(l_buffer[0]==0x21 && !m_bDisableCRC){
+				if(l_buffer[0]==0x21 && !disable_crc){
 					if (!CheckCRC()) {
 						m_linecount = 0;
 						return;

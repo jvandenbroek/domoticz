@@ -168,7 +168,7 @@ void P1MeterTCP::Do_Work()
 			else
 			{
 				boost::lock_guard<boost::mutex> l(readQueueMutex);
-				ParseData((const unsigned char*)&data, bread);
+				ParseData((const unsigned char*)&data, bread, m_bDisableCRC);
 			}
 		}
 	}
