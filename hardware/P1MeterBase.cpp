@@ -107,9 +107,9 @@ void P1MeterBase::Init()
 	l_exclmarkfound=0;
 	l_bufferpos=0;
 
-	m_voltagel1[4] = {};
-	m_voltagel2[4] = {};
-	m_voltagel3[4] = {};
+	m_voltagel1[4] = { 0 };
+	m_voltagel2[4] = { 0 };
+	m_voltagel3[4] = { 0 };
 
 	memset(&m_buffer,0,sizeof(m_buffer));
 	memset(&l_buffer,0,sizeof(l_buffer));
@@ -135,8 +135,8 @@ void P1MeterBase::Init()
 	m_gasoktime=0;
 
 	m_counter = 0;
-	m_usage[4] = {};
-	m_deliv[4] = {};
+	m_usage[4] = { 0 };
+	m_deliv[4] = { 0 };
 
 	std::vector<std::vector<std::string> > result;
 	result = m_sql.safe_query("SELECT Value FROM UserVariables WHERE (Name='P1GasMeterChannel')");
@@ -240,8 +240,8 @@ bool P1MeterBase::MatchLine()
 						m_deliv[m_calcMethod] /= m_counter;
 					m_power.delivcurrent = m_deliv[m_calcMethod];
 				}
-				m_usage[4] = {};
-				m_deliv[4] = {};
+				m_usage[4] = { 0 };
+				m_deliv[4] = { 0 };
 				sDecodeRXMessage(this, (const unsigned char *)&m_power, "Power", 255);
 
 				if (m_voltagel1[m_calcMethod])
@@ -249,19 +249,19 @@ bool P1MeterBase::MatchLine()
 					if (m_calcMethod == AVG)
 						m_voltagel1[AVG] /= m_counter;
 					SendVoltageSensor(0, 1, 255, m_voltagel1[m_calcMethod], "Voltage L1");
-					m_voltagel1[4] = {};
+					m_voltagel1[4] = { 0 };
 					if (m_voltagel2[m_calcMethod])
 					{
 						if (m_calcMethod == AVG)
 							m_voltagel2[AVG] /= m_counter;
 						SendVoltageSensor(0, 2, 255, m_voltagel2[m_calcMethod], "Voltage L2");
-						m_voltagel2[4] = {};
+						m_voltagel2[4] = { 0 };
 						if (m_voltagel3[m_calcMethod])
 						{
 							if (m_calcMethod == AVG)
 								m_voltagel3[AVG] /= m_counter;
 							SendVoltageSensor(0, 3, 255, m_voltagel3[m_calcMethod], "Voltage L3");
-							m_voltagel3[4] = {};
+							m_voltagel3[4] = { 0 };
 						}
 					}
 				}
