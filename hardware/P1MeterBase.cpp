@@ -107,9 +107,9 @@ void P1MeterBase::Init()
 	l_exclmarkfound=0;
 	l_bufferpos=0;
 
-	m_voltagel1[3] = { 0 };
-	m_voltagel2[3] = { 0 };
-	m_voltagel3[3] = { 0 };
+	m_voltagel1[4] = {};
+	m_voltagel2[4] = {};
+	m_voltagel3[4] = {};
 
 	memset(&m_buffer,0,sizeof(m_buffer));
 	memset(&l_buffer,0,sizeof(l_buffer));
@@ -269,19 +269,19 @@ bool P1MeterBase::MatchLine()
 					if (m_calcMethod == AVG)
 						m_voltagel1[AVG] /= m_counter;
 					SendVoltageSensor(0, 1, 255, m_voltagel1[m_calcMethod], "Voltage L1");
-					m_voltagel1[3] = { 0 };
+					m_voltagel1[4] = {};
 					if (m_voltagel2[LAST] || m_voltagel2[MIN] )
 					{
 						if (m_calcMethod == AVG)
 							m_voltagel2[AVG] /= m_counter;
 						SendVoltageSensor(0, 2, 255, m_voltagel2[m_calcMethod], "Voltage L2");
-						m_voltagel2[3] = { 0 };
+						m_voltagel2[4] = {};
 						if (m_voltagel3[LAST]  || m_voltagel3[MIN])
 						{
 							if (m_calcMethod == AVG)
 								m_voltagel3[AVG] /= m_counter;
 							SendVoltageSensor(0, 3, 255, m_voltagel3[m_calcMethod], "Voltage L3");
-							m_voltagel3[3] = { 0 };
+							m_voltagel3[4] = {};
 						}
 					}
 				}
