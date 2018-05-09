@@ -418,11 +418,11 @@ bool P1MeterBase::MatchLine()
 				if (temp_volt < 300)
 				{
 					if (m_calcMethod == LAST ||
-					(m_calcMethod == MIN && (!m_voltagel1 || m_voltagel1 > temp_usage)) ||
-					(m_calcMethod == MAX && m_voltagel1 < temp_usage))
-						m_voltagel1 = temp_usage;
+					(m_calcMethod == MIN && (!m_voltagel1 || m_voltagel1 > temp_volt)) ||
+					(m_calcMethod == MAX && m_voltagel1 < temp_volt))
+						m_voltagel1 = temp_volt;
 					else if (m_calcMethod == AVG)
-						m_voltagel1 += temp_usage;
+						m_voltagel1 += temp_volt;
 				}
 				break;
 			case P1TYPE_VOLTAGEL2:
@@ -430,11 +430,11 @@ bool P1MeterBase::MatchLine()
 				if (temp_volt < 300)
 				{
 					if (m_calcMethod == LAST ||
-					(m_calcMethod == MIN && (!m_voltagel2 || m_voltagel2 > temp_usage)) ||
-					(m_calcMethod == MAX && m_voltagel2 < temp_usage))
-						m_voltagel2 = temp_usage;
+					(m_calcMethod == MIN && (!m_voltagel2 || m_voltagel2 > temp_volt)) ||
+					(m_calcMethod == MAX && m_voltagel2 < temp_volt))
+						m_voltagel2 = temp_volt;
 					else if (m_calcMethod == AVG)
-						m_voltagel2 += temp_usage;
+						m_voltagel2 += temp_volt;
 				}
 				break;
 			case P1TYPE_VOLTAGEL3:
@@ -442,11 +442,11 @@ bool P1MeterBase::MatchLine()
 				if (temp_volt < 300)
 				{
 					if (m_calcMethod == LAST ||
-					(m_calcMethod == MIN && (!m_voltagel3 || m_voltagel3 > temp_usage)) ||
-					(m_calcMethod == MAX && m_voltagel3 < temp_usage))
-						m_voltagel3 = temp_usage;
+					(m_calcMethod == MIN && (!m_voltagel3 || m_voltagel3 > temp_volt)) ||
+					(m_calcMethod == MAX && m_voltagel3 < temp_volt))
+						m_voltagel3 = temp_volt;
 					else if (m_calcMethod == AVG)
-						m_voltagel3 += temp_usage;
+						m_voltagel3 += temp_volt;
 				}
 				break;
 			case P1TYPE_GASTIMESTAMP:
