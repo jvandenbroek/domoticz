@@ -225,6 +225,7 @@ bool P1MeterBase::MatchLine()
 			time_t atime=mytime(NULL);
 			if (difftime(atime, m_lastUpdateTime) >= m_ratelimit)
 			{
+				_log.Log(LOG_STATUS, "P1 Smart Meter: counter: %d, calcmethod: %d", m_counter, m_calcMethod);
 				m_lastUpdateTime=atime;
 				if (m_calcMethod == AVG)
 					m_power.usagecurrent /= m_counter;
