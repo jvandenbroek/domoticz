@@ -441,11 +441,11 @@ bool P1MeterBase::MatchLine()
 				if (temp_volt < 300)
 				{
 					if (m_calcMethod == LAST ||
-					(m_calcMethod == MIN && !m_voltagel1 || m_voltagel1 > temp_usage) ||
-					(m_calcMethod == MAX && m_voltagel1 < temp_usage))
-						m_voltagel1 = temp_usage;
+					(m_calcMethod == MIN && !m_voltagel3 || m_voltagel3 > temp_usage) ||
+					(m_calcMethod == MAX && m_voltagel3 < temp_usage))
+						m_voltagel3 = temp_usage;
 					else
-						m_voltagel1 += temp_usage;
+						m_voltagel3 += temp_usage;
 				}
 				break;
 			case P1TYPE_GASTIMESTAMP:
