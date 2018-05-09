@@ -394,7 +394,7 @@ bool P1MeterBase::MatchLine()
 				if (temp_usage < 17250)
 				{
 					if (m_calcMethod == LAST ||
-					(m_calcMethod == MIN && !m_power.usagecurrent || m_power.usagecurrent > temp_usage) ||
+					(m_calcMethod == MIN && (!m_power.usagecurrent || m_power.usagecurrent > temp_usage)) ||
 					(m_calcMethod == MAX && m_power.usagecurrent < temp_usage))
 						m_power.usagecurrent = temp_usage;
 					else if (m_calcMethod == AVG)
@@ -406,7 +406,7 @@ bool P1MeterBase::MatchLine()
 				if (temp_usage < 17250)
 				{
 					if (m_calcMethod == LAST ||
-					(m_calcMethod == MIN && !m_power.delivcurrent || m_power.delivcurrent > temp_usage) ||
+					(m_calcMethod == MIN && (!m_power.delivcurrent || m_power.delivcurrent > temp_usage)) ||
 					(m_calcMethod == MAX && m_power.delivcurrent < temp_usage))
 						m_power.delivcurrent = temp_usage;
 					else if (m_calcMethod == AVG)
@@ -418,7 +418,7 @@ bool P1MeterBase::MatchLine()
 				if (temp_volt < 300)
 				{
 					if (m_calcMethod == LAST ||
-					(m_calcMethod == MIN && !m_voltagel1 || m_voltagel1 > temp_usage) ||
+					(m_calcMethod == MIN && (!m_voltagel1 || m_voltagel1 > temp_usage)) ||
 					(m_calcMethod == MAX && m_voltagel1 < temp_usage))
 						m_voltagel1 = temp_usage;
 					else if (m_calcMethod == AVG)
@@ -430,7 +430,7 @@ bool P1MeterBase::MatchLine()
 				if (temp_volt < 300)
 				{
 					if (m_calcMethod == LAST ||
-					(m_calcMethod == MIN && !m_voltagel2 || m_voltagel2 > temp_usage) ||
+					(m_calcMethod == MIN && (!m_voltagel2 || m_voltagel2 > temp_usage)) ||
 					(m_calcMethod == MAX && m_voltagel2 < temp_usage))
 						m_voltagel2 = temp_usage;
 					else if (m_calcMethod == AVG)
@@ -442,7 +442,7 @@ bool P1MeterBase::MatchLine()
 				if (temp_volt < 300)
 				{
 					if (m_calcMethod == LAST ||
-					(m_calcMethod == MIN && !m_voltagel3 || m_voltagel3 > temp_usage) ||
+					(m_calcMethod == MIN && (!m_voltagel3 || m_voltagel3 > temp_usage)) ||
 					(m_calcMethod == MAX && m_voltagel3 < temp_usage))
 						m_voltagel3 = temp_usage;
 					else if (m_calcMethod == AVG)
