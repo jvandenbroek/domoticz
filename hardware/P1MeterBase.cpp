@@ -107,9 +107,9 @@ void P1MeterBase::Init()
 	l_exclmarkfound=0;
 	l_bufferpos=0;
 
-	m_voltagel1[4] = { 0 };
-	m_voltagel2[4] = { 0 };
-	m_voltagel3[4] = { 0 };
+	m_voltagel1 = 0;
+	m_voltagel2 = 0;
+	m_voltagel3 = 0;
 
 	memset(&m_buffer,0,sizeof(m_buffer));
 	memset(&l_buffer,0,sizeof(l_buffer));
@@ -135,8 +135,8 @@ void P1MeterBase::Init()
 	m_gasoktime=0;
 
 	m_counter = 0;
-	m_usage[4] = { 0 };
-	m_deliv[4] = { 0 };
+	//m_usagecurrent[4] = { 0 };
+	//m_delivcurrent[4] = { 0 };
 
 	std::vector<std::vector<std::string> > result;
 	result = m_sql.safe_query("SELECT Value FROM UserVariables WHERE (Name='P1GasMeterChannel')");
@@ -225,43 +225,37 @@ bool P1MeterBase::MatchLine()
 			}
 			m_counter++;
 			time_t atime=mytime(NULL);
-			if (difftime(atime,m_lastUpdateTime) >= m_ratelimit)
+			if (difftime(atime, m_lastUpdateTime) >= m_ratelimit)
 			{
-				_log.Log(LOG_STATUS, "P1 Smart Meter: counter: %d, Power: [ min: %d, max: %d, avg: %d, calcMethod: %d ]",
-					m_counter, m_usage[MIN], m_usage[MAX], m_usage[AVG] / m_counter, m_calcMethod);
 				m_lastUpdateTime=atime;
 				if (m_calcMethod == AVG)
-					m_usage[m_calcMethod] /= m_counter;
-				m_power.usagecurrent = m_usage[m_calcMethod];
+					m_power.usagecurrent /= m_counter;
 
-				if (m_deliv[m_calcMethod])
-				{
-					if (m_calcMethod == AVG)
-						m_deliv[m_calcMethod] /= m_counter;
-					m_power.delivcurrent = m_deliv[m_calcMethod];
-				}
-				m_usage[4] = { 0 };
-				m_deliv[4] = { 0 };
+				if (m_power.delivcurrent && m_calcMethod == AVG)
+					m_power.delivcurrent /= m_counter;
+
 				sDecodeRXMessage(this, (const unsigned char *)&m_power, "Power", 255);
+				m_power.usagecurrent = 0;
+				m_power.delivcurrent = 0;
 
-				if (m_voltagel1[m_calcMethod])
+				if (m_voltagel1)
 				{
 					if (m_calcMethod == AVG)
-						m_voltagel1[AVG] /= m_counter;
-					SendVoltageSensor(0, 1, 255, m_voltagel1[m_calcMethod], "Voltage L1");
-					m_voltagel1[4] = { 0 };
-					if (m_voltagel2[m_calcMethod])
+						m_voltagel1 /= m_counter;
+					SendVoltageSensor(0, 1, 255, m_voltagel1, "Voltage L1");
+					m_voltagel1 = 0;
+					if (m_voltagel2)
 					{
 						if (m_calcMethod == AVG)
-							m_voltagel2[AVG] /= m_counter;
-						SendVoltageSensor(0, 2, 255, m_voltagel2[m_calcMethod], "Voltage L2");
-						m_voltagel2[4] = { 0 };
-						if (m_voltagel3[m_calcMethod])
+							m_voltagel2 /= m_counter;
+						SendVoltageSensor(0, 2, 255, m_voltagel2, "Voltage L2");
+						m_voltagel2 = 0;
+						if (m_voltagel3)
 						{
 							if (m_calcMethod == AVG)
-								m_voltagel3[AVG] /= m_counter;
-							SendVoltageSensor(0, 3, 255, m_voltagel3[m_calcMethod], "Voltage L3");
-							m_voltagel3[4] = { 0 };
+								m_voltagel3 /= m_counter;
+							SendVoltageSensor(0, 3, 255, m_voltagel3, "Voltage L3");
+							m_voltagel3 = 0;
 						}
 					}
 				}
@@ -400,80 +394,110 @@ bool P1MeterBase::MatchLine()
 				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);	//Watt
 				if (temp_usage < 17250)
 				{
-					if (m_calcMethod == LAST)
+					switch (m_calcMethod)
 					{
-						m_usage[LAST] = temp_usage;
-						break;
+						case LAST:
+							m_power.usagecurrent = temp_usage;
+							break;
+						case MIN:
+							if (!m_power.usagecurrent || m_power.usagecurrent > temp_usage)
+								m_power.usagecurrent = temp_usage;
+							break;
+						case MAX:
+							if (m_power.usagecurrent < temp_usage)
+								m_power.usagecurrent = temp_usage;
+							break;
+						default:
+							m_power.usagecurrent += temp_usage;
 					}
-					if (!m_usage[MIN] || m_usage[MIN] > temp_usage)
-						m_usage[MIN] = temp_usage;
-					if (m_usage[MAX] < temp_usage)
-						m_usage[MAX] = temp_usage;
-					m_usage[AVG] += temp_usage;
 				}
 				break;
 			case P1TYPE_DELIVCURRENT:
 				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);	//Watt;
 				if (temp_usage < 17250)
 				{
-					if (m_calcMethod == LAST)
+					switch (m_calcMethod)
 					{
-						m_deliv[LAST] = temp_usage;
-						break;
+						case LAST:
+							m_power.delivcurrent = temp_usage;
+							break;
+						case MIN:
+							if (!m_power.delivcurrent || m_power.delivcurrent > temp_usage)
+								m_power.delivcurrent = temp_usage;
+							break;
+						case MAX:
+							if (m_power.delivcurrent < temp_usage)
+								m_power.delivcurrent = temp_usage;
+							break;
+						default:
+							m_power.delivcurrent += temp_usage;
 					}
-					if (!m_deliv[MIN] || m_deliv[MIN] > temp_usage)
-						m_deliv[MIN] = temp_usage;
-					if (m_deliv[MAX] < temp_usage)
-						m_deliv[MAX] = temp_usage;
-					m_deliv[AVG] += temp_usage;
 				}
 				break;
 			case P1TYPE_VOLTAGEL1:
 				temp_volt = strtof(value,&validate);
 				if (temp_volt < 300)
 				{
-					if (m_calcMethod == LAST)
+					switch (m_calcMethod)
 					{
-						m_voltagel1[LAST] = temp_volt; //Voltage L1;
-						break;
+						case LAST:
+							m_voltagel1 = temp_usage;
+							break;
+						case MIN:
+							if (!m_voltagel1 || m_voltagel1 > temp_usage)
+								m_voltagel1 = temp_usage;
+							break;
+						case MAX:
+							if (m_voltagel1 < temp_usage)
+								m_voltagel1 = temp_usage;
+							break;
+						default:
+							m_voltagel1 += temp_usage;
 					}
-					if (!m_voltagel1[MIN] || m_voltagel1[MIN] > temp_volt)
-						m_voltagel1[MIN] = temp_volt;
-					if ( m_voltagel1[MAX] < temp_volt)
-						m_voltagel1[MAX] = temp_volt;
-					m_voltagel1[AVG] += temp_volt;
 				}
 				break;
 			case P1TYPE_VOLTAGEL2:
 				temp_volt = strtof(value,&validate);
 				if (temp_volt < 300)
 				{
-					if (m_calcMethod != LAST)
+					switch (m_calcMethod)
 					{
-						m_voltagel2[LAST] = temp_volt; //Voltage L2;
-						break;
+						case LAST:
+							m_voltagel2 = temp_usage;
+							break;
+						case MIN:
+							if (!m_voltagel2 || m_voltagel2 > temp_usage)
+								m_voltagel2 = temp_usage;
+							break;
+						case MAX:
+							if (m_voltagel2 < temp_usage)
+								m_voltagel2 = temp_usage;
+							break;
+						default:
+							m_voltagel2 += temp_usage;
 					}
-					if (!m_voltagel2[MIN] || m_voltagel2[MIN] > temp_volt)
-						m_voltagel2[MIN] = temp_volt;
-					if ( m_voltagel2[MAX] < temp_volt)
-						m_voltagel2[MAX] = temp_volt;
-					m_voltagel2[AVG] += temp_volt;
 				}
 				break;
 			case P1TYPE_VOLTAGEL3:
 				temp_volt = strtof(value,&validate);
 				if (temp_volt < 300)
 				{
-					if (m_calcMethod == LAST)
+					switch (m_calcMethod)
 					{
-						m_voltagel3[LAST] = temp_volt; //Voltage L3;
-						break;
+						case LAST:
+							m_voltagel3 = temp_usage;
+							break;
+						case MIN:
+							if (!m_voltagel3 || m_voltagel3 > temp_usage)
+								m_voltagel3 = temp_usage;
+							break;
+						case MAX:
+							if (m_voltagel3 < temp_usage)
+								m_voltagel3 = temp_usage;
+							break;
+						default:
+							m_voltagel3 += temp_usage;
 					}
-					if (!m_voltagel3[MIN] || m_voltagel3[MIN] > temp_volt)
-						m_voltagel3[MIN] = temp_volt;
-					if ( m_voltagel3[MAX] < temp_volt)
-						m_voltagel3[MAX] = temp_volt;
-					m_voltagel3[AVG] += temp_volt;
 				}
 				break;
 			case P1TYPE_GASTIMESTAMP:

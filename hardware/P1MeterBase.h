@@ -41,9 +41,9 @@ private:
 	time_t m_lastSharedSendGas;
 	time_t m_lastUpdateTime;
 
-	float m_voltagel1[4];
-	float m_voltagel2[4];
-	float m_voltagel3[4];
+	float m_voltagel1;
+	float m_voltagel2;
+	float m_voltagel3;
 
 	unsigned char m_gasmbuschannel;
 	std::string m_gasprefix;
@@ -52,8 +52,8 @@ private:
 	time_t m_gasoktime;
 
 	uint32_t m_counter;
-	uint32_t m_usage[4];
-	uint32_t m_deliv[4];
+//	uint32_t m_usagecurrent[4];
+//	uint32_t m_delivcurrent[4];
 
 	void Init();
 	bool MatchLine();
