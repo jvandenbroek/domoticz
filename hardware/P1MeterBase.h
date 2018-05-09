@@ -52,8 +52,6 @@ private:
 	time_t m_gasoktime;
 
 	uint32_t m_counter;
-//	uint32_t m_usagecurrent[4];
-//	uint32_t m_delivcurrent[4];
 
 	void Init();
 	bool MatchLine();

@@ -135,8 +135,6 @@ void P1MeterBase::Init()
 	m_gasoktime=0;
 
 	m_counter = 0;
-	//m_usagecurrent[4] = { 0 };
-	//m_delivcurrent[4] = { 0 };
 
 	std::vector<std::vector<std::string> > result;
 	result = m_sql.safe_query("SELECT Value FROM UserVariables WHERE (Name='P1GasMeterChannel')");
@@ -394,110 +392,60 @@ bool P1MeterBase::MatchLine()
 				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);	//Watt
 				if (temp_usage < 17250)
 				{
-					switch (m_calcMethod)
-					{
-						case LAST:
-							m_power.usagecurrent = temp_usage;
-							break;
-						case MIN:
-							if (!m_power.usagecurrent || m_power.usagecurrent > temp_usage)
-								m_power.usagecurrent = temp_usage;
-							break;
-						case MAX:
-							if (m_power.usagecurrent < temp_usage)
-								m_power.usagecurrent = temp_usage;
-							break;
-						default:
-							m_power.usagecurrent += temp_usage;
-					}
+					if (m_calcMethod == LAST ||
+					(m_calcMethod == MIN && !m_power.usagecurrent || m_power.usagecurrent > temp_usage) ||
+					(m_calcMethod == MAX && m_power.usagecurrent < temp_usage))
+						m_power.usagecurrent = temp_usage;
+					else
+						m_power.usagecurrent += temp_usage;
 				}
 				break;
 			case P1TYPE_DELIVCURRENT:
 				temp_usage = (unsigned long)(strtod(value,&validate)*1000.0f);	//Watt;
 				if (temp_usage < 17250)
 				{
-					switch (m_calcMethod)
-					{
-						case LAST:
-							m_power.delivcurrent = temp_usage;
-							break;
-						case MIN:
-							if (!m_power.delivcurrent || m_power.delivcurrent > temp_usage)
-								m_power.delivcurrent = temp_usage;
-							break;
-						case MAX:
-							if (m_power.delivcurrent < temp_usage)
-								m_power.delivcurrent = temp_usage;
-							break;
-						default:
-							m_power.delivcurrent += temp_usage;
-					}
+					if (m_calcMethod == LAST ||
+					(m_calcMethod == MIN && !m_power.delivcurrent || m_power.delivcurrent > temp_usage) ||
+					(m_calcMethod == MAX && m_power.delivcurrent < temp_usage))
+						m_power.delivcurrent = temp_usage;
+					else
+						m_power.delivcurrent += temp_usage;
 				}
 				break;
 			case P1TYPE_VOLTAGEL1:
 				temp_volt = strtof(value,&validate);
 				if (temp_volt < 300)
 				{
-					switch (m_calcMethod)
-					{
-						case LAST:
-							m_voltagel1 = temp_usage;
-							break;
-						case MIN:
-							if (!m_voltagel1 || m_voltagel1 > temp_usage)
-								m_voltagel1 = temp_usage;
-							break;
-						case MAX:
-							if (m_voltagel1 < temp_usage)
-								m_voltagel1 = temp_usage;
-							break;
-						default:
-							m_voltagel1 += temp_usage;
-					}
+					if (m_calcMethod == LAST ||
+					(m_calcMethod == MIN && !m_voltagel1 || m_voltagel1 > temp_usage) ||
+					(m_calcMethod == MAX && m_voltagel1 < temp_usage))
+						m_voltagel1 = temp_usage;
+					else
+						m_voltagel1 += temp_usage;
 				}
 				break;
 			case P1TYPE_VOLTAGEL2:
 				temp_volt = strtof(value,&validate);
 				if (temp_volt < 300)
 				{
-					switch (m_calcMethod)
-					{
-						case LAST:
-							m_voltagel2 = temp_usage;
-							break;
-						case MIN:
-							if (!m_voltagel2 || m_voltagel2 > temp_usage)
-								m_voltagel2 = temp_usage;
-							break;
-						case MAX:
-							if (m_voltagel2 < temp_usage)
-								m_voltagel2 = temp_usage;
-							break;
-						default:
-							m_voltagel2 += temp_usage;
-					}
+					if (m_calcMethod == LAST ||
+					(m_calcMethod == MIN && !m_voltagel2 || m_voltagel2 > temp_usage) ||
+					(m_calcMethod == MAX && m_voltagel2 < temp_usage))
+						m_voltagel2 = temp_usage;
+					else
+						m_voltagel2 += temp_usage;
 				}
 				break;
 			case P1TYPE_VOLTAGEL3:
 				temp_volt = strtof(value,&validate);
 				if (temp_volt < 300)
 				{
-					switch (m_calcMethod)
-					{
-						case LAST:
-							m_voltagel3 = temp_usage;
-							break;
-						case MIN:
-							if (!m_voltagel3 || m_voltagel3 > temp_usage)
-								m_voltagel3 = temp_usage;
-							break;
-						case MAX:
-							if (m_voltagel3 < temp_usage)
-								m_voltagel3 = temp_usage;
-							break;
-						default:
-							m_voltagel3 += temp_usage;
-					}
+					if (m_calcMethod == LAST ||
+					(m_calcMethod == MIN && !m_voltagel1 || m_voltagel1 > temp_usage) ||
+					(m_calcMethod == MAX && m_voltagel1 < temp_usage))
+						m_voltagel1 = temp_usage;
+					else
+						m_voltagel1 += temp_usage;
 				}
 				break;
 			case P1TYPE_GASTIMESTAMP:
