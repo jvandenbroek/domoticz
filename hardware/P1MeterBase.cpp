@@ -135,8 +135,8 @@ void P1MeterBase::Init()
 	m_gasoktime=0;
 
 	m_counter = 0;
-	m_usage[3] = 0;
-	m_deliv[3] = 0;
+	m_usage[4] = {};
+	m_deliv[4] = {};
 
 	std::vector<std::vector<std::string> > result;
 	result = m_sql.safe_query("SELECT Value FROM UserVariables WHERE (Name='P1GasMeterChannel')");
@@ -230,21 +230,18 @@ bool P1MeterBase::MatchLine()
 				_log.Log(LOG_STATUS, "P1 Smart Meter: counter: %d, Power: [ min: %d, max: %d, avg: %d, calcMethod: %d ]",
 					m_counter, m_usage[MIN], m_usage[MAX], m_usage[AVG] / m_counter, m_calcMethod);
 				m_lastUpdateTime=atime;
-				if (m_calcMethod != LAST && m_counter > 1)
+				if (m_calcMethod == AVG)
+					m_usage[m_calcMethod] /= m_counter;
+				m_power.usagecurrent = m_usage[m_calcMethod];
+
+				if (m_deliv[m_calcMethod])
 				{
 					if (m_calcMethod == AVG)
-						m_usage[m_calcMethod] /= m_counter;
-					m_power.usagecurrent = m_usage[m_calcMethod];
-
-					if (m_deliv[m_calcMethod])
-					{
-						if (m_calcMethod == AVG)
-							m_deliv[m_calcMethod] /= m_counter;
-						m_power.delivcurrent = m_deliv[m_calcMethod];
-					}
-					m_usage[4] = {};
-					m_deliv[4] = {};
+						m_deliv[m_calcMethod] /= m_counter;
+					m_power.delivcurrent = m_deliv[m_calcMethod];
 				}
+				m_usage[4] = {};
+				m_deliv[4] = {};
 				sDecodeRXMessage(this, (const unsigned char *)&m_power, "Power", 255);
 
 				if (m_voltagel1[m_calcMethod])
