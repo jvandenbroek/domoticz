@@ -239,11 +239,11 @@ define(['app'], function (app) {
 						ratelimitp1 = "0";
 					}
 					Mode3 = ratelimitp1;
-					var calcmethodp1 = $("#hardwarecontent #hardwareparamscalcmethodp1 #calcmethodp1").val();
-					if (calcmethodp1 == "") {
-						calcmethodp1 = "0";
+					var calcvaluep1 = $("#hardwarecontent #hardwareparamscalcvaluep1 #calcvaluep1").val();
+					if (calcvaluep1 == "") {
+						calcvaluep1 = "0";
 					}
-					Mode4 = calcmethodp1;
+					Mode4 = calcvaluep1;
 				}
 				if (text.indexOf("Teleinfo EDF") >= 0) {
 					var baudrate = $("#hardwarecontent #divbaudrateteleinfo #combobaudrateteleinfo option:selected").val();
@@ -1400,11 +1400,11 @@ define(['app'], function (app) {
 						ratelimitp1 = "60";
 					}
 					Mode3 = ratelimitp1;
-					var calcmethodp1 = $("#hardwarecontent #hardwareparamscalcmethodp1 #calcmethodp1").val();
-					if (calcmethodp1 == "") {
-						calcmethodp1 = "0";
+					var calcvaluep1 = $("#hardwarecontent #hardwareparamscalcvaluep1 #calcvaluep1").val();
+					if (calcvaluep1 == "") {
+						calcvaluep1 = "0";
 					}
-					Mode4 = calcmethodp1;
+					Mode4 = calcvaluep1;
 				}
 
 				if (text.indexOf("USBtin") >= 0) {
@@ -5310,7 +5310,7 @@ define(['app'], function (app) {
 								$("#hardwarecontent #divbaudratep1 #combobaudratep1").val(data["Mode1"]);
 								$("#hardwarecontent #divcrcp1 #disablecrcp1").prop("checked", data["Mode2"] == 0);
 								$("#hardwarecontent #hardwareparamsratelimitp1 #ratelimitp1").val(data["Mode3"]);
-								$("#hardwarecontent #hardwareparamscalcmethodp1 #calcmethodp1").val(data["Mode4"]);
+								$("#hardwarecontent #hardwareparamscalcvaluep1 #calcvaluep1").val(data["Mode4"]);
 								if (data["Mode1"] == 0) {
 									$("#hardwarecontent #divcrcp1").hide();
 								}
