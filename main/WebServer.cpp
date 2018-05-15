@@ -1123,7 +1123,7 @@ namespace http {
 					m_sql.UpdatePreferencesVar("SmartMeterType", 0);
 				}
 			}
-			else if (IsNetworkDevice(htype)) 
+			else if (IsNetworkDevice(htype))
 			{
 				//Lan
 				if (address.empty() || port == 0)
@@ -1242,7 +1242,7 @@ namespace http {
 				(htype == HTYPE_NEST) ||
 				(htype == HTYPE_ANNATHERMOSTAT) ||
 				(htype == HTYPE_THERMOSMART) ||
-				(htype == HTYPE_Tado) || 
+				(htype == HTYPE_Tado) ||
 				(htype == HTYPE_Netatmo)
 				)
 			{
@@ -4215,7 +4215,7 @@ namespace http {
 					CDomoticzHardwareBase *pBaseHardware = reinterpret_cast<CDomoticzHardwareBase*>(m_mainworker.GetHardware(atoi(hwdid.c_str())));
 					if (pBaseHardware == NULL)
 						return;
-					if ((pBaseHardware->HwdType != HTYPE_EnOceanESP2) && (pBaseHardware->HwdType != HTYPE_EnOceanESP3) 
+					if ((pBaseHardware->HwdType != HTYPE_EnOceanESP2) && (pBaseHardware->HwdType != HTYPE_EnOceanESP3)
 						&& (pBaseHardware->HwdType != HTYPE_USBtinGateway) )
 						return;
 					unsigned long rID = 0;
@@ -4791,7 +4791,7 @@ namespace http {
 					CDomoticzHardwareBase *pBaseHardware = reinterpret_cast<CDomoticzHardwareBase*>(m_mainworker.GetHardware(atoi(hwdid.c_str())));
 					if (pBaseHardware == NULL)
 						return;
-					if ((pBaseHardware->HwdType != HTYPE_EnOceanESP2) && (pBaseHardware->HwdType != HTYPE_EnOceanESP3) 
+					if ((pBaseHardware->HwdType != HTYPE_EnOceanESP2) && (pBaseHardware->HwdType != HTYPE_EnOceanESP3)
 						&& (pBaseHardware->HwdType != HTYPE_USBtinGateway) )
 						return;
 					unsigned long rID = 0;
@@ -8124,31 +8124,10 @@ namespace http {
 				}
 			}
 
-			root["ActTime"] = static_cast<int>(now);
-
 			char szTmp[300];
-
-			if (!m_mainworker.m_LastSunriseSet.empty())
-			{
-				std::vector<std::string> strarray;
-				StringSplit(m_mainworker.m_LastSunriseSet, ";", strarray);
-				if (strarray.size() == 10)
-				{
-					//strftime(szTmp, 80, "%b %d %Y %X", &tm1);
-					strftime(szTmp, 80, "%Y-%m-%d %X", &tm1);
-					root["ServerTime"] = szTmp;
-					root["Sunrise"] = strarray[0];
-					root["Sunset"] = strarray[1];
-					root["SunAtSouth"] = strarray[2];
-					root["CivTwilightStart"] = strarray[3];
-					root["CivTwilightEnd"] = strarray[4];
-					root["NautTwilightStart"] = strarray[5];
-					root["NautTwilightEnd"] = strarray[6];
-					root["AstrTwilightStart"] = strarray[7];
-					root["AstrTwilightEnd"] = strarray[8];
-					root["DayLength"] = strarray[9];
-				}
-			}
+			strftime(szTmp, 80, "%Y-%m-%d %X", &tm1);
+			root["ActTime"] = static_cast<int>(now);
+			root["ServerTime"] = szTmp;
 
 			char szOrderBy[50];
 			std::string szQuery;
@@ -11169,8 +11148,6 @@ namespace http {
 			struct tm tLastUpdate;
 			localtime_r(&now, &tLastUpdate);
 
-			root["ActTime"] = static_cast<int>(now);
-
 			std::vector<std::vector<std::string> > result, result2;
 			result = m_sql.safe_query("SELECT ID, Name, Activators, Favorite, nValue, SceneType, LastUpdate, Protected, OnAction, OffAction, Description FROM Scenes ORDER BY [Order]");
 			if (result.size() > 0)
@@ -11237,28 +11214,11 @@ namespace http {
 					ii++;
 				}
 			}
-			if (!m_mainworker.m_LastSunriseSet.empty())
-			{
-				std::vector<std::string> strarray;
-				StringSplit(m_mainworker.m_LastSunriseSet, ";", strarray);
-				if (strarray.size() == 10)
-				{
-					char szTmp[100];
-					//strftime(szTmp, 80, "%b %d %Y %X", &tm1);
-					strftime(szTmp, 80, "%Y-%m-%d %X", &tm1);
-					root["ServerTime"] = szTmp;
-					root["Sunrise"] = strarray[0];
-					root["Sunset"] = strarray[1];
-					root["SunAtSouth"] = strarray[2];
-					root["CivTwilightStart"] = strarray[3];
-					root["CivTwilightEnd"] = strarray[4];
-					root["NautTwilightStart"] = strarray[5];
-					root["NautTwilightEnd"] = strarray[6];
-					root["AstrTwilightStart"] = strarray[7];
-					root["AstrTwilightEnd"] = strarray[8];
-					root["DayLength"] = strarray[9];
-				}
-			}
+
+			char szTmp[300];
+			strftime(szTmp, 80, "%Y-%m-%d %X", &tm1);
+			root["ActTime"] = static_cast<int>(now);
+			root["ServerTime"] = szTmp;
 		}
 
 		void CWebServer::RType_Hardware(WebEmSession & session, const request& req, Json::Value &root)

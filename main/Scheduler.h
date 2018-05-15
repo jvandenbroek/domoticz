@@ -4,6 +4,7 @@
 #include "../hardware/hardwaretypes.h"
 #include <string>
 #include <vector>
+#include "SunRiseSet.h"
 
 struct tScheduleItem
 {
@@ -18,7 +19,7 @@ struct tScheduleItem
 	unsigned short startYear;
 	unsigned char startHour;
 	unsigned char startMin;
-	_eTimerType	timerType; 
+	_eTimerType	timerType;
 	_eTimerCommand timerCmd;
 	int Level;
 	_tColor Color;
@@ -49,20 +50,12 @@ public:
 
 	void ReloadSchedules();
 
-	void SetSunRiseSetTimers(const std::string &sSunRise, const std::string &sSunSet, const std::string &sSunAtSouth, const std::string &sCivTwStart, const std::string &sCivTwEnd, const std::string &sNautTwStart, const std::string &sNauTtwEnd, const std::string &sAstTwStart, const std::string &sAstTwEnd);
+	void SetSunRiseSetTimers(const std::map<_eTimerType, SunRiseSet::_tSubRiseSetResults::_tHourMin> &suntime);
 
 	std::vector<tScheduleItem> GetScheduleItems();
 
 private:
-	time_t m_tSunRise;
-	time_t m_tSunSet;
-	time_t m_tSunAtSouth;
-	time_t m_tCivTwStart;
-	time_t m_tCivTwEnd;
-	time_t m_tNautTwStart;
-	time_t m_tNautTwEnd;
-	time_t m_tAstTwStart;
-	time_t m_tAstTwEnd;
+	std::map<_eTimerType, time_t> m_tSunTime;
 	boost::mutex m_mutex;
 	volatile bool m_stoprequested;
 	boost::shared_ptr<boost::thread> m_thread;

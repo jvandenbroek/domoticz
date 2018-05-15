@@ -273,7 +273,7 @@ private:
 	void Cmd_BleBoxClearNodes(WebEmSession & session, const request& req, Json::Value &root);
 	void Cmd_BleBoxAutoSearchingNodes(WebEmSession & session, const request& req, Json::Value &root);
 	void Cmd_BleBoxUpdateFirmware(WebEmSession & session, const request& req, Json::Value &root);
-	
+
 	void Cmd_GetTimerPlans(WebEmSession & session, const request& req, Json::Value &root);
 	void Cmd_AddTimerPlan(WebEmSession & session, const request& req, Json::Value &root);
 	void Cmd_UpdateTimerPlan(WebEmSession & session, const request& req, Json::Value &root);

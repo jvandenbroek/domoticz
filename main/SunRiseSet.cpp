@@ -43,6 +43,7 @@
 /* refer to the Sun's center or its upper limb.						 */
 
 
+
 /* This macro computes the length of the day, from sunrise to sunset. */
 /* Sunrise/set is considered to occur when the Sun's upper limb is	*/
 /* 35 arc minutes below the horizon (this accounts for the refraction */
@@ -93,6 +94,16 @@
 #define astronomical_twilight(year,month,day,lon,lat,start,end)  \
 		__sunriset__( year, month, day, lon, lat, -18.0, 0, start, end )
 
+const SunRiseSet::_tTimerMap SunRiseSet::timerMap[] =
+{
+	{ TTYPE_BEFORESUNRISE,		TTYPE_BEFORESUNSET,		-35.0/60.0,	1 },	/* Sunrise/set */
+	{ TTYPE_BEFORESUNATSOUTH,	TTYPE_END,				-35.0/60.0,	1 },	/* SunAtSouth (same as Sunrise/set) */
+	{ TTYPE_BEFORECIVTWSTART,	TTYPE_BEFORECIVTWEND,	-6.0,		0 },	/* Civil twilight starts/ends when the Sun's center is 6 degrees below the horizon.	*/
+	{ TTYPE_BEFORENAUTTWSTART,	TTYPE_BEFORENAUTTWEND,	-12.0,		0 },	/* Nautical twilight starts/ends when the Sun's center is 12 degrees below the horizon. */
+	{ TTYPE_BEFOREASTTWSTART,	TTYPE_BEFOREASTTWEND,	-18.0,		0 },	/* Astronomical twilight starts/ends when the Sun's center is 18 degrees below the horizon. */
+	{ TTYPE_END,				TTYPE_END,				0,			0 }
+};
+
 boost::posix_time::time_duration get_utc_offset() {
 	using namespace boost::posix_time;
 
@@ -104,6 +115,15 @@ boost::posix_time::time_duration get_utc_offset() {
 	const ptime now = local_adj::utc_to_local(utc_now);
 
 	return now - utc_now;
+}
+
+void SunRiseSet::RoundMinuteHour(int &min, int &hour)
+{
+	if (min > 59)
+	{
+		min = 0;
+		hour = (hour + 1) % 24;
+	}
 }
 
 bool SunRiseSet::GetSunRiseSet(const double latit, const double longit, _tSubRiseSetResults &result)
@@ -122,124 +142,59 @@ bool SunRiseSet::GetSunRiseSet(const double latit, const double longit, _tSubRis
 
 bool SunRiseSet::GetSunRiseSet(const double latit, const double longit, const int year, const int month, const int day, _tSubRiseSetResults &result)
 {
-	result.latit=latit;
-	result.longit=longit;
-	result.year=year;
-	result.month=month;
-	result.day=day;
+	result.latit = latit;
+	result.longit = longit;
+	result.year = year;
+	result.month = month;
+	result.day = day;
 
-	boost::posix_time::time_duration uoffset=get_utc_offset();
-	double timezone=(double)(uoffset.ticks()/3600000000LL);
+	boost::posix_time::time_duration uoffset = get_utc_offset();
+	double timezone = (double)(uoffset.ticks() / 3600000000LL);
 	// Assuming we now got the diff in hours and minutes here. Do we?
 
-	double daylen; //, civlen, nautlen, astrlen;
-	double rise, set, civ_start, civ_end, naut_start, naut_end, astr_start, astr_end;
-	int rs, civ, naut, astr;
+	double start, end, _tmpH;
+	int rs;
+	 _tSubRiseSetResults::_tHourMin hourMin;
+	for (uint8_t i = 0; timerMap[i].timerTypeStart != TTYPE_END; i++)
+	{
+		rs = __sunriset__(year, month, day, longit, latit, timerMap[i].altitude, timerMap[i].upperLimb, &start, &end);
+		start = UtcToLocal(start, timezone);
+		end = UtcToLocal(end, timezone);
 
-	daylen = day_length(year,month,day,longit,latit);
-	//civlen = day_civil_twilight_length(year,month,day,longit,latit);
-	//nautlen = day_nautical_twilight_length(year,month,day,longit,latit);
-	//astrlen = day_astronomical_twilight_length(year,month,day,longit,latit);
-
-	double _tmpH;
-	result.DaylengthMins = static_cast<int>(modf(daylen, &_tmpH)*60+0.5);
-	result.DaylengthHours = static_cast<int>(_tmpH);
-
-	rs = sun_rise_set(year, month, day, longit, latit, &rise, &set);
-	civ = civil_twilight(year, month, day, longit, latit, &civ_start, &civ_end);
-	naut = nautical_twilight(year, month, day, longit, latit, &naut_start, &naut_end);
-	astr = astronomical_twilight(year, month, day, longit, latit, &astr_start, &astr_end);
-
-	rise = UtcToLocal(rise, timezone);
-	set = UtcToLocal(set, timezone);
-	result.SunAtSouthMin = static_cast<int>(modf((rise+set)/2.0, &_tmpH)*60+0,5);
-	result.SunAtSouthHour = static_cast<int>(_tmpH);
-
-	switch(rs) {
-		case 0:
-			result.SunRiseMin = static_cast<int>(modf(rise, &_tmpH)*60+0.5);
-			result.SunRiseHour = static_cast<int>(_tmpH);
-			result.SunSetMin = static_cast<int>(modf(set, &_tmpH)*60+0.5);
-			result.SunSetHour = static_cast<int>(_tmpH);
-			//fix a possible rounding issue above
-			if (result.SunRiseMin > 59)
-			{
-				result.SunRiseMin = 0;
-				result.SunRiseHour = (result.SunRiseHour + 1) % 24;
-			}
-			if (result.SunSetMin > 59)
-			{
-				result.SunSetMin = 0;
-				result.SunSetHour = (result.SunSetHour + 1) % 24;
-			}
-			break;
-		case +1:
-		case -1:
-			// Sun below/above horizon in the space of 24 hours
-			result.SunRiseMin = 0; // Which is actually not true, but it works like previous version.
-			result.SunRiseHour = 0;
-			result.SunSetMin = 0;
-			result.SunSetHour = 0;
-			break;
+		if (timerMap[i].timerTypeStart == TTYPE_BEFORESUNATSOUTH) // Sun at south has no end time
+		{
+			hourMin.min = static_cast<int>(modf((start + end) / 2.0, &_tmpH) * 60 + 0,5);
+			hourMin.hour = static_cast<int>(_tmpH);
+			RoundMinuteHour(hourMin.min, hourMin.hour);
+			result.sunTime[timerMap[i].timerTypeStart] = hourMin;
+			continue;
+		}
+		switch(rs)
+		{
+			case 0:
+				hourMin.min = static_cast<int>(modf(start, &_tmpH) * 60 + 0.5);
+				hourMin.hour = static_cast<int>(_tmpH);
+				RoundMinuteHour(hourMin.min, hourMin.hour);
+				result.sunTime[timerMap[i].timerTypeStart] = hourMin;
+				hourMin.min = static_cast<int>(modf(end, &_tmpH) * 60 + 0.5);
+				hourMin.hour = static_cast<int>(_tmpH);
+				RoundMinuteHour(hourMin.min, hourMin.hour);
+				result.sunTime[timerMap[i].timerTypeEnd] = hourMin;
+				break;
+			case +1:
+			case -1:
+				hourMin.min = 0;
+				hourMin.hour = 0;
+				result.sunTime[timerMap[i].timerTypeStart] = hourMin;
+				result.sunTime[timerMap[i].timerTypeEnd] = hourMin;
+				break;
+		}
 	}
-
-	switch(civ) {
-		case 0:
-			civ_start = UtcToLocal(civ_start, timezone);
-			civ_end = UtcToLocal(civ_end, timezone);
-			result.CivilTwilightStartMin = static_cast<int>(modf(civ_start, &_tmpH)*60+0.5);
-			result.CivilTwilightStartHour = static_cast<int>(_tmpH);
-			result.CivilTwilightEndMin = static_cast<int>(modf(civ_end, &_tmpH)*60+0.5);
-			result.CivilTwilightEndHour = static_cast<int>(_tmpH);
-			break;
-		case +1:
-		case -1:
-			// Never as bright/darker than civil twilight
-			result.CivilTwilightStartMin = 0;
-			result.CivilTwilightStartHour = 0;
-			result.CivilTwilightEndMin = 0;
-			result.CivilTwilightEndHour = 0;
-			break;
-	}
-
-	switch(naut) {
-		case 0:
-			naut_start = UtcToLocal(naut_start, timezone);
-			naut_end = UtcToLocal(naut_end, timezone);
-			result.NauticalTwilightStartMin = static_cast<int>(modf(naut_start, &_tmpH)*60+0.5);
-			result.NauticalTwilightStartHour = static_cast<int>(_tmpH);
-			result.NauticalTwilightEndMin = static_cast<int>(modf(naut_end, &_tmpH)*60+0.5);
-			result.NauticalTwilightEndHour = static_cast<int>(_tmpH);
-			break;
-		case +1:
-		case -1:
-			// Never as bright/darker than nautical twilight
-			result.NauticalTwilightStartMin = 0;
-			result.NauticalTwilightStartHour = 0;
-			result.NauticalTwilightEndMin = 0;
-			result.NauticalTwilightEndHour = 0;
-			break;
-	}
-
-	switch(astr) {
-		case 0:
-			astr_start = UtcToLocal(astr_start, timezone);
-			astr_end = UtcToLocal(astr_end, timezone);
-			result.AstronomicalTwilightStartMin = static_cast<int>(modf(astr_start, &_tmpH)*60+0.5);
-			result.AstronomicalTwilightStartHour = static_cast<int>(_tmpH);
-			result.AstronomicalTwilightEndMin = static_cast<int>(modf(astr_end, &_tmpH)*60+0.5);
-			result.AstronomicalTwilightEndHour = static_cast<int>(_tmpH);
-			break;
-		case +1:
-		case -1:
-			// Never as bright/darker than astronomical twilight
-			result.AstronomicalTwilightStartMin = 0;
-			result.AstronomicalTwilightStartHour = 0;
-			result.AstronomicalTwilightEndMin = 0;
-			result.AstronomicalTwilightEndHour = 0;
-			break;
-	}
-
+	// Day length
+	double daylen = day_length(year, month, day, longit, latit);
+	hourMin.min = static_cast<int>(modf(daylen, &_tmpH) * 60 + 0.5);
+	hourMin.hour = static_cast<int>(_tmpH);
+	result.sunTime[TTYPE_END] = hourMin; // (mis)use TTYPE_END to set Day length
 	return true;
 }
 /* The "workhorse" function for sun rise/set times */

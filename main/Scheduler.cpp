@@ -15,15 +15,6 @@
 
 CScheduler::CScheduler(void)
 {
-	m_tSunRise = 0;
-	m_tSunSet = 0;
-	m_tSunAtSouth = 0;
-	m_tCivTwStart = 0;
-	m_tCivTwEnd = 0;
-	m_tNautTwStart = 0;
-	m_tNautTwEnd = 0;
-	m_tAstTwStart = 0;
-	m_tAstTwEnd = 0;
 	m_stoprequested = false;
 	srand((int)mytime(NULL));
 }
@@ -360,36 +351,31 @@ void CScheduler::ReloadSchedules()
 	}
 }
 
-void CScheduler::SetSunRiseSetTimers(const std::string &sSunRise, const std::string &sSunSet, const std::string &sSunAtSouth, const std::string &sCivTwStart, const std::string &sCivTwEnd, const std::string &sNautTwStart, const std::string &sNautTwEnd, const std::string &sAstTwStart, const std::string &sAstTwEnd)
+void CScheduler::SetSunRiseSetTimers(const std::map<_eTimerType, SunRiseSet::_tSubRiseSetResults::_tHourMin> &suntime)
 {
 	bool bReloadSchedules = false;
 
 	{	//needed private scope for the lock
 		boost::lock_guard<boost::mutex> l(m_mutex);
-		int hour, min, sec;
-
 		time_t temptime;
 		time_t atime = mytime(NULL);
 		struct tm ltime;
 		localtime_r(&atime, &ltime);
 		struct tm tm1;
 
-		std::string  allSchedules[] = {sSunRise, sSunSet, sSunAtSouth, sCivTwStart, sCivTwEnd, sNautTwStart, sNautTwEnd, sAstTwStart, sAstTwEnd};
-		time_t *allTimes[] = {&m_tSunRise, &m_tSunSet, &m_tSunAtSouth, &m_tCivTwStart, &m_tCivTwEnd, &m_tNautTwStart, &m_tNautTwEnd, &m_tAstTwStart, &m_tAstTwEnd};
-		for(unsigned int a = 0; a < sizeof(allSchedules)/sizeof(allSchedules[0]); a = a + 1)
+		uint8_t i = 0;
+		std::map<_eTimerType, SunRiseSet::_tSubRiseSetResults::_tHourMin>::const_iterator itt;
+		for (itt = suntime.begin(); itt != suntime.end(); itt++)
 		{
-			//std::cout << allSchedules[a].c_str() << ' ';
-			hour = atoi(allSchedules[a].substr(0, 2).c_str());
-			min = atoi(allSchedules[a].substr(3, 2).c_str());
-			sec = atoi(allSchedules[a].substr(6, 2).c_str());
-
-			constructTime(temptime,tm1,ltime.tm_year+1900,ltime.tm_mon+1,ltime.tm_mday,hour,min,sec,ltime.tm_isdst);
-			if ((*allTimes[a] != temptime) && (temptime != 0))
+			//std::cout << itt->second.hour << ':' << itt->second.min << ' ';
+			constructTime(temptime, tm1, ltime.tm_year + 1900, ltime.tm_mon + 1, ltime.tm_mday, itt->second.hour, itt->second.min, 0, ltime.tm_isdst);
+			if ((m_tSunTime[itt->first] != temptime) && (temptime != 0))
 			{
-				if (*allTimes[a] == 0)
+				if (m_tSunTime[itt->first] == 0)
 					bReloadSchedules = true;
-				*allTimes[a] = temptime;
+				m_tSunTime[itt->first] = temptime;
 			}
+			i++;
 		}
 	}
 
@@ -468,111 +454,111 @@ bool CScheduler::AdjustScheduleItem(tScheduleItem *pItem, bool bForceAddDay)
 	}
 	else if (pItem->timerType == TTYPE_BEFORESUNSET)
 	{
-		if (m_tSunSet == 0)
+		if (m_tSunTime[TTYPE_BEFORESUNSET] == 0)
 			return false;
-		rtime = m_tSunSet - HourMinuteOffset - (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFORESUNSET] - HourMinuteOffset - (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_AFTERSUNSET)
 	{
-		if (m_tSunSet == 0)
+		if (m_tSunTime[TTYPE_BEFORESUNSET] == 0)
 			return false;
-		rtime = m_tSunSet + HourMinuteOffset + (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFORESUNSET] + HourMinuteOffset + (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_BEFORESUNRISE)
 	{
-		if (m_tSunRise == 0)
+		if (m_tSunTime[TTYPE_BEFORESUNRISE] == 0)
 			return false;
-		rtime = m_tSunRise - HourMinuteOffset - (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFORESUNRISE] - HourMinuteOffset - (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_AFTERSUNRISE)
 	{
-		if (m_tSunRise == 0)
+		if (m_tSunTime[TTYPE_BEFORESUNRISE] == 0)
 			return false;
-		rtime = m_tSunRise + HourMinuteOffset + (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFORESUNRISE] + HourMinuteOffset + (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_BEFORESUNATSOUTH)
 	{
-		if (m_tSunAtSouth == 0)
+		if (m_tSunTime[TTYPE_BEFORESUNATSOUTH] == 0)
 			return false;
-		rtime = m_tSunAtSouth - HourMinuteOffset - (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFORESUNATSOUTH] - HourMinuteOffset - (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_AFTERSUNATSOUTH)
 	{
-		if (m_tSunAtSouth == 0)
+		if (m_tSunTime[TTYPE_BEFORESUNATSOUTH] == 0)
 			return false;
-		rtime = m_tSunAtSouth + HourMinuteOffset + (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFORESUNATSOUTH] + HourMinuteOffset + (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_BEFORECIVTWSTART)
 	{
-		if (m_tCivTwStart == 0)
+		if (m_tSunTime[TTYPE_BEFORECIVTWSTART] == 0)
 			return false;
-		rtime = m_tCivTwStart - HourMinuteOffset - (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFORECIVTWSTART] - HourMinuteOffset - (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_AFTERCIVTWSTART)
 	{
-		if (m_tCivTwStart == 0)
+		if (m_tSunTime[TTYPE_BEFORECIVTWSTART] == 0)
 			return false;
-		rtime = m_tCivTwStart + HourMinuteOffset + (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFORECIVTWSTART] + HourMinuteOffset + (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_BEFORECIVTWEND)
 	{
-		if (m_tCivTwEnd == 0)
+		if (m_tSunTime[TTYPE_BEFORECIVTWEND] == 0)
 			return false;
-		rtime = m_tCivTwEnd - HourMinuteOffset - (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFORECIVTWEND] - HourMinuteOffset - (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_AFTERCIVTWEND)
 	{
-		if (m_tCivTwEnd == 0)
+		if (m_tSunTime[TTYPE_BEFORECIVTWEND] == 0)
 			return false;
-		rtime = m_tCivTwEnd + HourMinuteOffset + (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFORECIVTWEND] + HourMinuteOffset + (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_BEFORENAUTTWSTART)
 	{
-		if (m_tNautTwStart == 0)
+		if (m_tSunTime[TTYPE_BEFORENAUTTWSTART] == 0)
 			return false;
-		rtime = m_tNautTwStart - HourMinuteOffset - (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFORENAUTTWSTART] - HourMinuteOffset - (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_AFTERNAUTTWSTART)
 	{
-		if (m_tNautTwStart == 0)
+		if (m_tSunTime[TTYPE_BEFORENAUTTWSTART] == 0)
 			return false;
-		rtime = m_tNautTwStart + HourMinuteOffset + (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFORENAUTTWSTART] + HourMinuteOffset + (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_BEFORENAUTTWEND)
 	{
-		if (m_tNautTwEnd == 0)
+		if (m_tSunTime[TTYPE_BEFORENAUTTWEND] == 0)
 			return false;
-		rtime = m_tNautTwEnd - HourMinuteOffset - (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFORENAUTTWEND] - HourMinuteOffset - (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_AFTERNAUTTWEND)
 	{
-		if (m_tNautTwEnd == 0)
+		if (m_tSunTime[TTYPE_BEFORENAUTTWEND] == 0)
 			return false;
-		rtime = m_tNautTwEnd + HourMinuteOffset + (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFORENAUTTWEND] + HourMinuteOffset + (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_BEFOREASTTWSTART)
 	{
-		if (m_tAstTwStart == 0)
+		if (m_tSunTime[TTYPE_BEFOREASTTWSTART] == 0)
 			return false;
-		rtime = m_tAstTwStart - HourMinuteOffset - (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFOREASTTWSTART] - HourMinuteOffset - (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_AFTERASTTWSTART)
 	{
-		if (m_tAstTwStart == 0)
+		if (m_tSunTime[TTYPE_BEFOREASTTWSTART] == 0)
 			return false;
-		rtime = m_tAstTwStart + HourMinuteOffset + (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFOREASTTWSTART] + HourMinuteOffset + (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_BEFOREASTTWEND)
 	{
-		if (m_tAstTwEnd == 0)
+		if (m_tSunTime[TTYPE_BEFOREASTTWEND] == 0)
 			return false;
-		rtime = m_tAstTwEnd - HourMinuteOffset - (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFOREASTTWEND] - HourMinuteOffset - (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_AFTERASTTWEND)
 	{
-		if (m_tAstTwEnd == 0)
+		if (m_tSunTime[TTYPE_BEFOREASTTWEND] == 0)
 			return false;
-		rtime = m_tAstTwEnd + HourMinuteOffset + (roffset * 60);
+		rtime = m_tSunTime[TTYPE_BEFOREASTTWEND] + HourMinuteOffset + (roffset * 60);
 	}
 	else if (pItem->timerType == TTYPE_MONTHLY)
 	{
