@@ -875,6 +875,8 @@
     <ClCompile Include="..\main\LuaHandler.cpp" />
     <ClCompile Include="..\main\Scheduler.cpp" />
     <ClCompile Include="..\main\SQLHelper.cpp" />
+    <ClCompile Include="..\main\SQLHelper\OpenDatabase.cpp" />
+    <ClCompile Include="..\main\SQLHelper\UpdateFunctions.cpp" />
     <ClCompile Include="..\main\Helper.cpp" />
     <ClCompile Include="..\json\json_reader.cpp" />
     <ClCompile Include="..\json\json_value.cpp" />

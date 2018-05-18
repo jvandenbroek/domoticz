@@ -292,6 +292,8 @@ main/mainworker.cpp
 main/RFXNames.cpp
 main/Scheduler.cpp
 main/SQLHelper.cpp
+main/SQLHelper/OpenDatabase.cpp
+main/SQLHelper/UpdateFunctions.cpp
 main/SunRiseSet.cpp
 main/WebServer.cpp
 main/WebServerHelper.cpp
