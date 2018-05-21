@@ -102,6 +102,15 @@ public:
 	std::string PluginHardwareDesc(int HwdID);
 
 private:
+	struct _tHardwareListInt {
+		std::string Name;
+		int HardwareTypeVal;
+		std::string HardwareType;
+		bool Enabled;
+		std::string Mode1; // Used to flag DimmerType as relative for some old LimitLessLight type bulbs
+		std::string Mode2; // Used to flag DimmerType as relative for some old LimitLessLight type bulbs
+	} tHardwareList;
+
 	void HandleCommand(const std::string &cparam, WebEmSession & session, const request& req, Json::Value &root);
 	void HandleRType(const std::string &rtype, WebEmSession & session, const request& req, Json::Value &root);
 
@@ -273,7 +282,7 @@ private:
 	void Cmd_BleBoxClearNodes(WebEmSession & session, const request& req, Json::Value &root);
 	void Cmd_BleBoxAutoSearchingNodes(WebEmSession & session, const request& req, Json::Value &root);
 	void Cmd_BleBoxUpdateFirmware(WebEmSession & session, const request& req, Json::Value &root);
-	
+
 	void Cmd_GetTimerPlans(WebEmSession & session, const request& req, Json::Value &root);
 	void Cmd_AddTimerPlan(WebEmSession & session, const request& req, Json::Value &root);
 	void Cmd_UpdateTimerPlan(WebEmSession & session, const request& req, Json::Value &root);

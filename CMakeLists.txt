@@ -296,6 +296,9 @@ main/SQLHelper/OpenDatabase.cpp
 main/SQLHelper/UpdateFunctions.cpp
 main/SunRiseSet.cpp
 main/WebServer.cpp
+main/WebServer/GetJsonDevices.cpp
+main/WebServer/HandleCommand.cpp
+main/WebServer/RType_HandleGraph.cpp
 main/WebServerHelper.cpp
 main/WindCalculation.cpp
 push/BasePush.cpp
