@@ -11,8 +11,8 @@
 #include <sys/utsname.h>
 #include <dirent.h>
 #else
-#include "../msbuild/WindowsHelper.h"
-#include "dirent_windows.h"
+#include "../../msbuild/WindowsHelper.h"
+#include "../dirent_windows.h"
 #endif
 
 #define __STDC_FORMAT_MACROS

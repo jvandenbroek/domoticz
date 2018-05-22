@@ -12,7 +12,7 @@
 #endif // WITH_GPIO
 #include "../webserver/Base64.h"
 #include "../json/json.h"
-#include "SQLHelper.h"
+#include "../SQLHelper.h"
 #ifdef ENABLE_PYTHON
 #include "../hardware/plugins/Plugins.h"
 #endif
@@ -21,8 +21,8 @@
 #include <sys/utsname.h>
 #include <dirent.h>
 #else
-#include "../msbuild/WindowsHelper.h"
-#include "dirent_windows.h"
+#include "../../msbuild/WindowsHelper.h"
+#include "../dirent_windows.h"
 #endif
 #include "../notifications/NotificationHelper.h"
 
