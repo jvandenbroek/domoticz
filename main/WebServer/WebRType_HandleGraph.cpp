@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "../WebServer.h"
 #include "../mainworker.h"
-#include "localtime_r.h"
+#include "../localtime_r.h"
 #include "../webserver/Base64.h"
 #include "../json/json.h"
-#include "SQLHelper.h"
+#include "../SQLHelper.h"
 #include "../notifications/NotificationHelper.h"
 
 #ifndef WIN32
