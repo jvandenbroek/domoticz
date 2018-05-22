@@ -875,13 +875,14 @@
     <ClCompile Include="..\main\LuaHandler.cpp" />
     <ClCompile Include="..\main\Scheduler.cpp" />
     <ClCompile Include="..\main\SQLHelper.cpp" />
-    <ClCompile Include="..\main\SQLHelper\OpenDatabase.cpp" />
-    <ClCompile Include="..\main\SQLHelper\UpdateFunctions.cpp" />
+    <ClCompile Include="..\main\SQLHelper\SQLOpenDatabase.cpp" />
+    <ClCompile Include="..\main\SQLHelper\SQLUpdateFunctions.cpp" />
     <ClCompile Include="..\main\Helper.cpp" />
     <ClCompile Include="..\json\json_reader.cpp" />
     <ClCompile Include="..\json\json_value.cpp" />
     <ClCompile Include="..\json\json_writer.cpp" />
     <ClCompile Include="..\main\mainworker.cpp" />
+    <ClCompile Include="..\main\mainworker\decode.cpp" />
     <ClCompile Include="..\hardware\RFXComSerial.cpp" />
     <ClCompile Include="..\main\domoticz.cpp" />
     <ClCompile Include="..\hardware\RFXComTCP.cpp" />
@@ -996,6 +997,9 @@
     <ClCompile Include="..\tcpserver\TCPServer.cpp" />
     <ClCompile Include="..\httpclient\UrlEncode.cpp" />
     <ClCompile Include="..\main\WebServer.cpp" />
+    <ClCompile Include="..\main\WebServer\WebGetJSonDevices.cpp" />
+    <ClCompile Include="..\main\WebServer\WebHandleCommand.cpp" />
+    <ClCompile Include="..\main\WebServer\WebRType_HandleGraph.cpp" />
     <ClCompile Include="..\tinyxpath\action_store.cpp" />
     <ClCompile Include="..\tinyxpath\htmlutil.cpp" />
     <ClCompile Include="..\tinyxpath\lex_util.cpp" />

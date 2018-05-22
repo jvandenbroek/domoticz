@@ -1,21 +1,17 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "../SQLHelper.h"
 #include "../localtime_r.h"
 #include "../Logger.h"
-#ifdef WITH_EXTERNAL_SQLITE
-#include <sqlite3.h>
-#else
-#include "../../sqlite/sqlite3.h"
-#endif
-#include "../WebServerHelper.h"
 #include "../../webserver/Base64.h"
-#define __STDC_FORMAT_MACROS
-#include <inttypes.h>
 #include "../mainworker.h"
 #include "../../notifications/NotificationHelper.h"
 #include <boost/lexical_cast.hpp>
+
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
+
 #ifdef ENABLE_PYTHON
-#include "../hardware/plugins/Plugins.h"
+#include "../../hardware/plugins/Plugins.h"
 #endif
 
 extern std::string szUserDataFolder;

@@ -1,34 +1,23 @@
-#include "stdafx.h"
-#include "WebServer.h"
-#include "mainworker.h"
-#include "localtime_r.h"
+#include "../stdafx.h"
+#include "../WebServer.h"
+#include "../mainworker.h"
+#include "../localtime_r.h"
 #ifdef WITH_OPENZWAVE
 #include "../hardware/OpenZWave.h"
 #endif
-#include "../hardware/Wunderground.h"
-#include "../hardware/DarkSky.h"
-#include "../hardware/AccuWeather.h"
-#include "../hardware/OpenWeatherMap.h"
-#include "../hardware/Limitless.h"
-#include "../webserver/Base64.h"
-#include "../json/json.h"
-#include "Logger.h"
-#include "SQLHelper.h"
+#include "../../hardware/Wunderground.h"
+#include "../../hardware/DarkSky.h"
+#include "../../hardware/AccuWeather.h"
+#include "../../hardware/OpenWeatherMap.h"
+#include "../../hardware/Limitless.h"
+#include "../../webserver/Base64.h"
+#include "../../json/json.h"
+#include "../SQLHelper.h"
 #ifdef ENABLE_PYTHON
-#include "../hardware/plugins/Plugins.h"
+#include "../../hardware/plugins/Plugins.h"
 #endif
 
-#ifndef WIN32
-#include <sys/utsname.h>
-#include <dirent.h>
-#else
-#include "../msbuild/WindowsHelper.h"
-#include "dirent_windows.h"
-#endif
-#include "../notifications/NotificationHelper.h"
-
-#define __STDC_FORMAT_MACROS
-#include <inttypes.h>
+#include "../../notifications/NotificationHelper.h"
 
 #define round(a) ( int ) ( a + .5 )
 

@@ -17,7 +17,6 @@
 #include "WebServerHelper.h"
 #include "../webserver/Base64.h"
 #include "unzip.h"
-#include <boost/lexical_cast.hpp>
 #include "../notifications/NotificationHelper.h"
 #include "IFTTT.h"
 #ifdef ENABLE_PYTHON
@@ -25,12 +24,9 @@
 #endif
 
 #ifndef WIN32
-	#include <sys/stat.h>
-	#include <unistd.h>
-	#include <sys/types.h>
-	#include <pwd.h>
+#include <pwd.h>
 #else
-	#include "../msbuild/WindowsHelper.h"
+#include "../msbuild/WindowsHelper.h"
 #endif
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
