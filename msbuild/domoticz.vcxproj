@@ -882,7 +882,7 @@
     <ClCompile Include="..\json\json_value.cpp" />
     <ClCompile Include="..\json\json_writer.cpp" />
     <ClCompile Include="..\main\mainworker.cpp" />
-    <ClCompile Include="..\main\mainworker\decode.cpp" />
+    <ClCompile Include="..\main\mainworker\mainworker_decode.cpp" />
     <ClCompile Include="..\hardware\RFXComSerial.cpp" />
     <ClCompile Include="..\main\domoticz.cpp" />
     <ClCompile Include="..\hardware\RFXComTCP.cpp" />
