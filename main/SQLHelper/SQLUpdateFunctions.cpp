@@ -1,4 +1,4 @@
-#include "../stdafx.h"
+#include "stdafx.h"
 #include "../SQLHelper.h"
 #include "../localtime_r.h"
 #include "../Logger.h"

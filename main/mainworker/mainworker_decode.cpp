@@ -1,5 +1,5 @@
 
-#include "../stdafx.h"
+#include "stdafx.h"
 #include "../mainworker.h"
 #include "../localtime_r.h"
 #include "../WebServerHelper.h"
