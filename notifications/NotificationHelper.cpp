@@ -21,6 +21,7 @@
 #include "NotificationKodi.h"
 #include "NotificationLogitechMediaServer.h"
 #include "NotificationGCM.h"
+#include "../main/NotifySystem.h"
 
 #include "NotificationBrowser.h"
 #define __STDC_FORMAT_MACROS
@@ -119,7 +120,7 @@ bool CNotificationHelper::SendMessageEx(
 	//Make a system tray message
 	ShowSystemTrayNotification(Subject.c_str());
 #endif
-	_log.Log(LOG_STATUS, "Notification: %s", Subject.c_str());
+	_log.Log(LOG_STATUS, NOTIFY_NOTIFICATION, "Notification: %s", Subject.c_str());
 
 	std::vector<std::string> sResult;
 	StringSplit(Subsystems, ";", sResult);
@@ -235,13 +236,13 @@ bool CNotificationHelper::CheckAndHandleNotification(const uint64_t DevRowIdx, c
 	bool r1, r2, r3;
 	int nsize;
 	int nexpected = 0;
-	
+
 	// Don't send notification for devices not in db
 	// Notifications for switches are handled by CheckAndHandleSwitchNotification in UpdateValue() of SQLHelper
 	if ((DevRowIdx == -1) || IsLightOrSwitch(cType, cSubType)) {
 		return false;
 	}
-	
+
 	int meterType = 0;
 	std::vector<std::string> strarray;
 	StringSplit(sValue, ";", strarray);
@@ -402,7 +403,7 @@ bool CNotificationHelper::CheckAndHandleNotification(const uint64_t DevRowIdx, c
 					if (meterType == 1) {
 						//miles
 						fValue2 *= 0.6214f;
-					}								
+					}
 					return CheckAndHandleNotification(DevRowIdx, sName, cType, cSubType, NTYPE_USAGE, fValue2);
 				case sTypeDistance:
 					m_sql.GetMeterType(HardwareID, ID.c_str(), unit, cType, cSubType, meterType);
@@ -410,7 +411,7 @@ bool CNotificationHelper::CheckAndHandleNotification(const uint64_t DevRowIdx, c
 					if (meterType == 1) {
 						//inches
 						fValue2 *= 0.393701f;
-					}								
+					}
 					return CheckAndHandleNotification(DevRowIdx, sName, cType, cSubType, NTYPE_USAGE, fValue2);
 				case sTypeBaro:
 				case sTypeKwh:
@@ -445,7 +446,7 @@ bool CNotificationHelper::CheckAndHandleNotification(const uint64_t DevRowIdx, c
 		default:
 			break;
 	}
-	
+
 	std::string hName;
 	CDomoticzHardwareBase *pHardware = m_mainworker.GetHardware(HardwareID);
 	if (pHardware == NULL) {
@@ -454,14 +455,14 @@ bool CNotificationHelper::CheckAndHandleNotification(const uint64_t DevRowIdx, c
 	else {
 		hName = pHardware->Name;
 	}
-	
+
 	if (nexpected > 0) {
 		_log.Log(LOG_STATUS, "Warning: Expecting svalue with at least %d elements separated by semicolon, %d elements received (\"%s\"), notification not sent (Hardware: %d - %s, ID: %s, Unit: %d, Type: %02X - %s, SubType: %d - %s)", nexpected, nsize, sValue.c_str(), HardwareID, hName.c_str(), ID.c_str(), unit, cType, RFX_Type_Desc(cType, 1), cSubType, RFX_Type_SubType_Desc(cType, cSubType));
 	}
 	else {
 		_log.Log(LOG_STATUS, "Warning: Notification NOT handled (Hardware: %d - %s, ID: %s, Unit: %d, Type: %02X - %s, SubType: %d - %s), please report on GitHub!", HardwareID, hName.c_str(), ID.c_str(), unit, cType, RFX_Type_Desc(cType, 1), cSubType, RFX_Type_SubType_Desc(cType, cSubType));
 	}
-	
+
 	return false;
 }
 

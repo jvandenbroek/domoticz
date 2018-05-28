@@ -44,7 +44,7 @@ private:
 	void SetGlobalVariables(lua_State *lua_state, const bool reasonTime, const int secStatus);
 	void ProcessHttpResponse(lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items);
 	void ProcessSecurity(lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items);
-
+	void ProcessNotify(lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items);
 	static int l_domoticz_print(lua_State* lua_state);
 	static CdzVents m_dzvents;
 	std::string m_version;

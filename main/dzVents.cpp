@@ -8,6 +8,7 @@
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 #include "../webserver/Base64.h"
+#include <iostream>
 
 extern std::string szUserDataFolder, szWebRoot;
 extern http::server::CWebServerHelper m_webservers;
@@ -40,6 +41,7 @@ void CdzVents::EvaluateDzVents(lua_State *lua_state, const std::vector<CEventSys
 	bool reasonTime = false;
 	bool reasonURL = false;
 	bool reasonSecurity = false;
+	bool reasonNotify = false;
 	std::vector<CEventSystem::_tEventQueue>::const_iterator itt;
 	for (itt = items.begin(); itt != items.end(); itt++)
 	{
@@ -51,6 +53,9 @@ void CdzVents::EvaluateDzVents(lua_State *lua_state, const std::vector<CEventSys
 
 		if (itt->reason == m_mainworker.m_eventsystem.REASON_TIME)
 			reasonTime = true;
+
+		if (itt->reason == m_mainworker.m_eventsystem.REASON_NOTIFY)
+			reasonNotify = true;
 	}
 	ExportDomoticzDataToLua(lua_state, items);
 	SetGlobalVariables(lua_state, reasonTime, secStatus);
@@ -60,6 +65,46 @@ void CdzVents::EvaluateDzVents(lua_State *lua_state, const std::vector<CEventSys
 
 	if (reasonSecurity)
 		ProcessSecurity(lua_state, items);
+
+	if (reasonNotify)
+		ProcessNotify(lua_state, items);
+}
+
+void CdzVents::ProcessNotify(lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items)
+{
+	int index = 1;
+	std::string type, status, message;
+	lua_createtable(lua_state, 0, 0);
+	std::vector<CEventSystem::_tEventQueue>::const_iterator itt;
+	for (itt = items.begin(); itt != items.end(); itt++)
+	{
+		if (itt->reason == m_mainworker.m_eventsystem.REASON_NOTIFY)
+		{
+			lua_pushnumber(lua_state, (lua_Number)index);
+			lua_createtable(lua_state, 0, 0);
+			if (itt->nValue)
+				type = _notify.GetTypeString(itt->nValue);
+
+			if (itt->lastLevel)
+				status = _notify.GetStatusString(itt->lastLevel);
+
+			if (!itt->sValue.empty())
+				message = itt->sValue;
+			lua_pushstring(lua_state, "type");
+			lua_pushstring(lua_state, type.c_str());
+			lua_rawset(lua_state, -3);
+			lua_pushstring(lua_state, "status");
+			lua_pushstring(lua_state, status.c_str());
+			lua_rawset(lua_state, -3);
+			lua_pushstring(lua_state, "message");
+			lua_pushstring(lua_state, message.c_str());
+			lua_rawset(lua_state, -3);
+			lua_settable(lua_state, -3); // number entry
+			index++;
+//			_log.Log(LOG_STATUS, "dzVents: type: %s, status: %s, message: %s", type.c_str(), status.c_str(), message.c_str());
+		}
+	}
+	lua_setglobal(lua_state, "Notify");
 }
 
 void CdzVents::ProcessSecurity(lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items)

@@ -39,6 +39,11 @@ CDomoticzHardwareBase::~CDomoticzHardwareBase()
 bool CDomoticzHardwareBase::Start()
 {
 	m_iHBCounter = 0;
+	std::vector<std::vector<std::string> > result;
+	result = m_sql.safe_query("SELECT Name FROM Hardware WHERE (ID='%d')", m_HwdID);
+	if (result.size() == 1)
+		m_Name = result[0][0];
+
 	return StartHardware();
 }
 

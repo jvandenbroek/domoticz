@@ -154,7 +154,7 @@ private:
 
 	boost::mutex m_decodeRXMessageMutex;
 
-	std::vector<int> m_devicestorestart;
+	std::vector<CDomoticzHardwareBase *> m_devicestorestart;
 
 	bool m_bForceLogNotificationCheck;
 

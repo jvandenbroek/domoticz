@@ -290,6 +290,7 @@ main/Logger.cpp
 main/LuaCommon.cpp
 main/LuaHandler.cpp
 main/mainworker.cpp
+main/NotifySystem.cpp
 main/RFXNames.cpp
 main/Scheduler.cpp
 main/SQLHelper.cpp

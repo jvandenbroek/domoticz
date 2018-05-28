@@ -139,6 +139,7 @@
 #include "../hardware/Honeywell.h"
 // load notifications configuration
 #include "../notifications/NotificationHelper.h"
+#include "NotifySystem.h"
 
 #ifdef WITH_GPIO
 #include "../hardware/Gpio.h"
@@ -1392,7 +1393,7 @@ void MainWorker::HandleAutomaticBackups()
 	if (nValue != 1)
 		return;
 
-	_log.Log(LOG_STATUS, "Starting automatic database backup procedure...");
+	_log.Log(LOG_STATUS, NOTIFY_BACKUP_START, "Starting automatic database backup procedure...");
 
 	std::stringstream backup_DirH;
 	std::stringstream backup_DirD;
@@ -1455,12 +1456,12 @@ void MainWorker::HandleAutomaticBackups()
 				m_sql.SetLastBackupNo("Hour", hour);
 			}
 			else {
-				_log.Log(LOG_ERROR, "Error writing automatic hourly backup file");
+				_log.Log(LOG_ERROR, NOTIFY_BACKUP_END, "Error writing automatic hourly backup file");
 			}
 			closedir(lDir);
 		}
 		else {
-			_log.Log(LOG_ERROR, "Error accessing automatic backup directories");
+			_log.Log(LOG_ERROR, NOTIFY_BACKUP_END, "Error accessing automatic backup directories");
 		}
 	}
 	if ((lastDayBackup == -1) || (lastDayBackup != day)) {
@@ -1475,12 +1476,12 @@ void MainWorker::HandleAutomaticBackups()
 				m_sql.SetLastBackupNo("Day", day);
 			}
 			else {
-				_log.Log(LOG_ERROR, "Error writing automatic daily backup file");
+				_log.Log(LOG_ERROR, NOTIFY_BACKUP_END, "Error writing automatic daily backup file");
 			}
 			closedir(lDir);
 		}
 		else {
-			_log.Log(LOG_ERROR, "Error accessing automatic backup directories");
+			_log.Log(LOG_ERROR, NOTIFY_BACKUP_END, "Error accessing automatic backup directories");
 		}
 	}
 	if ((lastMonthBackup == -1) || (lastMonthBackup != month)) {
@@ -1494,15 +1495,15 @@ void MainWorker::HandleAutomaticBackups()
 				m_sql.SetLastBackupNo("Month", month);
 			}
 			else {
-				_log.Log(LOG_ERROR, "Error writing automatic monthly backup file");
+				_log.Log(LOG_ERROR, NOTIFY_BACKUP_END, "Error writing automatic monthly backup file");
 			}
 			closedir(lDir);
 		}
 		else {
-			_log.Log(LOG_ERROR, "Error accessing automatic backup directories");
+			_log.Log(LOG_ERROR, NOTIFY_BACKUP_END, "Error accessing automatic backup directories");
 		}
 	}
-	_log.Log(LOG_STATUS, "Ending automatic database backup procedure...");
+	_log.Log(LOG_STATUS, NOTIFY_BACKUP_END, "Ending automatic database backup procedure...");
 }
 
 void MainWorker::ParseRFXLogFile()
@@ -1649,28 +1650,19 @@ void MainWorker::Do_Work()
 				ParseRFXLogFile();
 				m_eventsystem.SetEnabled(m_sql.m_bEnableEventSystem);
 				m_eventsystem.StartEventSystem();
+				_notify.Notify(NOTIFY_STARTUP);
 			}
 		}
 		if (m_devicestorestart.size() > 0)
 		{
-			std::vector<int>::const_iterator itt;
+			std::vector<CDomoticzHardwareBase *>::const_iterator itt;
 			for (itt = m_devicestorestart.begin(); itt != m_devicestorestart.end(); ++itt)
 			{
-				int hwid = (*itt);
 				std::stringstream sstr;
-				sstr << hwid;
+				sstr << (*itt)->m_HwdID;
 				std::string idx = sstr.str();
-
-				std::vector<std::vector<std::string> > result;
-				result = m_sql.safe_query("SELECT Name FROM Hardware WHERE (ID=='%q')",
-					idx.c_str());
-				if (result.size() > 0)
-				{
-					std::vector<std::string> sd = result[0];
-					std::string Name = sd[0];
-					_log.Log(LOG_ERROR, "Restarting: %s", Name.c_str());
-					RestartHardware(idx);
-				}
+				_log.Log(LOG_ERROR, "Restarting: %s", (*itt)->m_Name.c_str());
+				RestartHardware(idx);
 			}
 			m_devicestorestart.clear();
 		}
@@ -2513,7 +2505,7 @@ void MainWorker::ProcessRXMessage(const CDomoticzHardwareBase *pHardware, const 
 	}
 
 	//TODO: Notify plugin?
-	
+
 	//Send to connected Sharing Users
 	m_sharedserver.SendToAll(pHardware->m_HwdID, DeviceRowIdx, (const char*)pRXCommand, pRXCommand[0] + 1, pClient2Ignore);
 
@@ -3414,7 +3406,7 @@ void MainWorker::decode_Temp(const int HwdID, const _eHardwareTypes HwdType, con
 			sprintf(szTmp, "%.1f;%d;%d", temp, humidity, humidity_status);
 			DevRowIdx = m_sql.UpdateValue(HwdID, ID.c_str(), 2, pTypeTEMP_HUM, sTypeTH_LC_TC, SignalLevel, BatteryLevel, 0, szTmp, procResult.DeviceName);
 			m_notifications.CheckAndHandleNotification(DevRowIdx, HwdID, ID, procResult.DeviceName, Unit, pTypeTEMP_HUM, sTypeTH_LC_TC, szTmp);
-			
+
 			bHandledNotification = true;
 		}
 	}
@@ -8801,7 +8793,7 @@ void MainWorker::decode_Weight(const int HwdID, const _eHardwareTypes HwdType, c
 		return;
 
 	m_notifications.CheckAndHandleNotification(DevRowIdx, HwdID, ID, procResult.DeviceName, Unit, devType, subType, weight);
-	
+
 	if (m_verboselevel >= EVBL_ALL)
 	{
 		WriteMessageStart();
@@ -12837,13 +12829,12 @@ void MainWorker::HeartbeatCheck()
 	mytime(&now);
 
 	std::map<std::string, time_t>::const_iterator iterator;
-	for (iterator = m_componentheartbeats.begin(); iterator != m_componentheartbeats.end(); ++iterator) {
+	for (iterator = m_componentheartbeats.begin(); iterator != m_componentheartbeats.end(); ++iterator)
+	{
 		double dif = difftime(now, iterator->second);
 		//_log.Log(LOG_STATUS, "%s last checking  %.2lf seconds ago", iterator->first.c_str(), dif);
 		if (dif > 60)
-		{
-			_log.Log(LOG_ERROR, "%s thread seems to have ended unexpectedly", iterator->first.c_str());
-		}
+			_log.Log(LOG_ERROR, NOTIFY_ENDED, "%s thread seems to have ended unexpectedly", iterator->first.c_str());
 	}
 
 	//Check hardware heartbeats
@@ -12861,15 +12852,7 @@ void MainWorker::HeartbeatCheck()
 				double diff = difftime(now, pHardware->m_LastHeartbeat);
 				//_log.Log(LOG_STATUS, "%d last checking  %.2lf seconds ago", iterator->first, dif);
 				if (diff > 60)
-				{
-					std::vector<std::vector<std::string> > result;
-					result = m_sql.safe_query("SELECT Name FROM Hardware WHERE (ID='%d')", pHardware->m_HwdID);
-					if (result.size() == 1)
-					{
-						std::vector<std::string> sd = result[0];
-						_log.Log(LOG_ERROR, "%s hardware (%d) thread seems to have ended unexpectedly", sd[0].c_str(), pHardware->m_HwdID);
-					}
-				}
+					_log.Log(LOG_ERROR, NOTIFY_TIMEOUT, "%s hardware (%d) thread seems to have ended unexpectedly", pHardware->m_Name.c_str(), pHardware->m_HwdID);
 			}
 
 			if (pHardware->m_DataTimeout > 0)
@@ -12878,49 +12861,42 @@ void MainWorker::HeartbeatCheck()
 				double diff = difftime(now, pHardware->m_LastHeartbeatReceive);
 				if (diff > pHardware->m_DataTimeout)
 				{
-					std::vector<std::vector<std::string> > result;
-					result = m_sql.safe_query("SELECT Name FROM Hardware WHERE (ID='%d')", pHardware->m_HwdID);
-					if (result.size() == 1)
-					{
-						std::vector<std::string> sd = result[0];
-
-						std::string sDataTimeout = "";
-						int totNum = 0;
-						if (pHardware->m_DataTimeout < 60) {
-							totNum = pHardware->m_DataTimeout;
-							sDataTimeout = "Seconds";
-						}
-						else if (pHardware->m_DataTimeout < 3600) {
-							totNum = pHardware->m_DataTimeout / 60;
-							if (totNum == 1) {
-								sDataTimeout = "Minute";
-							}
-							else {
-								sDataTimeout = "Minutes";
-							}
-						}
-						else if (pHardware->m_DataTimeout < 86400) {
-							totNum = pHardware->m_DataTimeout / 3600;
-							if (totNum == 1) {
-								sDataTimeout = "Hour";
-							}
-							else {
-								sDataTimeout = "Hours";
-							}
+					std::string sDataTimeout = "";
+					int totNum = 0;
+					if (pHardware->m_DataTimeout < 60) {
+						totNum = pHardware->m_DataTimeout;
+						sDataTimeout = "Seconds";
+					}
+					else if (pHardware->m_DataTimeout < 3600) {
+						totNum = pHardware->m_DataTimeout / 60;
+						if (totNum == 1) {
+							sDataTimeout = "Minute";
 						}
 						else {
-							totNum = pHardware->m_DataTimeout / 60;
-							if (totNum == 1) {
-								sDataTimeout = "Day";
-							}
-							else {
-								sDataTimeout = "Days";
-							}
+							sDataTimeout = "Minutes";
 						}
-
-						_log.Log(LOG_ERROR, "%s hardware (%d) nothing received for more than %d %s!....", sd[0].c_str(), pHardware->m_HwdID, totNum, sDataTimeout.c_str());
-						m_devicestorestart.push_back(pHardware->m_HwdID);
 					}
+					else if (pHardware->m_DataTimeout < 86400) {
+						totNum = pHardware->m_DataTimeout / 3600;
+						if (totNum == 1) {
+							sDataTimeout = "Hour";
+						}
+						else {
+							sDataTimeout = "Hours";
+						}
+					}
+					else {
+						totNum = pHardware->m_DataTimeout / 60;
+						if (totNum == 1) {
+							sDataTimeout = "Day";
+						}
+						else {
+							sDataTimeout = "Days";
+						}
+					}
+
+					_log.Log(LOG_ERROR, NOTIFY_TIMEOUT, "%s hardware (%d) nothing received for more than %d %s!....", pHardware->m_Name.c_str(), pHardware->m_HwdID, totNum, sDataTimeout.c_str());
+					m_devicestorestart.push_back(pHardware);
 				}
 			}
 
