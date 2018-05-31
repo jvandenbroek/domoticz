@@ -124,7 +124,6 @@ const CEventSystem::_tJsonMap CEventSystem::JsonMap[] =
 	{ NULL,					NULL,						JTYPE_STRING	}
 };
 
-
 CEventSystem::CEventSystem(void)
 {
 	m_stoprequested = false;
@@ -143,6 +142,7 @@ void CEventSystem::StartEventSystem()
 	if (!m_bEnabled)
 		return;
 
+	_notify.Register(this);
 	m_printprefix = "LUA";
 	m_sql.GetPreferencesVar("SecStatus", m_SecStatus);
 
@@ -162,7 +162,6 @@ void CEventSystem::StartEventSystem()
 
 void CEventSystem::StopEventSystem()
 {
-
 	if (m_eventqueuethread)
 	{
 		m_stoprequested = true;
@@ -176,6 +175,7 @@ void CEventSystem::StopEventSystem()
 		m_stoprequested = true;
 		m_thread->join();
 	}
+	_notify.Unregister(this);
 
 #ifdef ENABLE_PYTHON
     Plugins::PythonEventsStop();
@@ -1249,6 +1249,26 @@ bool CEventSystem::GetEventTrigger(const uint64_t ulDevID, const _eReason reason
 	return bEventTrigger;
 }
 
+bool CEventSystem::NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const std::string &message)
+{
+	_tEventQueue item;
+	item.reason = REASON_NOTIFY;
+	item.DeviceID = 0;
+	item.varId = 0;
+	item.nValue = static_cast<int>(type);
+	item.sValue = message;
+	item.lastLevel = static_cast<uint8_t>(status);
+	if (type != NOTIFY_SHUTDOWN)
+		m_eventqueue.push(item);
+	else // blocking call on Domoticz shutdown
+	{
+		std::vector<_tEventQueue> items;
+		items.push_back(item);
+		EvaluateEvent(items);
+	}
+	return true;
+}
+
 void CEventSystem::TriggerURL(const std::string &result, const std::vector<std::string> &headerData, const std::string &callback)
 {
 	_tEventQueue item;
@@ -1458,6 +1478,7 @@ void CEventSystem::EventQueueThread()
 			}
 		}
 		items.push_back(item);
+
 		if (m_eventqueue.size() > 0)
 			continue;
 
@@ -1605,6 +1626,7 @@ void CEventSystem::EvaluateEvent(const std::vector<_tEventQueue> &items)
 				}
 				else if ((itt->reason == REASON_TIME && filename.find("_time_") != std::string::npos) ||
 					(itt->reason == REASON_SECURITY && filename.find("_security_") != std::string::npos) ||
+					(itt->reason == REASON_NOTIFY && filename.find("_notify_") != std::string::npos) ||
 					(itt->reason == REASON_USERVARIABLE && filename.find("_variable_") != std::string::npos))
 				{
 					EvaluateLua(*itt, m_lua_Dir + filename, "");
@@ -3114,6 +3136,21 @@ void CEventSystem::EvaluateLuaClassic(lua_State *lua_state, const _tEventQueue &
 	lua_pushstring(lua_state, m_szSecStatus[secStatus].c_str());
 	lua_rawset(lua_state, -3);
 	lua_setglobal(lua_state, "globalvariables");
+
+	if (item.reason == REASON_NOTIFY)
+	{
+		lua_createtable(lua_state, 0, 0);
+		lua_pushstring(lua_state, "type");
+		lua_pushstring(lua_state, _notify.GetTypeString(item.nValue).c_str());
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "status");
+		lua_pushstring(lua_state, _notify.GetStatusString(item.lastLevel).c_str());
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "message");
+		lua_pushstring(lua_state, item.sValue.c_str());
+		lua_rawset(lua_state, -3);
+		lua_setglobal(lua_state, "notify");
+	}
 }
 
 void CEventSystem::EvaluateLua(const _tEventQueue &item, const std::string &filename, const std::string &LuaString)

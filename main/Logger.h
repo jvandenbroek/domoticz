@@ -4,6 +4,7 @@
 #include <list>
 #include <string>
 #include <fstream>
+#include "NotifySystem.h"
 
 enum _eLogLevel
 {
@@ -40,7 +41,9 @@ public:
 	void SetVerboseLevel(_eLogFileVerboseLevel vLevel);
 
 	void Log(const _eLogLevel level, const std::string& sLogline);
-	void Log(const _eLogLevel level, const char* logline, ...)
+	void Log(const _eLogLevel level, const char* logline, ...);
+	void Log(const _eLogLevel level, const _eNotifyType type, const char* logline, ...);
+	void Log(const bool dummy, const _eLogLevel level, const char* cbuffer);
 #ifdef __GNUC__
 		__attribute__ ((format (printf, 3, 4)))
 #endif

@@ -18,8 +18,9 @@ extern "C" {
 
 #include "LuaCommon.h"
 #include "concurrent_queue.h"
+#include "NotifyObserver.h"
 
-class CEventSystem : public CLuaCommon
+class CEventSystem : public CLuaCommon, public CNotifyObserver
 {
 	friend class CdzVents;
 	friend class CLuaHandler;
@@ -56,7 +57,8 @@ public:
 		REASON_USERVARIABLE,	// 2
 		REASON_TIME,			// 3
 		REASON_SECURITY,		// 4
-		REASON_URL				// 5
+		REASON_URL,				// 5
+		REASON_NOTIFY			// 6
 	};
 
 	struct _tDeviceStatus
@@ -131,7 +133,6 @@ public:
 	bool GetEventTrigger(const uint64_t ulDevID, const _eReason reason, const bool bEventTrigger);
 	void SetEventTrigger(const uint64_t ulDevID, const _eReason reason, const float fDelayTime);
 	void UpdateDevice(const uint64_t idx, const int nValue, const std::string &sValue, const int Protected, const bool bEventTrigger = false);
-
 	void TriggerURL(const std::string &result, const std::vector<std::string> &headerData, const std::string &callback);
 
 private:
@@ -274,4 +275,5 @@ private:
 	void StripQuotes(std::string &sString);
 	std::string SpaceToUnderscore(std::string sResult);
 	std::string LowerCase(std::string sResult);
+	virtual bool NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const std::string &message);
 };

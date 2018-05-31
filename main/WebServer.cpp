@@ -1122,7 +1122,7 @@ namespace http {
 					m_sql.UpdatePreferencesVar("SmartMeterType", 0);
 				}
 			}
-			else if (IsNetworkDevice(htype)) 
+			else if (IsNetworkDevice(htype))
 			{
 				//Lan
 				if (address.empty() || port == 0)
@@ -1241,7 +1241,7 @@ namespace http {
 				(htype == HTYPE_NEST) ||
 				(htype == HTYPE_ANNATHERMOSTAT) ||
 				(htype == HTYPE_THERMOSMART) ||
-				(htype == HTYPE_Tado) || 
+				(htype == HTYPE_Tado) ||
 				(htype == HTYPE_Netatmo)
 				)
 			{
@@ -4211,7 +4211,7 @@ namespace http {
 					CDomoticzHardwareBase *pBaseHardware = reinterpret_cast<CDomoticzHardwareBase*>(m_mainworker.GetHardware(atoi(hwdid.c_str())));
 					if (pBaseHardware == NULL)
 						return;
-					if ((pBaseHardware->HwdType != HTYPE_EnOceanESP2) && (pBaseHardware->HwdType != HTYPE_EnOceanESP3) 
+					if ((pBaseHardware->HwdType != HTYPE_EnOceanESP2) && (pBaseHardware->HwdType != HTYPE_EnOceanESP3)
 						&& (pBaseHardware->HwdType != HTYPE_USBtinGateway) )
 						return;
 					unsigned long rID = 0;
@@ -4786,7 +4786,7 @@ namespace http {
 					CDomoticzHardwareBase *pBaseHardware = reinterpret_cast<CDomoticzHardwareBase*>(m_mainworker.GetHardware(atoi(hwdid.c_str())));
 					if (pBaseHardware == NULL)
 						return;
-					if ((pBaseHardware->HwdType != HTYPE_EnOceanESP2) && (pBaseHardware->HwdType != HTYPE_EnOceanESP3) 
+					if ((pBaseHardware->HwdType != HTYPE_EnOceanESP2) && (pBaseHardware->HwdType != HTYPE_EnOceanESP3)
 						&& (pBaseHardware->HwdType != HTYPE_USBtinGateway) )
 						return;
 					unsigned long rID = 0;
@@ -7845,6 +7845,10 @@ namespace http {
 				m_mainworker.m_eventsystem.StartEventSystem();
 			}
 
+			std::string LogEventScriptTrigger = request::findValue(&req, "LogEventScriptTrigger");
+			m_sql.m_bLogEventScriptTrigger = (LogEventScriptTrigger == "on" ? 1 : 0);
+			m_sql.UpdatePreferencesVar("LogEventScriptTrigger", m_sql.m_bLogEventScriptTrigger);
+
 			rnOldvalue = 0;
 			m_sql.GetPreferencesVar("DisableDzVentsSystem", rnOldvalue);
 			std::string DisableDzVentsSystem = request::findValue(&req, "DisableDzVentsSystem");
@@ -7858,9 +7862,14 @@ namespace http {
 			}
 			m_sql.UpdatePreferencesVar("DzVentsLogLevel", atoi(request::findValue(&req, "DzVentsLogLevel").c_str()));
 
-			std::string LogEventScriptTrigger = request::findValue(&req, "LogEventScriptTrigger");
-			m_sql.m_bLogEventScriptTrigger = (LogEventScriptTrigger == "on" ? 1 : 0);
-			m_sql.UpdatePreferencesVar("LogEventScriptTrigger", m_sql.m_bLogEventScriptTrigger);
+			rnOldvalue = 0;
+			m_sql.GetPreferencesVar("EnableNotifySystem", rnOldvalue);
+			std::string EnableNotifySystem = request::findValue(&req, "EnableNotifySystem");
+			int iEnableNotifySystem = (EnableNotifySystem == "on" ? 1 : 0);
+			m_sql.UpdatePreferencesVar("EnableNotifySystem", iEnableNotifySystem);
+			m_sql.m_bEnableNotifySystem = (iEnableNotifySystem == 1);
+			if (iEnableNotifySystem != rnOldvalue)
+				_notify.SetEnabled(m_sql.m_bEnableNotifySystem);
 
 			std::string EnableWidgetOrdering = request::findValue(&req, "AllowWidgetOrdering");
 			int iEnableAllowWidgetOrdering = (EnableWidgetOrdering == "on" ? 1 : 0);
@@ -12728,6 +12737,37 @@ namespace http {
 #else
 			root["cloudenabled"] = false;
 #endif
+			const std::string nValueKey[] =
+			{
+				"DashboardType",                "MobileType",               "LightHistoryDays",         "ShortLogInterval",
+				"RandomTimerFrame",             "ElectricVoltage",          "CM113DisplayType",         "UseAutoUpdate",
+				"Rego6XXType",                  "ActiveTimerPlan",          "DoorbellCommand",          "SmartMeterType",
+				"EnableTabFloorplans",          "EnableTabLights",          "EnableTabTemp",            "EnableTabWeather",
+				"EnableTabUtility",             "EnableTabScenes",          "EnableTabCustom",          "NotificationSensorInterval",
+				"NotificationSwitchInterval",   "RemoteSharedPort",         "WindUnit",                 "TempUnit",
+				"WeightUnit",                   "AuthenticationMethod",     "ReleaseChannel",           "AcceptNewHardware",
+				"HideDisabledHardwareSensors",  "ShowUpdateEffect",         "EnableEventScriptSystem",  "LogEventScriptTrigger",
+				"DisableDzVentsSystem",         "DzVentsLogLevel",          "EnableNotifySystem",       "SecOnDelay",
+				"AllowWidgetOrdering",          "FloorplanPopupDelay",      "FloorplanFullscreenMode",  "FloorplanAnimateZoom",
+				"FloorplanShowSensorValues",    "FloorplanShowSwitchValues","FloorplanShowSceneNames",  "FloorplanActiveOpacity",
+				"FloorplanInactiveOpacity",     "SensorTimeout",            "SendErrorsAsNotification", "IFTTTEnabled",
+#ifndef NOCLOUD
+				"MyDomoticzSubsystems",
+#endif
+				""
+			};
+			const std::string sValueKey[] =
+			{
+				"WebPassword",                  "SecPassword",              "ProtectionPassword",       "WebLocalNetworks",
+				"WebRemoteProxyIPs",            "Language",                 "Title",                    "RaspCamParams",
+				"UVCParams",                    "DegreeDaysBaseTemperature","FloorplanRoomColour",      "WebTheme",
+				"LogFilter",                    "LogFileName",              "LogLevel",                 "DeltaTemperatureLog",
+				"IFTTTAPI",
+#ifndef NOCLOUD
+				"MyDomoticzInstanceId",         "MyDomoticzUserId",          "MyDomoticzPassword",
+#endif
+				""
+			};
 
 			std::vector<std::vector<std::string> >::const_iterator itt;
 			for (itt = result.begin(); itt != result.end(); ++itt)
@@ -12757,53 +12797,13 @@ namespace http {
 						root[Key] = sValue;
 					}
 				}
-				else if (Key == "DashboardType")
-				{
-					root["DashboardType"] = nValue;
-				}
-				else if (Key == "MobileType")
-				{
-					root["MobileType"] = nValue;
-				}
-				else if (Key == "LightHistoryDays")
-				{
-					root["LightHistoryDays"] = nValue;
-				}
 				else if (Key == "5MinuteHistoryDays")
 				{
 					root["ShortLogDays"] = nValue;
 				}
-				else if (Key == "ShortLogInterval")
-				{
-					root["ShortLogInterval"] = nValue;
-				}
 				else if (Key == "WebUserName")
 				{
 					root["WebUserName"] = base64_decode(sValue);
-				}
-				else if (Key == "WebPassword")
-				{
-					root["WebPassword"] = sValue;
-				}
-				else if (Key == "SecPassword")
-				{
-					root["SecPassword"] = sValue;
-				}
-				else if (Key == "ProtectionPassword")
-				{
-					root["ProtectionPassword"] = sValue;
-				}
-				else if (Key == "WebLocalNetworks")
-				{
-					root["WebLocalNetworks"] = sValue;
-				}
-				else if (Key == "WebRemoteProxyIPs")
-				{
-					root["WebRemoteProxyIPs"] = sValue;
-				}
-				else if (Key == "RandomTimerFrame")
-				{
-					root["RandomTimerFrame"] = nValue;
 				}
 				else if (Key == "MeterDividerEnergy")
 				{
@@ -12816,26 +12816,6 @@ namespace http {
 				else if (Key == "MeterDividerWater")
 				{
 					root["WaterDivider"] = nValue;
-				}
-				else if (Key == "ElectricVoltage")
-				{
-					root["ElectricVoltage"] = nValue;
-				}
-				else if (Key == "CM113DisplayType")
-				{
-					root["CM113DisplayType"] = nValue;
-				}
-				else if (Key == "UseAutoUpdate")
-				{
-					root["UseAutoUpdate"] = nValue;
-				}
-				else if (Key == "UseAutoBackup")
-				{
-					root["UseAutoBackup"] = nValue;
-				}
-				else if (Key == "Rego6XXType")
-				{
-					root["Rego6XXType"] = nValue;
 				}
 				else if (Key == "CostEnergy")
 				{
@@ -12867,126 +12847,6 @@ namespace http {
 					sprintf(szTmp, "%.4f", (float)(nValue) / 10000.0f);
 					root["CostWater"] = szTmp;
 				}
-				else if (Key == "ActiveTimerPlan")
-				{
-					root["ActiveTimerPlan"] = nValue;
-				}
-				else if (Key == "DoorbellCommand")
-				{
-					root["DoorbellCommand"] = nValue;
-				}
-				else if (Key == "SmartMeterType")
-				{
-					root["SmartMeterType"] = nValue;
-				}
-				else if (Key == "EnableTabFloorplans")
-				{
-					root["EnableTabFloorplans"] = nValue;
-				}
-				else if (Key == "EnableTabLights")
-				{
-					root["EnableTabLights"] = nValue;
-				}
-				else if (Key == "EnableTabTemp")
-				{
-					root["EnableTabTemp"] = nValue;
-				}
-				else if (Key == "EnableTabWeather")
-				{
-					root["EnableTabWeather"] = nValue;
-				}
-				else if (Key == "EnableTabUtility")
-				{
-					root["EnableTabUtility"] = nValue;
-				}
-				else if (Key == "EnableTabScenes")
-				{
-					root["EnableTabScenes"] = nValue;
-				}
-				else if (Key == "EnableTabCustom")
-				{
-					root["EnableTabCustom"] = nValue;
-				}
-				else if (Key == "NotificationSensorInterval")
-				{
-					root["NotificationSensorInterval"] = nValue;
-				}
-				else if (Key == "NotificationSwitchInterval")
-				{
-					root["NotificationSwitchInterval"] = nValue;
-				}
-				else if (Key == "RemoteSharedPort")
-				{
-					root["RemoteSharedPort"] = nValue;
-				}
-				else if (Key == "Language")
-				{
-					root["Language"] = sValue;
-				}
-				else if (Key == "Title")
-				{
-					root["Title"] = sValue;
-				}
-				else if (Key == "WindUnit")
-				{
-					root["WindUnit"] = nValue;
-				}
-				else if (Key == "TempUnit")
-				{
-					root["TempUnit"] = nValue;
-				}
-				else if (Key == "WeightUnit")
-				{
-					root["WeightUnit"] = nValue;
-				}
-				else if (Key == "AuthenticationMethod")
-				{
-					root["AuthenticationMethod"] = nValue;
-				}
-				else if (Key == "ReleaseChannel")
-				{
-					root["ReleaseChannel"] = nValue;
-				}
-				else if (Key == "RaspCamParams")
-				{
-					root["RaspCamParams"] = sValue;
-				}
-				else if (Key == "UVCParams")
-				{
-					root["UVCParams"] = sValue;
-				}
-				else if (Key == "AcceptNewHardware")
-				{
-					root["AcceptNewHardware"] = nValue;
-				}
-				else if (Key == "HideDisabledHardwareSensors")
-				{
-					root["HideDisabledHardwareSensors"] = nValue;
-				}
-				else if (Key == "ShowUpdateEffect")
-				{
-					root["ShowUpdateEffect"] = nValue;
-				}
-				else if (Key == "DegreeDaysBaseTemperature")
-				{
-					root["DegreeDaysBaseTemperature"] = sValue;
-				}
-				else if (Key == "EnableEventScriptSystem")
-				{
-					root["EnableEventScriptSystem"] = nValue;
-				}
-				else if (Key == "DisableDzVentsSystem")
-				{
-					root["DisableDzVentsSystem"] = nValue;
-				}
-				else if (Key == "DzVentsLogLevel")
-				{
-					root["DzVentsLogLevel"] = nValue;
-				}
-				else if (Key == "LogEventScriptTrigger")
-				{
-					root["LogEventScriptTrigger"] = nValue;
-				}
 				else if (Key == "(1WireSensorPollPeriod")
 				{
 					root["1WireSensorPollPeriod"] = nValue;
@@ -12995,99 +12855,32 @@ namespace http {
 				{
 					root["1WireSwitchPollPeriod"] = nValue;
 				}
-				else if (Key == "SecOnDelay")
-				{
-					root["SecOnDelay"] = nValue;
-				}
-				else if (Key == "AllowWidgetOrdering")
-				{
-					root["AllowWidgetOrdering"] = nValue;
-				}
-				else if (Key == "FloorplanPopupDelay")
-				{
-					root["FloorplanPopupDelay"] = nValue;
-				}
-				else if (Key == "FloorplanFullscreenMode")
-				{
-					root["FloorplanFullscreenMode"] = nValue;
-				}
-				else if (Key == "FloorplanAnimateZoom")
-				{
-					root["FloorplanAnimateZoom"] = nValue;
-				}
-				else if (Key == "FloorplanShowSensorValues")
-				{
-					root["FloorplanShowSensorValues"] = nValue;
-				}
-				else if (Key == "FloorplanShowSwitchValues")
-				{
-					root["FloorplanShowSwitchValues"] = nValue;
-				}
-				else if (Key == "FloorplanShowSceneNames")
-				{
-					root["FloorplanShowSceneNames"] = nValue;
-				}
-				else if (Key == "FloorplanRoomColour")
-				{
-					root["FloorplanRoomColour"] = sValue;
-				}
-				else if (Key == "FloorplanActiveOpacity")
-				{
-					root["FloorplanActiveOpacity"] = nValue;
-				}
-				else if (Key == "FloorplanInactiveOpacity")
-				{
-					root["FloorplanInactiveOpacity"] = nValue;
-				}
-				else if (Key == "SensorTimeout")
-				{
-					root["SensorTimeout"] = nValue;
-				}
 				else if (Key == "BatteryLowNotification")
 				{
 					root["BatterLowLevel"] = nValue;
 				}
-				else if (Key == "WebTheme")
+				else
 				{
-					root["WebTheme"] = sValue;
-				}
-#ifndef NOCLOUD
-				else if (Key == "MyDomoticzInstanceId") {
-					root["MyDomoticzInstanceId"] = sValue;
-				}
-				else if (Key == "MyDomoticzUserId") {
-					root["MyDomoticzUserId"] = sValue;
-				}
-				else if (Key == "MyDomoticzPassword") {
-					root["MyDomoticzPassword"] = sValue;
-				}
-				else if (Key == "MyDomoticzSubsystems") {
-					root["MyDomoticzSubsystems"] = nValue;
-				}
-#endif
-				else if (Key == "MyDomoticzSubsystems") {
-					root["MyDomoticzSubsystems"] = nValue;
-				}
-				else if (Key == "SendErrorsAsNotification") {
-					root["SendErrorsAsNotification"] = nValue;
-				}
-				else if (Key == "LogFilter") {
-					root[Key] = sValue;
-				}
-				else if (Key == "LogFileName") {
-					root[Key] = sValue;
-				}
-				else if (Key == "LogLevel") {
-					root[Key] = sValue;
-				}
-				else if (Key == "DeltaTemperatureLog") {
-					root[Key] = sValue;
-				}
-				else if (Key == "IFTTTEnabled") {
-					root["IFTTTEnabled"] = nValue;
-				}
-				else if (Key == "IFTTTAPI") {
-					root["IFTTTAPI"] = sValue;
+					bool skip = false;
+					for (uint8_t i = 0; !nValueKey[i].empty(); i++)
+					{
+						if (Key == nValueKey[i])
+						{
+							root[nValueKey[i]] = nValue;
+							skip = true;
+							break;
+						}
+					}
+					if (skip)
+						continue;
+					for (uint8_t i = 0; !sValueKey[i].empty(); i++)
+					{
+						if (Key == sValueKey[i])
+						{
+							root[sValueKey[i]] = sValue;
+							break;
+						}
+					}
 				}
 			}
 		}
