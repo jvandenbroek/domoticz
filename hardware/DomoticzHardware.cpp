@@ -44,12 +44,14 @@ bool CDomoticzHardwareBase::Start()
 	if (result.size() == 1)
 		m_Name = result[0][0];
 
+	_notify.Notify(NOTIFY_HW_START, NOTIFY_INFO, m_Name);
 	return StartHardware();
 }
 
 bool CDomoticzHardwareBase::Stop()
 {
 	boost::lock_guard<boost::mutex> l(readQueueMutex);
+	_notify.Notify(NOTIFY_HW_STOP, NOTIFY_INFO, m_Name);
 	return StopHardware();
 }
 

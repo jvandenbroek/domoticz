@@ -113,11 +113,12 @@ void CLogger::Log(const _eLogLevel level, const _eNotifyType type, const char* l
 	vsnprintf(cbuffer, sizeof(cbuffer), logline, argList);
 	va_end(argList);
 
-	_notify.Notify(type, static_cast<_eNotifyStatus>(level), cbuffer);
-
 	bool bDoLog = false;
 	if (level <= (_eLogLevel)m_verbose_level)
 		bDoLog = true;
+
+	if (level != LOG_ERROR || !bDoLog)
+		_notify.Notify(type, static_cast<_eNotifyStatus>(level), cbuffer);
 
 	if (!bDoLog)
 		return;
@@ -163,6 +164,7 @@ void CLogger::Log(const bool dummy, const _eLogLevel level, const char* cbuffer)
 	}
 	else
 	{
+		_notify.Notify(NOTIFY_LOG, NOTIFY_ERROR, cbuffer);
 		sstr << "Error: " << cbuffer;
 	}
 

@@ -4,24 +4,26 @@
 
 const CNotifySystem::_tNotifyTypeTable CNotifySystem::typeTable[] =
 {
-	{ NOTIFY, 				"notify"		},
-	{ NOTIFY_STARTUP,		"startup"		},
-	{ NOTIFY_SHUTDOWN, 		"shutdown"		},
-	{ NOTIFY_NOTIFICATION,	"notification"	},
-	{ NOTIFY_BACKUP_START,	"backupStart"	},
-	{ NOTIFY_BACKUP_END,	"backupEnd"		},
-	{ NOTIFY_TIMEOUT,		"timeout"		},
-	{ NOTIFY_ENDED,			"ended"			},
-	{ NOTIFY_DISKFULL,		"diskfull"		},
-	{ NOTIFY_WHATEVER,		"whatever"		}
+	{ NOTIFY_LOG,             "log"           },
+	{ NOTIFY_STARTUP,         "startup"       },
+	{ NOTIFY_SHUTDOWN,        "shutdown"      },
+	{ NOTIFY_NOTIFICATION,    "notification"  },
+	{ NOTIFY_BACKUP_START,    "backupStart"	  },
+	{ NOTIFY_BACKUP_END,      "backupEnd"     },
+	{ NOTIFY_TIMEOUT,         "timeout"       },
+	{ NOTIFY_ENDED,           "ended"         },
+	{ NOTIFY_DISKFULL,        "diskfull"      },
+	{ NOTIFY_HW_START,        "hardwareStart" },
+	{ NOTIFY_HW_STOP,         "hardwareStop"  },
+	{ NOTIFY_WHATEVER,        "whatever"      }
 };
 
 const CNotifySystem::_tNotifyStatusTable CNotifySystem::statusTable[] =
 {
-	{ NOTIFY_ERROR, 		"error"			},
-	{ NOTIFY_INFO,			"info"			},
-	{ NOTIFY_NORM, 			"normal"		},
-	{ NOTIFY_TRACE,			"trace"			}
+	{ NOTIFY_ERROR,           "error"         },
+	{ NOTIFY_INFO,            "info"          },
+	{ NOTIFY_NORM,            "normal"        },
+	{ NOTIFY_TRACE,           "trace"         }
 };
 
 CNotifySystem::CNotifySystem(void)

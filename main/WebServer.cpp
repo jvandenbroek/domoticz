@@ -12761,14 +12761,18 @@ namespace http {
 				}
 				else
 				{
+					bool skip = false;
 					for (uint8_t i = 0; !nValueKey[i].empty(); i++)
 					{
 						if (Key == nValueKey[i])
 						{
 							root[nValueKey[i]] = nValue;
+							skip = true;
 							break;
 						}
 					}
+					if (skip)
+						continue;
 					for (uint8_t i = 0; !sValueKey[i].empty(); i++)
 					{
 						if (Key == sValueKey[i])
