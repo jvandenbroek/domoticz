@@ -614,6 +614,9 @@ define(['app'], function (app) {
 					if (typeof data.LogEventScriptTrigger != 'undefined') {
 						$("#eventsystemtable #LogEventScriptTrigger").prop('checked', data.LogEventScriptTrigger == 1);
 					}
+					if (typeof data.EnableNotifySystem != 'undefined') {
+						$("#EnableNotifySystem").prop('checked', data.EnableNotifySystem == 1);
+					}
 
 					if (typeof data.FloorplanPopupDelay != 'undefined') {
 						$("#floorplanoptionstable #FloorplanPopupDelay").val(data.FloorplanPopupDelay);

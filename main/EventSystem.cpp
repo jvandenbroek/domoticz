@@ -1588,6 +1588,7 @@ void CEventSystem::EvaluateEvent(const std::vector<_tEventQueue> &items)
 				}
 				else if ((itt->reason == REASON_TIME && filename.find("_time_") != std::string::npos) ||
 					(itt->reason == REASON_SECURITY && filename.find("_security_") != std::string::npos) ||
+					(itt->reason == REASON_NOTIFY && filename.find("_notify_") != std::string::npos) ||
 					(itt->reason == REASON_USERVARIABLE && filename.find("_variable_") != std::string::npos))
 				{
 					EvaluateLua(*itt, m_lua_Dir + filename, "");
