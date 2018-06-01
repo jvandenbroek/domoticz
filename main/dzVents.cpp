@@ -18,7 +18,7 @@ CdzVents CdzVents::m_dzvents;
 
 CdzVents::CdzVents(void)
 {
-	m_version = "2.4.6";
+	m_version = "2.5.0";
 	m_printprefix = "dzVents";
 }
 
@@ -101,7 +101,7 @@ void CdzVents::ProcessNotify(lua_State *lua_state, const std::vector<CEventSyste
 			lua_rawset(lua_state, -3);
 			lua_settable(lua_state, -3); // number entry
 			index++;
-//			_log.Log(LOG_STATUS, "dzVents: type: %s, status: %s, message: %s", type.c_str(), status.c_str(), message.c_str());
+			_log.Log(LOG_STATUS, "dzVents: type: %s, status: %s, message: %s", type.c_str(), status.c_str(), message.c_str());
 		}
 	}
 	lua_setglobal(lua_state, "Notify");

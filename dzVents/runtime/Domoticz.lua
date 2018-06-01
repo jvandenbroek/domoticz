@@ -114,6 +114,7 @@ local function Domoticz(settings)
 		['EVENT_TYPE_SCENE'] = 'scene',
 		['EVENT_TYPE_GROUP'] = 'group',
 		['EVENT_TYPE_HTTPRESPONSE'] = 'httpResponse',
+		['EVENT_TYPE_SYSTEM'] = 'system',
 		['EVOHOME_MODE_AUTO'] = 'Auto',
 		['EVOHOME_MODE_TEMPORARY_OVERRIDE'] = 'TemporaryOverride',
 		['EVOHOME_MODE_PERMANENT_OVERRIDE'] = 'PermanentOverride',
@@ -139,6 +140,7 @@ local function Domoticz(settings)
 		['BASETYPE_SECURITY'] = 'security',
 		['BASETYPE_TIMER'] = 'timer',
 		['BASETYPE_HTTP_RESPONSE'] = 'httpResponse',
+		['BASE_TYPE_SYSTEM'] = 'system',
 
 		utils = {
 			_ = _,

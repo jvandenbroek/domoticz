@@ -1,5 +1,5 @@
-local TESTMODE = false
-globalvariables['testmode'] = false
+local TESTMODE = true
+globalvariables['testmode'] = true
 --globalvariables['dzVents_log_level'] = 4 --debug
 
 if (_G.TESTMODE) then
@@ -31,6 +31,7 @@ local EventHelpers = require('EventHelpers')
 local helpers = EventHelpers()
 local utils = require('Utils')
 
+require('lodash').print(_G.Notify)
 
 if (tonumber(globalvariables['dzVents_log_level']) == utils.LOG_DEBUG or TESTMODE) then
 	print('Debug: Dumping domoticz data to ' .. scriptPath .. 'domoticzData.lua')
@@ -39,7 +40,7 @@ if (tonumber(globalvariables['dzVents_log_level']) == utils.LOG_DEBUG or TESTMOD
 
 	local events, length = helpers.getEventSummary()
 	if (length > 0) then
-		print('Debug: dzVents version: 2.4.6')
+		print('Debug: dzVents version: 2.5.0')
 
 		print('Debug: Event triggers:')
 		for i, event in pairs(events) do
@@ -67,7 +68,8 @@ helpers.dispatchVariableEventsToScripts()
 helpers.dispatchSecurityEventsToScripts()
 helpers.dispatchSceneGroupEventsToScripts()
 helpers.dispatchHTTPResponseEventsToScripts()
-commandArray = helpers.domoticz.commandArray
+helpers.dispatchSystemEventsToScripts()
 
+commandArray = helpers.domoticz.commandArray
 
 return commandArray
