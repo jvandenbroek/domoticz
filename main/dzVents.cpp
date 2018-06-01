@@ -101,7 +101,7 @@ void CdzVents::ProcessNotify(lua_State *lua_state, const std::vector<CEventSyste
 			lua_rawset(lua_state, -3);
 			lua_settable(lua_state, -3); // number entry
 			index++;
-			_log.Log(LOG_STATUS, "dzVents: type: %s, status: %s, message: %s", type.c_str(), status.c_str(), message.c_str());
+			//_log.Log(LOG_STATUS, "dzVents: type: %s, status: %s, message: %s", type.c_str(), status.c_str(), message.c_str());
 		}
 	}
 	lua_setglobal(lua_state, "Notify");
@@ -533,6 +533,68 @@ void CdzVents::SetGlobalVariables(lua_State *lua_state, const bool reasonTime, c
 	lua_setglobal(lua_state, "globalvariables");
 }
 
+void CdzVents::ExportHardwareData(int &index, lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items)
+{
+	std::vector<CDomoticzHardwareBase*> *hardwaredevices = m_mainworker.GetHardwareDevices();
+	std::vector<CDomoticzHardwareBase*>::iterator itt;
+	boost::lock_guard<boost::mutex> l(m_mainworker.m_devicemutex);
+	for (itt = (*hardwaredevices).begin(); itt != (*hardwaredevices).end(); ++itt)
+	{
+		lua_pushnumber(lua_state, (lua_Number)index);
+		lua_createtable(lua_state, 1, 14);
+		lua_pushstring(lua_state, "id");
+		lua_pushnumber(lua_state, (lua_Number)(*itt)->m_HwdID);
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "baseType");
+		lua_pushstring(lua_state, "hardware");
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "name");
+		lua_pushstring(lua_state, (*itt)->Name.c_str());
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "type");
+		lua_pushnumber(lua_state, (lua_Number)(*itt)->HwdType);
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "port");
+		lua_pushnumber(lua_state, (lua_Number)(*itt)->m_port);
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "address");
+		lua_pushstring(lua_state, (*itt)->m_address.c_str());
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "serialPort");
+		lua_pushstring(lua_state, (*itt)->m_serialPort.c_str());
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "username");
+		lua_pushstring(lua_state, (*itt)->m_username.c_str());
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "password");
+		lua_pushstring(lua_state, (*itt)->m_password.c_str());
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "extra");
+		lua_pushstring(lua_state, (*itt)->m_extra.c_str());
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "mode1");
+		lua_pushstring(lua_state, (*itt)->m_mode[1].c_str());
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "mode2");
+		lua_pushstring(lua_state, (*itt)->m_mode[2].c_str());
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "mode3");
+		lua_pushstring(lua_state, (*itt)->m_mode[3].c_str());
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "mode4");
+		lua_pushstring(lua_state, (*itt)->m_mode[4].c_str());
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "mode5");
+		lua_pushstring(lua_state, (*itt)->m_mode[5].c_str());
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "mode6");
+		lua_pushstring(lua_state, (*itt)->m_mode[6].c_str());
+		lua_rawset(lua_state, -3);
+		lua_settable(lua_state, -3); // device entry
+		index++;
+	}
+}
+
 void CdzVents::ExportDomoticzDataToLua(lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items)
 {
 	boost::shared_lock<boost::shared_mutex> devicestatesMutexLock(m_mainworker.m_eventsystem.m_devicestatesMutex);
@@ -912,6 +974,7 @@ void CdzVents::ExportDomoticzDataToLua(lua_State *lua_state, const std::vector<C
 
 		index++;
 	}
+	ExportHardwareData(index, lua_state, items);
 
 	lua_setglobal(lua_state, "domoticzData");
 }

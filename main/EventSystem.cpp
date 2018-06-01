@@ -51,12 +51,13 @@ extern PyObject * PDevice_new(PyTypeObject *type, PyObject *args, PyObject *kwds
 // Helper table for Blockly and SQL name mapping
 const std::string CEventSystem::m_szReason[] =
 {
-	"device",			// 0
-	"scenegroup",		// 1
-	"uservariable",		// 2
-	"time",				// 3
-	"security",			// 4
-	"url"				// 5
+	"device",        // 0
+	"scenegroup",    // 1
+	"uservariable",  // 2
+	"time",          // 3
+	"security",      // 4
+	"url",           // 5
+	"notify"         // 6
 };
 
 // Security status

@@ -26,9 +26,8 @@ public:
 	time_t m_LastHeartbeat;
 	time_t m_LastHeartbeatReceive;
 	bool m_bSkipReceiveCheck;
-	int m_HwdID;
+	int m_HwdID, m_port;
 	unsigned long m_DataTimeout;
-	std::string Name;
 	_eHardwareTypes HwdType;
 	unsigned char m_SeqNr;
 	unsigned char m_rxbufferpos;
@@ -37,6 +36,7 @@ public:
 	boost::signals2::signal<void(CDomoticzHardwareBase *pDevice)> sOnConnected;
 	void *m_pUserData;
 	bool m_bOutputLog;
+	std::string Name, m_address, m_serialPort, m_username, m_password, m_extra, m_mode[7];
 protected:
 
 	virtual bool StartHardware()=0;
@@ -100,7 +100,6 @@ protected:
 	int CalculateBaroForecast(const double pressure);
 
 	bool m_bIsStarted;
-	std::string m_Name;
 
 private:
     void Do_Heartbeat_Work();

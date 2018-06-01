@@ -42,6 +42,7 @@ public:
 	CDomoticzHardwareBase* GetHardware(int HwdId);
 	CDomoticzHardwareBase* GetHardwareByIDType(const std::string &HwdId, const _eHardwareTypes HWType);
 	CDomoticzHardwareBase* GetHardwareByType(const _eHardwareTypes HWType);
+	std::vector<CDomoticzHardwareBase*>* GetHardwareDevices();
 
 	void HeartbeatUpdate(const std::string &component);
 	void HeartbeatRemove(const std::string &component);
@@ -144,6 +145,7 @@ public:
 	std::string m_DayLength;
 	std::vector<std::string> m_webthemes;
 	std::map<unsigned short, _tWindCalculationStruct> m_wind_calculator;
+	boost::mutex m_devicemutex;
 
 private:
 	void HandleAutomaticBackups();
@@ -168,8 +170,6 @@ private:
 	time_t m_ScheduleLastHourTime;
 	time_t m_ScheduleLastDayTime;
 
-
-	boost::mutex m_devicemutex;
 
 	std::string m_szDomoticzUpdateChecksumURL;
 	bool m_bDoDownloadDomoticzUpdate;
@@ -296,9 +296,9 @@ private:
 	void decode_evohome1(const int HwdID, const _eHardwareTypes HwdType, const tRBUF *pResponse, _tRxMessageProcessingResult & procResult);
 	void decode_evohome2(const int HwdID, const _eHardwareTypes HwdType, const tRBUF *pResponse, _tRxMessageProcessingResult & procResult);
 	void decode_evohome3(const int HwdID, const _eHardwareTypes HwdType, const tRBUF *pResponse, _tRxMessageProcessingResult & procResult);
-   void decode_Cartelectronic(const int HwdID, const _eHardwareTypes HwdType, const tRBUF *pResponse, _tRxMessageProcessingResult & procResult);
-   void decode_CartelectronicTIC(const int HwdID, const tRBUF *pResponse, _tRxMessageProcessingResult & procResult);
-   void decode_CartelectronicEncoder(const int HwdID, const tRBUF *pResponse, _tRxMessageProcessingResult & procResult);
+	void decode_Cartelectronic(const int HwdID, const _eHardwareTypes HwdType, const tRBUF *pResponse, _tRxMessageProcessingResult & procResult);
+	void decode_CartelectronicTIC(const int HwdID, const tRBUF *pResponse, _tRxMessageProcessingResult & procResult);
+	void decode_CartelectronicEncoder(const int HwdID, const tRBUF *pResponse, _tRxMessageProcessingResult & procResult);
 };
 
 extern MainWorker m_mainworker;

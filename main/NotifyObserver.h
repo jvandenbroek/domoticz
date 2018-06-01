@@ -9,20 +9,18 @@ enum _eNotifyType
 	NOTIFY_NOTIFICATION,    // 3
 	NOTIFY_BACKUP_START,    // 4
 	NOTIFY_BACKUP_END,      // 5
-	NOTIFY_TIMEOUT,         // 6
-	NOTIFY_ENDED,           // 7
-	NOTIFY_DISKFULL,        // 8
-	NOTIFY_HW_START,        // 9
-	NOTIFY_HW_STOP,         // 10
-	NOTIFY_WHATEVER			// 11
+	NOTIFY_HW_TIMEOUT,      // 6
+	NOTIFY_THREAD_END,      // 7
+	NOTIFY_HW_START,        // 8
+	NOTIFY_HW_STOP          // 9
 };
 
 enum _eNotifyStatus
 {
-	NOTIFY_ERROR, 	// LOG_ERROR
-	NOTIFY_INFO,	// LOG_STATUS
-	NOTIFY_NORM,	// LOG_NORM
-	NOTIFY_TRACE,	// LOG_TRACE
+	NOTIFY_ERROR,   // LOG_ERROR
+	NOTIFY_INFO,    // LOG_STATUS
+	NOTIFY_NORM,    // LOG_NORM
+	NOTIFY_TRACE,   // LOG_TRACE
 };
 
 class CNotifyObserver

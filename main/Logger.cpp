@@ -84,7 +84,7 @@ void CLogger::ForwardErrorsToNotificationSystem(const bool bDoForward)
 
 void CLogger::Log(const _eLogLevel level, const std::string& sLogline)
 {
-	Log(true, level, sLogline.c_str());
+	Log(false, level, sLogline.c_str());
 }
 
 void CLogger::Log(const _eLogLevel level, const char* logline, ...)
@@ -102,7 +102,7 @@ void CLogger::Log(const _eLogLevel level, const char* logline, ...)
 	vsnprintf(cbuffer, sizeof(cbuffer), logline, argList);
 	va_end(argList);
 
-	Log(true, level, cbuffer);
+	Log(false, level, cbuffer);
 }
 
 void CLogger::Log(const _eLogLevel level, const _eNotifyType type, const char* logline, ...)
@@ -113,12 +113,11 @@ void CLogger::Log(const _eLogLevel level, const _eNotifyType type, const char* l
 	vsnprintf(cbuffer, sizeof(cbuffer), logline, argList);
 	va_end(argList);
 
+	_notify.Notify(type, static_cast<_eNotifyStatus>(level), cbuffer);
+
 	bool bDoLog = false;
 	if (level <= (_eLogLevel)m_verbose_level)
 		bDoLog = true;
-
-	if (level != LOG_ERROR || !bDoLog)
-		_notify.Notify(type, static_cast<_eNotifyStatus>(level), cbuffer);
 
 	if (!bDoLog)
 		return;
@@ -126,7 +125,7 @@ void CLogger::Log(const _eLogLevel level, const _eNotifyType type, const char* l
 	Log(true, level, cbuffer);
 }
 
-void CLogger::Log(const bool dummy, const _eLogLevel level, const char* cbuffer) // dummy prevents duplicate overload
+void CLogger::Log(const bool notify, const _eLogLevel level, const char* cbuffer)
 {
 	//test if log contain a string to be filtered from LOG content
 	if (TestFilter(cbuffer))
@@ -164,7 +163,8 @@ void CLogger::Log(const bool dummy, const _eLogLevel level, const char* cbuffer)
 	}
 	else
 	{
-		_notify.Notify(NOTIFY_LOG, NOTIFY_ERROR, cbuffer);
+		if (!notify)
+			_notify.Notify(NOTIFY_LOG, NOTIFY_ERROR, cbuffer);
 		sstr << "Error: " << cbuffer;
 	}
 

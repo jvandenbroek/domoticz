@@ -43,7 +43,7 @@ public:
 	void Log(const _eLogLevel level, const std::string& sLogline);
 	void Log(const _eLogLevel level, const char* logline, ...);
 	void Log(const _eLogLevel level, const _eNotifyType type, const char* logline, ...);
-	void Log(const bool dummy, const _eLogLevel level, const char* cbuffer);
+	void Log(const bool notify, const _eLogLevel level, const char* cbuffer);
 #ifdef __GNUC__
 		__attribute__ ((format (printf, 3, 4)))
 #endif
