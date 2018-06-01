@@ -523,7 +523,7 @@ void CdzVents::SetGlobalVariables(lua_State *lua_state, const bool reasonTime, c
 	lua_setglobal(lua_state, "globalvariables");
 }
 
-void CdzVents::ExportHardwareData(int &index, lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items)
+void CdzVents::ExportHardwareData(lua_State *lua_state, int &index)
 {
 	std::vector<CDomoticzHardwareBase*> *hardwaredevices = m_mainworker.GetHardwareDevices();
 	std::vector<CDomoticzHardwareBase*>::iterator itt;
@@ -540,6 +540,9 @@ void CdzVents::ExportHardwareData(int &index, lua_State *lua_state, const std::v
 		lua_rawset(lua_state, -3);
 		lua_pushstring(lua_state, "name");
 		lua_pushstring(lua_state, (*itt)->Name.c_str());
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "hardwareName");
+		lua_pushstring(lua_state, Hardware_Type_Desc((*itt)->HwdType));
 		lua_rawset(lua_state, -3);
 		lua_pushstring(lua_state, "type");
 		lua_pushnumber(lua_state, (lua_Number)(*itt)->HwdType);
@@ -964,7 +967,7 @@ void CdzVents::ExportDomoticzDataToLua(lua_State *lua_state, const std::vector<C
 
 		index++;
 	}
-	ExportHardwareData(index, lua_state, items);
+	ExportHardwareData(lua_state, index);
 
 	lua_setglobal(lua_state, "domoticzData");
 }
