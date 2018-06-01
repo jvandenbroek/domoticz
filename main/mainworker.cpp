@@ -507,6 +507,11 @@ CDomoticzHardwareBase* MainWorker::GetHardwareByType(const _eHardwareTypes HWTyp
 	return NULL;
 }
 
+std::vector<CDomoticzHardwareBase*>* MainWorker::GetHardwareDevices()
+{
+	return &m_hardwaredevices;
+}
+
 // sunset/sunrise
 // http://www.earthtools.org/sun/<latitude>/<longitude>/<day>/<month>/<timezone>/<dst>
 // example:
@@ -709,7 +714,7 @@ bool MainWorker::AddHardwareFromParams(
 	const _eHardwareTypes Type,
 	const std::string &Address, const unsigned short Port, const std::string &SerialPort,
 	const std::string &Username, const std::string &Password,
-	const std::string &Filename,
+	const std::string &Extra,
 	const int Mode1,
 	const int Mode2,
 	const int Mode3,
@@ -780,10 +785,10 @@ bool MainWorker::AddHardwareFromParams(
 		pHardware = new Meteostick(ID, SerialPort, 115200);
 		break;
 	case HTYPE_EVOHOME_SERIAL:
-		pHardware = new CEvohomeSerial(ID, SerialPort, Mode1, Filename);
+		pHardware = new CEvohomeSerial(ID, SerialPort, Mode1, Extra);
 		break;
 	case HTYPE_EVOHOME_TCP:
-		pHardware = new CEvohomeTCP(ID, Address, Port, Filename);
+		pHardware = new CEvohomeTCP(ID, Address, Port, Extra);
 		break;
 	case HTYPE_RFLINKUSB:
 		pHardware = new CRFLinkSerial(ID, SerialPort);
@@ -830,7 +835,7 @@ bool MainWorker::AddHardwareFromParams(
 		break;
 	case HTYPE_MySensorsMQTT:
 		//LAN
-		pHardware = new MySensorsMQTT(ID, Name, Address, Port, Username, Password, Filename, Mode1);
+		pHardware = new MySensorsMQTT(ID, Name, Address, Port, Username, Password, Extra, Mode1);
 		break;
 	case HTYPE_RFLINKTCP:
 		//LAN
@@ -842,7 +847,7 @@ bool MainWorker::AddHardwareFromParams(
 		break;
 	case HTYPE_MQTT:
 		//LAN
-		pHardware = new MQTT(ID, Address, Port, Username, Password, Filename, Mode1);
+		pHardware = new MQTT(ID, Address, Port, Username, Password, Extra, Mode1);
 		break;
 	case HTYPE_eHouseTCP:
 		//eHouse LAN, WiFi,Pro and other via eHousePRO gateway
@@ -897,7 +902,7 @@ bool MainWorker::AddHardwareFromParams(
 		break;
 	case HTYPE_1WIRE:
 		//1-Wire file system
-		pHardware = new C1Wire(ID, Mode1, Mode2, Filename);
+		pHardware = new C1Wire(ID, Mode1, Mode2, Extra);
 		break;
 	case HTYPE_Pinger:
 		//System Alive Checker (Ping)
@@ -979,7 +984,7 @@ bool MainWorker::AddHardwareFromParams(
 		pHardware = new CWunderground(ID, Username, Password);
 		break;
 	case HTYPE_HTTPPOLLER:
-		pHardware = new CHttpPoller(ID, Username, Password, Address, Filename, Port);
+		pHardware = new CHttpPoller(ID, Username, Password, Address, Extra, Port);
 		break;
 	case HTYPE_DarkSky:
 		pHardware = new CDarkSky(ID, Username, Password);
@@ -1012,7 +1017,7 @@ bool MainWorker::AddHardwareFromParams(
 		pHardware = new CNest(ID, Username, Password);
 		break;
 	case HTYPE_Nest_OAuthAPI:
-		pHardware = new CNestOAuthAPI(ID, Username, Filename);
+		pHardware = new CNestOAuthAPI(ID, Username, Extra);
 		break;
 	case HTYPE_ANNATHERMOSTAT:
 		pHardware = new CAnnaThermostat(ID, Address, Port, Username, Password);
@@ -1094,7 +1099,7 @@ bool MainWorker::AddHardwareFromParams(
 		break;
 	case HTYPE_PythonPlugin:
 #ifdef ENABLE_PYTHON
-		pHardware = m_pluginsystem.RegisterPlugin(ID, Name, Filename);
+		pHardware = m_pluginsystem.RegisterPlugin(ID, Name, Extra);
 #endif
 		break;
 	case HTYPE_XiaomiGateway:
@@ -1113,7 +1118,7 @@ bool MainWorker::AddHardwareFromParams(
 		pHardware = new CEvohomeWeb(ID, Username, Password, Mode1, Mode2, Mode3);
 		break;
 	case HTYPE_Rtl433:
-		pHardware = new CRtl433(ID, Filename);
+		pHardware = new CRtl433(ID, Extra);
 		break;
 	case HTYPE_OnkyoAVTCP:
 		pHardware = new OnkyoAVTCP(ID, Address, Port);
@@ -1136,6 +1141,18 @@ bool MainWorker::AddHardwareFromParams(
 	{
 		pHardware->HwdType = Type;
 		pHardware->Name = Name;
+		pHardware->m_port = Port;
+		pHardware->m_address = Address;
+		pHardware->m_serialPort = SerialPort;
+		pHardware->m_username = Username;
+		pHardware->m_password = Password;
+		pHardware->m_extra = Extra;
+		pHardware->m_mode[1] = Mode1;
+		pHardware->m_mode[2] = Mode2;
+		pHardware->m_mode[3] = Mode3;
+		pHardware->m_mode[4] = Mode4;
+		pHardware->m_mode[5] = Mode5;
+		pHardware->m_mode[6] = Mode6;
 		pHardware->m_DataTimeout = DataTimeout;
 		AddDomoticzHardware(pHardware);
 
@@ -1644,14 +1661,14 @@ void MainWorker::Do_Work()
 			if (m_hardwareStartCounter >= 2)
 			{
 				_notify.SetEnabled(m_sql.m_bEnableNotifySystem);
+				m_eventsystem.SetEnabled(m_sql.m_bEnableEventSystem);
+				m_eventsystem.StartEventSystem();
 				m_bStartHardware = false;
 				StartDomoticzHardware();
 #ifdef ENABLE_PYTHON
 				m_pluginsystem.AllPluginsStarted();
 #endif
 				ParseRFXLogFile();
-				m_eventsystem.SetEnabled(m_sql.m_bEnableEventSystem);
-				m_eventsystem.StartEventSystem();
 				_notify.Notify(NOTIFY_STARTUP);
 			}
 		}
@@ -1663,7 +1680,7 @@ void MainWorker::Do_Work()
 				std::stringstream sstr;
 				sstr << (*itt)->m_HwdID;
 				std::string idx = sstr.str();
-				_log.Log(LOG_ERROR, "Restarting: %s", (*itt)->m_Name.c_str());
+				_log.Log(LOG_ERROR, "Restarting: %s", (*itt)->Name.c_str());
 				RestartHardware(idx);
 			}
 			m_devicestorestart.clear();
@@ -12836,7 +12853,7 @@ void MainWorker::HeartbeatCheck()
 		double dif = difftime(now, iterator->second);
 		//_log.Log(LOG_STATUS, "%s last checking  %.2lf seconds ago", iterator->first.c_str(), dif);
 		if (dif > 60)
-			_log.Log(LOG_ERROR, NOTIFY_ENDED, "%s thread seems to have ended unexpectedly", iterator->first.c_str());
+			_log.Log(LOG_ERROR, NOTIFY_THREAD_END, "%s thread seems to have ended unexpectedly", iterator->first.c_str());
 	}
 
 	//Check hardware heartbeats
@@ -12854,7 +12871,7 @@ void MainWorker::HeartbeatCheck()
 				double diff = difftime(now, pHardware->m_LastHeartbeat);
 				//_log.Log(LOG_STATUS, "%d last checking  %.2lf seconds ago", iterator->first, dif);
 				if (diff > 60)
-					_log.Log(LOG_ERROR, NOTIFY_TIMEOUT, "%s hardware (%d) thread seems to have ended unexpectedly", pHardware->m_Name.c_str(), pHardware->m_HwdID);
+					_log.Log(LOG_ERROR, NOTIFY_HW_TIMEOUT, "%s hardware (%d) thread seems to have ended unexpectedly", pHardware->Name.c_str(), pHardware->m_HwdID);
 			}
 
 			if (pHardware->m_DataTimeout > 0)
@@ -12897,7 +12914,7 @@ void MainWorker::HeartbeatCheck()
 						}
 					}
 
-					_log.Log(LOG_ERROR, NOTIFY_TIMEOUT, "%s hardware (%d) nothing received for more than %d %s!....", pHardware->m_Name.c_str(), pHardware->m_HwdID, totNum, sDataTimeout.c_str());
+					_log.Log(LOG_ERROR, NOTIFY_HW_TIMEOUT, "%s hardware (%d) nothing received for more than %d %s!....", pHardware->Name.c_str(), pHardware->m_HwdID, totNum, sDataTimeout.c_str());
 					m_devicestorestart.push_back(pHardware);
 				}
 			}
