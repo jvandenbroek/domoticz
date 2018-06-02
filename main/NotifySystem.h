@@ -2,7 +2,7 @@
 #include "concurrent_queue.h"
 #include "NotifyObserver.h"
 
-class CNotifySystem : public CNotifyObserver
+class CNotifySystem
 {
 public:
 	CNotifySystem(void);
@@ -45,7 +45,6 @@ private:
 	void Start();
 	void Stop();
 	void QueueThread();
-	virtual bool NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message);
 
 	volatile bool m_stoprequested;
 	boost::mutex m_mutex;

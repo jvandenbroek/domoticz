@@ -7,8 +7,8 @@
 #include "../main/RFXtrx.h"
 #include "../main/SQLHelper.h"
 #include "../main/mainworker.h"
+#include "../main/NotifySystem.h"
 #include "hardwaretypes.h"
-#include "NotifySystem.h"
 
 #define round(a) ( int ) ( a + .5 )
 

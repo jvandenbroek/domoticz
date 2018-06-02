@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "NotifySystem.h"
 #include "Logger.h"
-#define __STDC_FORMAT_MACROS
-#include <inttypes.h>
 
 const CNotifySystem::_tNotifyTypeTable CNotifySystem::typeTable[] =
 {
@@ -166,11 +164,6 @@ bool CNotifySystem::NotifyWait(const _eNotifyType type, const _eNotifyStatus sta
 	for (size_t i = 0; i < m_notify.size(); i++)
 		response |= m_notify[i]->NotifyReceiver(type, status, id, message);
 	return response;
-}
-
-bool CNotifySystem::NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message)
-{
-	return false;
 }
 
 bool CNotifySystem::Register(CNotifyObserver* pHardware)
