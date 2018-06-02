@@ -16,7 +16,7 @@
 
 		void*   m_PyInterpreter;
         bool ModuleInitalized = false;
-        
+
         struct eventModule_state {
             PyObject*	error;
         };
@@ -105,22 +105,22 @@
             PyObject* pModule = PyModule_Create2(&DomoticzEventsModuleDef, PYTHON_API_VERSION);
             return pModule;
         }
-        
+
         int PythonEventsInitalized = 0;
 
         bool PythonEventsInitialize(std::string szUserDataFolder) {
-            
+
             if (!Plugins::Py_LoadLibrary())
             {
                 _log.Log(LOG_STATUS, "EventSystem - Python: Failed dynamic library load, install the latest libpython3.x library that is available for your platform.");
                 return false;
             }
-            
+
             if (!Plugins::Py_IsInitialized()) {
                 _log.Log(LOG_STATUS, "EventSystem - Python: Failed dynamic library load, install the latest libpython3.x library that is available for your platform.");
                 return false;
             }
-            
+
 			boost::lock_guard<boost::mutex> l(PythonMutex);
 			m_PyInterpreter = Py_NewInterpreter();
             if (!m_PyInterpreter)
@@ -128,21 +128,21 @@
                 _log.Log(LOG_ERROR, "EventSystem - Python: Failed to create interpreter.");
                 return false;
             }
-            
+
             std::string ssPath;
 #ifdef WIN32
             ssPath  = szUserDataFolder + "scripts\\python\\;";
 #else
             ssPath  = szUserDataFolder + "scripts/python/:";
 #endif
-            
+
             std::wstring sPath = std::wstring(ssPath.begin(), ssPath.end());
-            
+
             sPath += Plugins::Py_GetPath();
             Plugins::PySys_SetPath((wchar_t*)sPath.c_str());
-            
+
             PythonEventsInitalized = 1;
-            
+
             PyObject* pModule = Plugins::PythonEventsGetModule();
             if (!pModule) {
                 _log.Log(LOG_ERROR, "EventSystem - Python: Failed to initialize module.");
@@ -151,7 +151,7 @@
             ModuleInitalized = true;
             return true;
         }
-        
+
         bool PythonEventsStop() {
             if (m_PyInterpreter) {
 				boost::lock_guard<boost::mutex> l(PythonMutex);
@@ -164,7 +164,7 @@
             } else
                 return false;
         }
-        
+
         PyObject* PythonEventsGetModule (void) {
             PyObject* pModule = PyState_FindModule(&DomoticzEventsModuleDef);
 
@@ -186,30 +186,27 @@
         }
 
         // main_namespace["otherdevices_temperature"] = toPythonDict(m_tempValuesByName);
-        
+
         PyObject* mapToPythonDict(std::map<std::string, float> floatMap) {
-            
+
             return Py_None;
         }
-       
 
-        void PythonEventsProcessPython(const std::string &reason, const std::string &filename, const std::string &PyString, const uint64_t DeviceID, std::map<uint64_t, CEventSystem::_tDeviceStatus> m_devicestates, std::map<uint64_t, CEventSystem::_tUserVariable> m_uservariables, int intSunRise, int intSunSet) {
-
-       
+        void PythonEventsProcessPython(const std::string &reason, const std::string &filename, const std::string &PyString, const uint64_t DeviceID, std::map<uint64_t, CEventSystem::_tDeviceStatus> &m_devicestates, std::map<uint64_t, CEventSystem::_tUserVariable> &m_uservariables, int intSunRise, int intSunSet)
+        {
             if (!ModuleInitalized) {
                 return;
             }
-            
 
            if (Plugins::Py_IsInitialized()) {
-               
+
 			   boost::lock_guard<boost::mutex> l(PythonMutex);
 			   if (m_PyInterpreter) PyEval_RestoreThread((PyThreadState*)m_PyInterpreter);
-               
+
                /*{
                    _log.Log(LOG_ERROR, "EventSystem - Python: Failed to attach to interpreter");
                }*/
-            
+
                PyObject* pModule = Plugins::PythonEventsGetModule();
                if (pModule) {
 
@@ -240,7 +237,7 @@
                    }
 
                    // Mutex
-                   // boost::shared_lock<boost::shared_mutex> devicestatesMutexLock1(m_devicestatesMutex);
+                   boost::shared_lock<boost::shared_mutex> devicestatesMutexLock(m_mainworker.m_eventsystem.m_devicestatesMutex);
 
                    std::map<uint64_t, CEventSystem::_tDeviceStatus>::const_iterator it_type;
                    for (it_type = m_devicestates.begin(); it_type != m_devicestates.end(); ++it_type)
@@ -283,7 +280,7 @@
                        Py_DECREF(aDevice);
                        Py_DECREF(pKey);
                    }
-                   // devicestatesMutexLock1.unlock();
+                   devicestatesMutexLock.unlock();
 
                    // Time related
 
@@ -336,17 +333,14 @@
                    }
                    Py_DECREF(m_uservariablesDict);
 
-                   // This doesn't work
-                   // boost::unique_lock<boost::shared_mutex> uservariablesMutexLock2 (m_uservariablesMutex);
-
+                   boost::shared_lock<boost::shared_mutex> uservariablesMutexLock(m_mainworker.m_eventsystem.m_uservariablesMutex);
                    std::map<uint64_t, CEventSystem::_tUserVariable>::const_iterator it_var;
                    for (it_var = m_uservariables.begin(); it_var != m_uservariables.end(); ++it_var) {
                        CEventSystem::_tUserVariable uvitem = it_var->second;
                        Plugins::PyDict_SetItemString(m_uservariablesDict, uvitem.variableName.c_str(), Plugins::PyUnicode_FromString(uvitem.variableValue.c_str()));
                    }
+                   uservariablesMutexLock.unlock();
 
-                   // uservariablesMutexLock2.unlock();
-                   
                    // Add __main__ module
                    PyObject *pModule = Plugins::PyImport_AddModule("__main__");
                    Py_INCREF(pModule);
@@ -361,7 +355,7 @@
                        // Script-file
                        FILE* PythonScriptFile = fopen(filename.c_str(), "r");
                        Plugins::PyRun_SimpleFileExFlags(PythonScriptFile, filename.c_str(), 0, NULL);
-                       
+
                        if (PythonScriptFile!=NULL)
                            fclose(PythonScriptFile);
                    }

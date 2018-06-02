@@ -9,6 +9,7 @@
 #include <inttypes.h>
 #include "../webserver/Base64.h"
 #include <iostream>
+#include "NotifySystem.h"
 
 extern std::string szUserDataFolder, szWebRoot;
 extern http::server::CWebServerHelper m_webservers;
@@ -90,6 +91,9 @@ void CdzVents::ProcessNotify(lua_State *lua_state, const std::vector<CEventSyste
 
 			if (!itt->sValue.empty())
 				message = itt->sValue;
+			lua_pushstring(lua_state, "id");
+			lua_pushnumber(lua_state, (lua_Number)itt->id);
+			lua_rawset(lua_state, -3);
 			lua_pushstring(lua_state, "type");
 			lua_pushstring(lua_state, type.c_str());
 			lua_rawset(lua_state, -3);
@@ -583,7 +587,7 @@ void CdzVents::ExportHardwareData(lua_State *lua_state, int &index)
 		lua_pushstring(lua_state, "mode6");
 		lua_pushstring(lua_state, (*itt)->m_mode[6].c_str());
 		lua_rawset(lua_state, -3);
-		lua_settable(lua_state, -3); // device entry
+		lua_settable(lua_state, -3);
 		index++;
 	}
 }
@@ -617,7 +621,7 @@ void CdzVents::ExportDomoticzDataToLua(lua_State *lua_state, const std::vector<C
 		std::vector<CEventSystem::_tEventQueue>::const_iterator itt;
 		for (itt = items.begin(); itt != items.end(); itt++)
 		{
-			if (sitem.ID == itt->DeviceID && itt->reason == m_mainworker.m_eventsystem.REASON_DEVICE)
+			if (sitem.ID == itt->id && itt->reason == m_mainworker.m_eventsystem.REASON_DEVICE)
 			{
 				triggerDevice = true;
 				sitem.lastUpdate = itt->lastUpdate;
@@ -817,7 +821,7 @@ void CdzVents::ExportDomoticzDataToLua(lua_State *lua_state, const std::vector<C
 		std::vector<CEventSystem::_tEventQueue>::const_iterator itt;
 		for (itt = items.begin(); itt != items.end(); itt++)
 		{
-			if (sgitem.ID == itt->DeviceID && itt->reason == m_mainworker.m_eventsystem.REASON_SCENEGROUP)
+			if (sgitem.ID == itt->id && itt->reason == m_mainworker.m_eventsystem.REASON_SCENEGROUP)
 			{
 				triggerScene = true;
 				sgitem.lastUpdate = itt->lastUpdate;
@@ -898,7 +902,7 @@ void CdzVents::ExportDomoticzDataToLua(lua_State *lua_state, const std::vector<C
 		std::vector<CEventSystem::_tEventQueue>::const_iterator itt;
 		for (itt = items.begin(); itt != items.end(); itt++)
 		{
-			if (uvitem.ID == itt->varId && itt->reason == m_mainworker.m_eventsystem.REASON_USERVARIABLE)
+			if (uvitem.ID == itt->id && itt->reason == m_mainworker.m_eventsystem.REASON_USERVARIABLE)
 			{
 				triggerVar = true;
 				uvitem.lastUpdate = itt->lastUpdate;

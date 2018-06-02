@@ -14,6 +14,7 @@
 #endif
 
 #include "SQLHelper.h"
+#include "NotifySystem.h"
 
 #define MAX_LOG_LINE_BUFFER 100
 #define MAX_LOG_LINE_LENGTH (2048*3)
@@ -84,7 +85,7 @@ void CLogger::ForwardErrorsToNotificationSystem(const bool bDoForward)
 
 void CLogger::Log(const _eLogLevel level, const std::string& sLogline)
 {
-	Log(false, level, sLogline.c_str());
+	Log(level, "%s", sLogline.c_str());
 }
 
 void CLogger::Log(const _eLogLevel level, const char* logline, ...)
@@ -102,31 +103,6 @@ void CLogger::Log(const _eLogLevel level, const char* logline, ...)
 	vsnprintf(cbuffer, sizeof(cbuffer), logline, argList);
 	va_end(argList);
 
-	Log(false, level, cbuffer);
-}
-
-void CLogger::Log(const _eLogLevel level, const _eNotifyType type, const char* logline, ...)
-{
-	va_list argList;
-	char cbuffer[MAX_LOG_LINE_LENGTH];
-	va_start(argList, logline);
-	vsnprintf(cbuffer, sizeof(cbuffer), logline, argList);
-	va_end(argList);
-
-	_notify.Notify(type, static_cast<_eNotifyStatus>(level), cbuffer);
-
-	bool bDoLog = false;
-	if (level <= (_eLogLevel)m_verbose_level)
-		bDoLog = true;
-
-	if (!bDoLog)
-		return;
-
-	Log(true, level, cbuffer);
-}
-
-void CLogger::Log(const bool notify, const _eLogLevel level, const char* cbuffer)
-{
 	//test if log contain a string to be filtered from LOG content
 	if (TestFilter(cbuffer))
 		return;
@@ -163,8 +139,7 @@ void CLogger::Log(const bool notify, const _eLogLevel level, const char* cbuffer
 	}
 	else
 	{
-		if (!notify)
-			_notify.Notify(NOTIFY_LOG, NOTIFY_ERROR, cbuffer);
+		_notify.Notify(NOTIFY_LOG, NOTIFY_ERROR, cbuffer);
 		sstr << "Error: " << cbuffer;
 	}
 
@@ -424,7 +399,7 @@ void CLogger::GetLogPreference()
 			setLogVerboseLevel(atoi(LogLevel.c_str()));
 		else
 		{
-			m_sql.UpdatePreferencesVar("LogLevel", 0, boost::to_string(VBL_ALL));
+			m_sql.UpdatePreferencesVar("LogLevel", 0, std::to_string(VBL_ALL));
 			SetVerboseLevel(VBL_ALL);
 		}
 	}

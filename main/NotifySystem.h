@@ -10,9 +10,11 @@ public:
 	void Notify(const _eNotifyType type);
 	void Notify(const _eNotifyType type, const _eNotifyStatus status);
 	void Notify(const _eNotifyType type, const _eNotifyStatus status, const std::string &message);
+	void Notify(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message);
 	bool NotifyWait(const _eNotifyType type);
 	bool NotifyWait(const _eNotifyType type, const _eNotifyStatus status);
 	bool NotifyWait(const _eNotifyType type, const _eNotifyStatus status, const std::string &message);
+	bool NotifyWait(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message);
 	bool Register(CNotifyObserver* pHardware);
 	bool Unregister(CNotifyObserver* pHardware);
 	std::string GetTypeString(const int type);
@@ -33,6 +35,7 @@ private:
 
 	struct _tNotifyQueue
 	{
+		uint64_t id;
 		_eNotifyType type;
 		_eNotifyStatus status;
 		std::string message;
@@ -42,7 +45,7 @@ private:
 	void Start();
 	void Stop();
 	void QueueThread();
-	virtual bool NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const std::string &message) { return false; };
+	virtual bool NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message);
 
 	volatile bool m_stoprequested;
 	boost::mutex m_mutex;
