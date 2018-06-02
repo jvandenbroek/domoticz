@@ -1428,7 +1428,7 @@ void CEventSystem::EventQueueThread()
 #endif
 		for (itt = items.begin(); itt != items.end(); itt++)
 		{
-			if (itt->id == item.id && itt->reason <= REASON_SCENEGROUP && itt->reason == item.reason)
+			if (itt->id == item.id && itt->reason <= REASON_USERVARIABLE && itt->reason == item.reason)
 			{
 				EvaluateEvent(items);
 				items.clear();
