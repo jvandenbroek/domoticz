@@ -26,4 +26,4 @@ local function Hardware(domoticz, data)
 	return self
 end
 
-return Variable
+return Hardware
