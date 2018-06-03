@@ -4,6 +4,7 @@ local function Hardware(domoticz, data)
 
 	local self = {
 		['name'] = data.name,
+		['hardwareName'] = data.hardwareName,
 		['type'] = data.variableType,
 		['id'] = data.id,
 		['password'] = data.password,
