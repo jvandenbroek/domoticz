@@ -1,27 +1,29 @@
 #include "stdafx.h"
 #include "NotifySystem.h"
 #include "Logger.h"
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
 
 const CNotifySystem::_tNotifyTypeTable CNotifySystem::typeTable[] =
 {
 	{ NOTIFY_LOG,             "log"             },
-	{ NOTIFY_STARTUP,         "startup"         },
-	{ NOTIFY_SHUTDOWN,        "shutdown"        },
-	{ NOTIFY_NOTIFICATION,    "notification"    },
-	{ NOTIFY_BACKUP_START,    "backupStart"	    },
+	{ NOTIFY_DZ_START,        "domoticzStart"   },
+	{ NOTIFY_DZ_STOP,         "domoticzStop"    },
+	{ NOTIFY_BACKUP_BEGIN,    "backupBegin"	    },
 	{ NOTIFY_BACKUP_END,      "backupEnd"       },
 	{ NOTIFY_HW_TIMEOUT,      "hardwareTimeout" },
-	{ NOTIFY_THREAD_END,      "threadEnded"     },
 	{ NOTIFY_HW_START,        "hardwareStart"   },
-	{ NOTIFY_HW_STOP,         "hardwareStop"    }
+	{ NOTIFY_HW_STOP,         "hardwareStop"    },
+	{ NOTIFY_NOTIFICATION,    "notification"    },
+	{ NOTIFY_THREAD_ENDED,    "threadEnded"     },
 };
 
 const CNotifySystem::_tNotifyStatusTable CNotifySystem::statusTable[] =
 {
-	{ NOTIFY_ERROR,           "error"           },
+	{ NOTIFY_OK,              "ok"              },
 	{ NOTIFY_INFO,            "info"            },
-	{ NOTIFY_NORM,            "normal"          },
-	{ NOTIFY_TRACE,           "trace"           }
+	{ NOTIFY_ERROR,           "error"           },
+	{ NOTIFY_WARNING,         "warning"         }
 };
 
 CNotifySystem::CNotifySystem(void)
@@ -95,7 +97,7 @@ void CNotifySystem::QueueThread()
 
 		boost::unique_lock<boost::mutex> lock(m_mutex);
 		for (size_t i = 0; i < m_notify.size(); i++)
-			m_notify[i]->NotifyReceiver(item.type, item.status, item.message);
+			m_notify[i]->NotifyReceiver(item.type, item.status, item.id, item.message);
 	}
 }
 
@@ -103,22 +105,28 @@ void CNotifySystem::Notify(const _eNotifyType type)
 {
 	if (!m_bEnabled)
 		return;
-	Notify(type, NOTIFY_NORM, "");
+	Notify(type, NOTIFY_INFO, 0, "");
 }
 
 void CNotifySystem::Notify(const _eNotifyType type, const _eNotifyStatus status)
 {
 	if (!m_bEnabled)
 		return;
-	Notify(type, status, "");
+	Notify(type, status, 0, "");
 }
 
 void CNotifySystem::Notify(const _eNotifyType type, const _eNotifyStatus status, const std::string &message)
+{
+	Notify(type, status, 0, message);
+}
+
+void CNotifySystem::Notify(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message)
 {
 	if (!m_bEnabled)
 		return;
 
 	_tNotifyQueue item;
+	item.id = id;
 	item.type = type;
 	item.status = status;
 	item.message = message;
@@ -130,7 +138,7 @@ bool CNotifySystem::NotifyWait(const _eNotifyType type)
 	if (!m_bEnabled)
 		return false;
 
-	return NotifyWait(type, NOTIFY_NORM, "");
+	return NotifyWait(type, NOTIFY_INFO, 0, "");
 }
 
 bool CNotifySystem::NotifyWait(const _eNotifyType type, const _eNotifyStatus status)
@@ -138,18 +146,31 @@ bool CNotifySystem::NotifyWait(const _eNotifyType type, const _eNotifyStatus sta
 	if (!m_bEnabled)
 		return false;
 
-	return NotifyWait(type, status, "");
+	return NotifyWait(type, status, 0, "");
 }
 
 bool CNotifySystem::NotifyWait(const _eNotifyType type, const _eNotifyStatus status, const std::string &message)
 {
 	if (!m_bEnabled)
 		return false;
+
+	return NotifyWait(type, status, 0, message);
+}
+
+bool CNotifySystem::NotifyWait(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message)
+{
+	if (!m_bEnabled)
+		return false;
 	bool response = false;
 	boost::unique_lock<boost::mutex> lock(m_mutex);
 	for (size_t i = 0; i < m_notify.size(); i++)
-		response |= m_notify[i]->NotifyReceiver(type, status, message);
+		response |= m_notify[i]->NotifyReceiver(type, status, id, message);
 	return response;
+}
+
+bool CNotifySystem::NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message)
+{
+	return false;
 }
 
 bool CNotifySystem::Register(CNotifyObserver* pHardware)

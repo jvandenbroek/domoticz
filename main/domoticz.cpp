@@ -31,6 +31,7 @@
 #include "../notifications/NotificationHelper.h"
 #include "appversion.h"
 #include "localtime_r.h"
+#include "NotifySystem.h"
 
 #if defined WIN32
 	#include "../msbuild/WindowsHelper.h"
@@ -1108,7 +1109,7 @@ int main(int argc, char**argv)
 	_log.Log(LOG_STATUS, "Closing application!...");
 	fflush(stdout);
 	_log.Log(LOG_STATUS, "Stopping worker...");
-	_notify.NotifyWait(NOTIFY_SHUTDOWN); // blocking call
+	_notify.NotifyWait(NOTIFY_DZ_STOP); // blocking call
 	try
 	{
 		m_mainworker.Stop();

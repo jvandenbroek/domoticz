@@ -1413,7 +1413,7 @@ void MainWorker::HandleAutomaticBackups()
 	if (nValue != 1)
 		return;
 
-	_log.Log(LOG_STATUS, NOTIFY_BACKUP_START, "Starting automatic database backup procedure...");
+	_log.Log(LOG_STATUS, "Starting automatic database backup procedure...");
 
 	std::stringstream backup_DirH;
 	std::stringstream backup_DirD;
@@ -1476,12 +1476,12 @@ void MainWorker::HandleAutomaticBackups()
 				m_sql.SetLastBackupNo("Hour", hour);
 			}
 			else {
-				_log.Log(LOG_ERROR, NOTIFY_BACKUP_END, "Error writing automatic hourly backup file");
+				_log.Log(LOG_ERROR, "Error writing automatic hourly backup file");
 			}
 			closedir(lDir);
 		}
 		else {
-			_log.Log(LOG_ERROR, NOTIFY_BACKUP_END, "Error accessing automatic backup directories");
+			_log.Log(LOG_ERROR, "Error accessing automatic backup directories");
 		}
 	}
 	if ((lastDayBackup == -1) || (lastDayBackup != day)) {
@@ -1496,12 +1496,12 @@ void MainWorker::HandleAutomaticBackups()
 				m_sql.SetLastBackupNo("Day", day);
 			}
 			else {
-				_log.Log(LOG_ERROR, NOTIFY_BACKUP_END, "Error writing automatic daily backup file");
+				_log.Log(LOG_ERROR, "Error writing automatic daily backup file");
 			}
 			closedir(lDir);
 		}
 		else {
-			_log.Log(LOG_ERROR, NOTIFY_BACKUP_END, "Error accessing automatic backup directories");
+			_log.Log(LOG_ERROR, "Error accessing automatic backup directories");
 		}
 	}
 	if ((lastMonthBackup == -1) || (lastMonthBackup != month)) {
@@ -1515,15 +1515,15 @@ void MainWorker::HandleAutomaticBackups()
 				m_sql.SetLastBackupNo("Month", month);
 			}
 			else {
-				_log.Log(LOG_ERROR, NOTIFY_BACKUP_END, "Error writing automatic monthly backup file");
+				_log.Log(LOG_ERROR, "Error writing automatic monthly backup file");
 			}
 			closedir(lDir);
 		}
 		else {
-			_log.Log(LOG_ERROR, NOTIFY_BACKUP_END, "Error accessing automatic backup directories");
+			_log.Log(LOG_ERROR, "Error accessing automatic backup directories");
 		}
 	}
-	_log.Log(LOG_STATUS, NOTIFY_BACKUP_END, "Ending automatic database backup procedure...");
+	_log.Log(LOG_STATUS, "Ending automatic database backup procedure...");
 }
 
 void MainWorker::ParseRFXLogFile()
@@ -1665,13 +1665,13 @@ void MainWorker::Do_Work()
 				_notify.SetEnabled(m_sql.m_bEnableNotifySystem);
 				m_eventsystem.SetEnabled(m_sql.m_bEnableEventSystem);
 				m_eventsystem.StartEventSystem();
+				_notify.Notify(NOTIFY_DZ_START);
 				m_bStartHardware = false;
 				StartDomoticzHardware();
 #ifdef ENABLE_PYTHON
 				m_pluginsystem.AllPluginsStarted();
 #endif
 				ParseRFXLogFile();
-				_notify.Notify(NOTIFY_STARTUP);
 			}
 		}
 		if (m_devicestorestart.size() > 0)
@@ -12970,7 +12970,10 @@ void MainWorker::HeartbeatCheck()
 		double dif = difftime(now, iterator->second);
 		//_log.Log(LOG_STATUS, "%s last checking  %.2lf seconds ago", iterator->first.c_str(), dif);
 		if (dif > 60)
-			_log.Log(LOG_ERROR, NOTIFY_THREAD_END, "%s thread seems to have ended unexpectedly", iterator->first.c_str());
+		{
+			_log.Log(LOG_ERROR, "%s thread seems to have ended unexpectedly", iterator->first.c_str());
+			_notify.Notify(NOTIFY_THREAD_ENDED, NOTIFY_ERROR, iterator->first);
+		}
 	}
 
 	//Check hardware heartbeats
@@ -12988,7 +12991,10 @@ void MainWorker::HeartbeatCheck()
 				double diff = difftime(now, pHardware->m_LastHeartbeat);
 				//_log.Log(LOG_STATUS, "%d last checking  %.2lf seconds ago", iterator->first, dif);
 				if (diff > 60)
-					_log.Log(LOG_ERROR, NOTIFY_HW_TIMEOUT, "%s hardware (%d) thread seems to have ended unexpectedly", pHardware->Name.c_str(), pHardware->m_HwdID);
+				{
+					_log.Log(LOG_ERROR, "%s hardware (%d) thread seems to have ended unexpectedly", pHardware->Name.c_str(), pHardware->m_HwdID);
+					_notify.Notify(NOTIFY_THREAD_ENDED, NOTIFY_ERROR, pHardware->m_HwdID, pHardware->Name);
+				}
 			}
 
 			if (pHardware->m_DataTimeout > 0)
@@ -13031,7 +13037,8 @@ void MainWorker::HeartbeatCheck()
 						}
 					}
 
-					_log.Log(LOG_ERROR, NOTIFY_HW_TIMEOUT, "%s hardware (%d) nothing received for more than %d %s!....", pHardware->Name.c_str(), pHardware->m_HwdID, totNum, sDataTimeout.c_str());
+					_log.Log(LOG_ERROR, "%s hardware (%d) nothing received for more than %d %s!....", pHardware->Name.c_str(), pHardware->m_HwdID, totNum, sDataTimeout.c_str());
+					_notify.Notify(NOTIFY_HW_TIMEOUT, NOTIFY_ERROR, pHardware->m_HwdID, pHardware->Name.c_str());
 					m_devicestorestart.push_back(pHardware);
 				}
 			}

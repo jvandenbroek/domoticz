@@ -21,6 +21,7 @@
 #include "../json/json.h"
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
+#include "NotifySystem.h"
 
 extern "C" {
 #ifdef WITH_EXTERNAL_LUA
@@ -1220,8 +1221,7 @@ void CEventSystem::WWWUpdateSecurityState(int securityStatus)
 	m_sql.GetPreferencesVar("SecStatus", m_SecStatus);
 	_tEventQueue item;
 	item.reason = REASON_SECURITY;
-	item.DeviceID = 0;
-	item.varId = 0;
+	item.id = 0;
 	item.nValue = m_SecStatus;
 	m_eventqueue.push(item);
 }
@@ -1250,16 +1250,15 @@ bool CEventSystem::GetEventTrigger(const uint64_t ulDevID, const _eReason reason
 	return bEventTrigger;
 }
 
-bool CEventSystem::NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const std::string &message)
+bool CEventSystem::NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message)
 {
 	_tEventQueue item;
 	item.reason = REASON_NOTIFY;
-	item.DeviceID = 0;
-	item.varId = 0;
+	item.id = id;
 	item.nValue = static_cast<int>(type);
 	item.sValue = message;
 	item.lastLevel = static_cast<uint8_t>(status);
-	if (type != NOTIFY_SHUTDOWN)
+	if (type != NOTIFY_DZ_STOP)
 		m_eventqueue.push(item);
 	else // blocking call on Domoticz shutdown
 	{
@@ -1274,10 +1273,9 @@ void CEventSystem::TriggerURL(const std::string &result, const std::vector<std::
 {
 	_tEventQueue item;
 	item.reason = REASON_URL;
-	item.DeviceID = 0;
+	item.id = 0;
 	item.sValue = result;
 	item.nValueWording = callback;
-	item.varId = 0;
 	item.vData = headerData;
 	item.trigger = NULL;
 	m_eventqueue.push(item);
@@ -1329,8 +1327,7 @@ bool CEventSystem::UpdateSceneGroup(const uint64_t ulDevID, const int nValue, co
 			_tEventQueue item;
 			item.nValueWording = replaceitem.scenesgroupValue;
 			item.reason = REASON_SCENEGROUP;
-			item.DeviceID = ulDevID;
-			item.varId = 0;
+			item.id = ulDevID;
 			item.nValue = nValue;
 			item.devname = replaceitem.scenesgroupName;
 			item.sValue = replaceitem.scenesgroupValue;
@@ -1367,8 +1364,7 @@ void CEventSystem::UpdateUserVariable(const uint64_t ulDevID, const std::string 
 		{
 			_tEventQueue item;
 			item.reason = REASON_USERVARIABLE;
-			item.DeviceID = 0;
-			item.varId = ulDevID;
+			item.id = ulDevID;
 			item.sValue = varValue;
 			item.lastUpdate = itt->second.lastUpdate;
 			m_eventqueue.push(item);
@@ -1443,7 +1439,7 @@ void CEventSystem::UnlockEventQueueThread()
 {
 	// Push dummy message to unlock queue
 	_tEventQueue item;
-	item.DeviceID = -1;
+	item.id = -1;
 	item.trigger = NULL;
 	m_eventqueue.push(item);
 }
@@ -1465,13 +1461,12 @@ void CEventSystem::EventQueueThread()
 		if (m_stoprequested)
 			break;
 #ifdef _DEBUG
-		//_log.Log(LOG_STATUS, "EventSystem: \n reason => %d\n DeviceID => %" PRIu64 "\n devname => %s\n nValue => %d\n sValue => %s\n nValueWording => %s\n varId => %" PRIu64 "\n lastUpdate => %s\n lastLevel => %d\n",
-			//item.reason, item.DeviceID, item.devname.c_str(), item.nValue, item.sValue.c_str(), item.nValueWording.c_str(), item.varId, item.lastUpdate.c_str(), item.lastLevel);
+		//_log.Log(LOG_STATUS, "EventSystem: \n reason => %d\n DeviceID => %" PRIu64 "\n devname => %s\n nValue => %d\n sValue => %s\n nValueWording => %s\n lastUpdate => %s\n lastLevel => %d\n",
+			//item.reason, item.id, item.devname.c_str(), item.nValue, item.sValue.c_str(), item.nValueWording.c_str(), item.lastUpdate.c_str(), item.lastLevel);
 #endif
 		for (itt = items.begin(); itt != items.end(); itt++)
 		{
-			if ((itt->DeviceID == item.DeviceID && itt->reason <= REASON_SCENEGROUP && itt->reason == item.reason) ||
-				(itt->reason == REASON_USERVARIABLE && itt->varId == item.varId))
+			if (itt->id == item.id && itt->reason <= REASON_USERVARIABLE && itt->reason == item.reason)
 			{
 				EvaluateEvent(items);
 				items.clear();
@@ -1489,7 +1484,7 @@ void CEventSystem::EventQueueThread()
 }
 
 
-void CEventSystem::ProcessDevice(const int HardwareID, const uint64_t ulDevID, const unsigned char unit, const unsigned char devType, const unsigned char subType, const unsigned char signallevel, const unsigned char batterylevel, const int nValue, const char* sValue, const std::string &devname, const int varId)
+void CEventSystem::ProcessDevice(const int HardwareID, const uint64_t ulDevID, const unsigned char unit, const unsigned char devType, const unsigned char subType, const unsigned char signallevel, const unsigned char batterylevel, const int nValue, const char* sValue, const std::string &devname)
 {
 	if (!m_bEnabled)
 		return;
@@ -1508,8 +1503,7 @@ void CEventSystem::ProcessDevice(const int HardwareID, const uint64_t ulDevID, c
 		{
 			_tEventQueue item;
 			item.reason = REASON_DEVICE;
-			item.DeviceID = ulDevID;
-			item.varId = 0;
+			item.id = ulDevID;
 			item.devname = devname;
 			item.nValue = nValue;
 			item.sValue = sValue;
@@ -1548,8 +1542,7 @@ void CEventSystem::ProcessMinute()
 {
 	_tEventQueue item;
 	item.reason = REASON_TIME;
-	item.DeviceID = 0;
-	item.varId = 0;
+	item.id = 0;
 	m_eventqueue.push(item);
 }
 
@@ -1637,7 +1630,6 @@ void CEventSystem::EvaluateEvent(const std::vector<_tEventQueue> &items)
 		}
 
 #ifdef ENABLE_PYTHON
-		boost::unique_lock<boost::shared_mutex> uservariablesMutexLock(m_uservariablesMutex);
 		try
 		{
 			for (itt2 = FileEntriesPython.begin(); itt2 != FileEntriesPython.end(); ++itt2)
@@ -1661,7 +1653,6 @@ void CEventSystem::EvaluateEvent(const std::vector<_tEventQueue> &items)
 		catch (...)
 		{
 		}
-		uservariablesMutexLock.unlock();
 
 		// Notify plugin system of security events if a plugin owns a Security Panel
 		if (itt->reason == REASON_SECURITY)
@@ -1973,10 +1964,10 @@ void CEventSystem::EvaluateDatabaseEvents(const _tEventQueue &item)
 				if (it->Interpreter == "Blockly")
 				{
 					std::size_t found;
-					if ((item.reason == REASON_DEVICE) && (item.DeviceID > 0))
+					if ((item.reason == REASON_DEVICE) && (item.id > 0))
 					{
 						std::stringstream sstr;
-						sstr << "[" << item.DeviceID << "]";
+						sstr << "[" << item.id << "]";
 						found = it->Conditions.find(sstr.str());
 					}
 					else if (item.reason == REASON_SECURITY)
@@ -1993,10 +1984,10 @@ void CEventSystem::EvaluateDatabaseEvents(const _tEventQueue &item)
 						if (found == std::string::npos)
 							found = it->Conditions.find("weekday");
 					}
-					else if ((item.reason == REASON_USERVARIABLE) && (item.varId > 0))
+					else if ((item.reason == REASON_USERVARIABLE) && (item.id > 0))
 					{
 						std::stringstream sstr;
-						sstr << "variable[" << item.varId << "]";
+						sstr << "variable[" << item.id << "]";
 						found = it->Conditions.find(sstr.str());
 					}
 					if (found != std::string::npos)
@@ -2663,7 +2654,7 @@ void CEventSystem::EvaluatePython(const _tEventQueue &item, const std::string &f
 	//_log.Log(LOG_NORM, "EventSystem: Already scheduled this event, skipping");
 	// _log.Log(LOG_STATUS, "EventSystem: script %s trigger, file: %s, script: %s, deviceName: %s" , reason.c_str(), filename.c_str(), PyString.c_str(), devname.c_str());
 
-    Plugins::PythonEventsProcessPython(m_szReason[item.reason], filename, PyString, item.DeviceID, m_devicestates, m_uservariables, getSunRiseSunSetMinutes("Sunrise"),
+    Plugins::PythonEventsProcessPython(m_szReason[item.reason], filename, PyString, item.id, m_devicestates, m_uservariables, getSunRiseSunSetMinutes("Sunrise"),
         getSunRiseSunSetMinutes("Sunset"));
 
 	//Py_Finalize();
@@ -2680,7 +2671,7 @@ void CEventSystem::ExportDeviceStatesToLua(lua_State *lua_state, const _tEventQu
 	for (iterator = m_devicestates.begin(); iterator != m_devicestates.end(); ++iterator)
 	{
 		lua_pushstring(lua_state, iterator->second.deviceName.c_str());
-		lua_pushstring(lua_state, (iterator->first == item.DeviceID && item.reason == REASON_DEVICE) ?
+		lua_pushstring(lua_state, (iterator->first == item.id && item.reason == REASON_DEVICE) ?
 			item.nValueWording.c_str() : iterator->second.nValueWording.c_str());
 		lua_rawset(lua_state, -3);
 	}
@@ -2690,7 +2681,7 @@ void CEventSystem::ExportDeviceStatesToLua(lua_State *lua_state, const _tEventQu
 	for (iterator = m_devicestates.begin(); iterator != m_devicestates.end(); ++iterator)
 	{
 		lua_pushstring(lua_state, iterator->second.deviceName.c_str());
-		lua_pushstring(lua_state, (iterator->first == item.DeviceID && item.reason == REASON_DEVICE) ?
+		lua_pushstring(lua_state, (iterator->first == item.id && item.reason == REASON_DEVICE) ?
 			item.lastUpdate.c_str() : iterator->second.lastUpdate.c_str());
 		lua_rawset(lua_state, -3);
 	}
@@ -2700,7 +2691,7 @@ void CEventSystem::ExportDeviceStatesToLua(lua_State *lua_state, const _tEventQu
 	for (iterator = m_devicestates.begin(); iterator != m_devicestates.end(); ++iterator)
 	{
 		lua_pushstring(lua_state, iterator->second.deviceName.c_str());
-		lua_pushstring(lua_state, (iterator->first == item.DeviceID && item.reason == REASON_DEVICE) ?
+		lua_pushstring(lua_state, (iterator->first == item.id && item.reason == REASON_DEVICE) ?
 			 item.sValue.c_str() : iterator->second.sValue.c_str());
 		lua_rawset(lua_state, -3);
 	}
@@ -2718,7 +2709,7 @@ void CEventSystem::ExportDeviceStatesToLua(lua_State *lua_state, const _tEventQu
 	for (iterator = m_devicestates.begin(); iterator != m_devicestates.end(); ++iterator)
 	{
 		lua_pushstring(lua_state, iterator->second.deviceName.c_str());
-		lua_pushnumber(lua_state, (iterator->first == item.DeviceID && item.reason == REASON_DEVICE) ?
+		lua_pushnumber(lua_state, (iterator->first == item.id && item.reason == REASON_DEVICE) ?
 			item.lastLevel : iterator->second.lastLevel);
 		lua_rawset(lua_state, -3);
 	}
@@ -3033,7 +3024,7 @@ void CEventSystem::EvaluateLuaClassic(lua_State *lua_state, const _tEventQueue &
 			// BEGIN OTO: populate changed info
 			lua_createtable(lua_state, 3, 0);
 			lua_pushstring(lua_state, "idx");
-			lua_pushnumber(lua_state, (lua_Number)item.DeviceID);
+			lua_pushnumber(lua_state, (lua_Number)item.id);
 			lua_rawset(lua_state, -3);
 
 			lua_pushstring(lua_state, "svalue");
@@ -3095,10 +3086,10 @@ void CEventSystem::EvaluateLuaClassic(lua_State *lua_state, const _tEventQueue &
 	lua_setglobal(lua_state, "uservariables_lastupdate");
 
 	if (item.reason == REASON_USERVARIABLE) {
-		if (item.varId > 0) {
+		if (item.id > 0) {
 			for (it_var = m_uservariables.begin(); it_var != m_uservariables.end(); ++it_var) {
 				_tUserVariable uvitem = it_var->second;
-				if (uvitem.ID == item.varId) {
+				if (uvitem.ID == item.id) {
 					lua_createtable(lua_state, 1, 0);
 					lua_pushstring(lua_state, uvitem.variableName.c_str());
 					lua_pushstring(lua_state, uvitem.variableValue.c_str());
@@ -3141,6 +3132,9 @@ void CEventSystem::EvaluateLuaClassic(lua_State *lua_state, const _tEventQueue &
 	if (item.reason == REASON_NOTIFY)
 	{
 		lua_createtable(lua_state, 0, 0);
+		lua_pushstring(lua_state, "id");
+		lua_pushnumber(lua_state, (lua_Number)item.id);
+		lua_rawset(lua_state, -3);
 		lua_pushstring(lua_state, "type");
 		lua_pushstring(lua_state, _notify.GetTypeString(item.nValue).c_str());
 		lua_rawset(lua_state, -3);
@@ -3748,7 +3742,7 @@ void CEventSystem::UpdateDevice(const uint64_t idx, const int nValue, const std:
 
 		}
 		if (bEventTrigger)
-			ProcessDevice(0, idx, 0, devType, subType, 255, 255, nValue, sValue.c_str(), dname, 0);
+			ProcessDevice(0, idx, 0, devType, subType, 255, 255, nValue, sValue.c_str(), dname);
 	}
 	else
 		_log.Log(LOG_ERROR, "EventSystem: UpdateDevice IDX %" PRIu64 " not found!", idx);

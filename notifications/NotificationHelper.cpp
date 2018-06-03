@@ -120,7 +120,8 @@ bool CNotificationHelper::SendMessageEx(
 	//Make a system tray message
 	ShowSystemTrayNotification(Subject.c_str());
 #endif
-	_log.Log(LOG_STATUS, NOTIFY_NOTIFICATION, "Notification: %s", Subject.c_str());
+	_log.Log(LOG_STATUS, "Notification: %s", Subject.c_str());
+	_notify.Notify(NOTIFY_NOTIFICATION, NOTIFY_INFO, Subject);
 
 	std::vector<std::string> sResult;
 	StringSplit(Subsystems, ";", sResult);
@@ -144,6 +145,8 @@ bool CNotificationHelper::SendMessageEx(
 				bRet |= iter->second->SendMessageEx(Idx, Name, Subject, Text, ExtraData, Priority, Sound, bFromNotification);
 		}
 	}
+	if (!bRet)
+		_notify.Notify(NOTIFY_NOTIFICATION, NOTIFY_ERROR, Subject);
 	return bRet;
 }
 

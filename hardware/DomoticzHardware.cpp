@@ -7,6 +7,7 @@
 #include "../main/RFXtrx.h"
 #include "../main/SQLHelper.h"
 #include "../main/mainworker.h"
+#include "../main/NotifySystem.h"
 #include "hardwaretypes.h"
 
 #define round(a) ( int ) ( a + .5 )
@@ -39,14 +40,14 @@ CDomoticzHardwareBase::~CDomoticzHardwareBase()
 bool CDomoticzHardwareBase::Start()
 {
 	m_iHBCounter = 0;
-	_notify.Notify(NOTIFY_HW_START, NOTIFY_INFO, Name);
+	_notify.Notify(NOTIFY_HW_START, NOTIFY_INFO, m_HwdID, Name);
 	return StartHardware();
 }
 
 bool CDomoticzHardwareBase::Stop()
 {
 	boost::lock_guard<boost::mutex> l(readQueueMutex);
-	_notify.Notify(NOTIFY_HW_STOP, NOTIFY_INFO, Name);
+	_notify.Notify(NOTIFY_HW_STOP, NOTIFY_INFO, m_HwdID, Name);
 	return StopHardware();
 }
 
