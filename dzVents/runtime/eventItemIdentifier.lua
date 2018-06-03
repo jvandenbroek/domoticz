@@ -10,7 +10,7 @@ return {
 		item.isVariable = false
 		item.isSecurity = false
 		item.isSystem = false
-
+		item.isHardware = false
 
 		item[typeName] = true
 

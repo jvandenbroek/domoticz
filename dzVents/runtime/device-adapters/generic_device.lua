@@ -70,7 +70,7 @@ return {
 		device.isHTTPResponse = false
 		device.isSecurity = false
 		device.isSystem = false
-
+		device.isHardwary = false
 
 
 		if (data.baseType == 'device') then

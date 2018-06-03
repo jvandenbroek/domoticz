@@ -2,6 +2,7 @@ local scriptPath = globalvariables['script_path']
 package.path = package.path .. ';' .. scriptPath .. '?.lua'
 local Device = require('Device')
 local Variable = require('Variable')
+local Hardware = require('Hardware')
 local Time = require('Time')
 local TimedCommand = require('TimedCommand')
 local utils = require('Utils')
@@ -141,6 +142,7 @@ local function Domoticz(settings)
 		['BASETYPE_TIMER'] = 'timer',
 		['BASETYPE_HTTP_RESPONSE'] = 'httpResponse',
 		['BASE_TYPE_SYSTEM'] = 'system',
+		['BASE_TYPE_HARDWARE'] = 'hardware',
 
 		utils = {
 			_ = _,
@@ -336,21 +338,6 @@ local function Domoticz(settings)
 		end
 	end
 
-	function self.toCelsius(f, relative)
-		utils.log('domoticz.toCelsius deprecated. Please use domoticz.utils.toCelsius.', utils.LOG_INFO)
-		return self.utils.toCelsius(f, relative)
-	end
-
-	function self.urlEncode(s, strSub)
-		utils.log('domoticz.urlEncode deprecated. Please use domoticz.utils.urlEncode.', utils.LOG_INFO)
-		return self.utils.urlEncode(s, strSub)
-	end
-
-	function self.round(x, n)
-		utils.log('domoticz.round deprecated. Please use domoticz.utils.round.', utils.LOG_INFO)
-		return self.utils.round(x, n)
-	end
-
 	-- doesn't seem to work well for some weird reasone
 	function self.logDevice(device)
 		dumpTable(device, '> ')
@@ -360,6 +347,7 @@ local function Domoticz(settings)
 	self.__scenes = {}
 	self.__groups = {}
 	self.__variables = {}
+	self.__hardware = {}
 
 	function self._getItemFromData(baseType, id)
 
@@ -396,6 +384,9 @@ local function Domoticz(settings)
 		elseif (baseType == 'uservariable') then
 			cache = self.__variables
 			constructor = Variable
+		elseif (baseType == 'hardware') then
+			cache = self.__hardware
+			constructor = Hardware
 		else
 			-- ehhhh
 		end
@@ -582,6 +573,14 @@ local function Domoticz(settings)
 			return self._getObject('uservariable', id)
 		else
 			return self._setIterators({}, true, 'uservariable', false)
+		end
+	end
+
+	function self.hardware(id)
+		if (id ~= nil) then
+			return self._getObject('hardware', id)
+		else
+			return self._setIterators({}, true, 'hardware', false)
 		end
 	end
 
