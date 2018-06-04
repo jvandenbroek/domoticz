@@ -144,10 +144,8 @@ void CEventSystem::StartEventSystem()
 	if (!m_bEnabled)
 		return;
 
-	_notify.Register(this);
 	m_printprefix = "LUA";
 	m_sql.GetPreferencesVar("SecStatus", m_SecStatus);
-
 	LoadEvents();
 	GetCurrentStates();
 	GetCurrentScenesGroups();
@@ -177,7 +175,6 @@ void CEventSystem::StopEventSystem()
 		m_stoprequested = true;
 		m_thread->join();
 	}
-	_notify.Unregister(this);
 
 #ifdef ENABLE_PYTHON
     Plugins::PythonEventsStop();
@@ -3136,10 +3133,10 @@ void CEventSystem::EvaluateLuaClassic(lua_State *lua_state, const _tEventQueue &
 		lua_pushnumber(lua_state, (lua_Number)item.id);
 		lua_rawset(lua_state, -3);
 		lua_pushstring(lua_state, "type");
-		lua_pushstring(lua_state, _notify.GetTypeString(item.nValue).c_str());
+		lua_pushstring(lua_state, NotifyGetTypeString(item.nValue).c_str());
 		lua_rawset(lua_state, -3);
 		lua_pushstring(lua_state, "status");
-		lua_pushstring(lua_state, _notify.GetStatusString(item.lastLevel).c_str());
+		lua_pushstring(lua_state, NotifyGetStatusString(item.lastLevel).c_str());
 		lua_rawset(lua_state, -3);
 		lua_pushstring(lua_state, "message");
 		lua_pushstring(lua_state, item.sValue.c_str());
@@ -3639,7 +3636,7 @@ void CEventSystem::UpdateDevice(const uint64_t idx, const int nValue, const std:
 
 #ifdef ENABLE_PYTHON
 		// Notify plugin framework about the change
-		m_mainworker.m_pluginsystem.DeviceModified(idx);
+		//m_mainworker.m_pluginsystem.DeviceModified(idx);
 #endif
 
 		if ((nValue == -1) && (sValue.empty()))

@@ -84,10 +84,10 @@ void CdzVents::ProcessNotify(lua_State *lua_state, const std::vector<CEventSyste
 			lua_pushnumber(lua_state, (lua_Number)index);
 			lua_createtable(lua_state, 0, 0);
 			if (itt->nValue)
-				type = _notify.GetTypeString(itt->nValue);
+				type = m_mainworker.m_eventsystem.NotifyGetTypeString(itt->nValue);
 
 			if (itt->lastLevel)
-				status = _notify.GetStatusString(itt->lastLevel);
+				status = m_mainworker.m_eventsystem.NotifyGetStatusString(itt->lastLevel);
 
 			if (!itt->sValue.empty())
 				message = itt->sValue;

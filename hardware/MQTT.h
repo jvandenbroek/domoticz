@@ -37,6 +37,7 @@ private:
 	void SendDeviceInfo(const int m_HwdID, const uint64_t DeviceRowIdx, const std::string &DeviceName, const unsigned char *pRXCommand);
 	void SendSceneInfo(const uint64_t SceneIdx, const std::string &SceneName);
 	virtual bool NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message);
+
 protected:
 	std::string m_szIPAddress;
 	unsigned short m_usIPPort;

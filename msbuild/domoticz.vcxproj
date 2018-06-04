@@ -881,6 +881,7 @@
     <ClCompile Include="..\json\json_value.cpp" />
     <ClCompile Include="..\json\json_writer.cpp" />
     <ClCompile Include="..\main\mainworker.cpp" />
+    <ClCompile Include="..\main\NotifyObserver.cpp" />
     <ClCompile Include="..\main\NotifySystem.cpp" />
     <ClCompile Include="..\hardware\RFXComSerial.cpp" />
     <ClCompile Include="..\main\domoticz.cpp" />

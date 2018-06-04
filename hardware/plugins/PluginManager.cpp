@@ -106,7 +106,6 @@ namespace Plugins {
 		BuildManifest();
 
 		m_thread = new boost::thread(boost::bind(&CPluginSystem::Do_Work, this));
-		m_sDeviceReceivedConnection = m_mainworker.sOnDeviceReceived.connect(boost::bind(&CPluginSystem::DeviceModified, this, _1, _2, _3, _4));
 
 		szPyVersion = Py_GetVersion();
 
@@ -383,10 +382,10 @@ namespace Plugins {
 		}
 	}
 
-	void CPluginSystem::DeviceModified(const int HwdID, const uint64_t DeviceRowIdx, const std::string &DeviceName, const unsigned char *pRXCommand)
+	void CPluginSystem::DeviceModified(uint64_t ID)
 	{
 		std::vector<std::vector<std::string> > result;
-		result = m_sql.safe_query("SELECT HardwareID,Unit FROM DeviceStatus WHERE (ID == %" PRIu64 ")", DeviceRowIdx);
+		result = m_sql.safe_query("SELECT HardwareID,Unit FROM DeviceStatus WHERE (ID == %" PRIu64 ")", ID);
 		if (result.size() > 0)
 		{
 			std::vector<std::string> sd = result[0];
