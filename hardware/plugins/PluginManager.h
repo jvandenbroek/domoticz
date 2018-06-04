@@ -1,4 +1,5 @@
 #pragma once
+#include <boost/signals2.hpp>
 
 //
 //	Domoticz Plugin System - Dnpwwo, 2016
@@ -23,6 +24,7 @@ namespace Plugins {
 		boost::thread* m_thread;
 		volatile bool m_stoprequested;
 		boost::mutex m_mutex;
+		boost::signals2::connection m_sDeviceReceivedConnection;
 
 		void Do_Work();
 
@@ -39,7 +41,7 @@ namespace Plugins {
 		bool StopPluginSystem();
 		void AllPluginsStarted() { m_bAllPluginsStarted = true; };
 		static void LoadSettings();
-		void	DeviceModified(uint64_t ID);
+		void	DeviceModified(const int HwdID, const uint64_t DeviceRowIdx, const std::string &DeviceName, const unsigned char *pRXCommand);
 	};
 };
 

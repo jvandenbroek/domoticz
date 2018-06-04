@@ -3598,10 +3598,7 @@ void CEventSystem::UpdateDevice(const uint64_t idx, const int nValue, const std:
 			db_LastUpdate.c_str(),
 			idx);
 
-#ifdef ENABLE_PYTHON
-		// Notify plugin framework about the change
-		m_mainworker.m_pluginsystem.DeviceModified(idx);
-#endif
+			m_mainworker.sOnDeviceReceived(HardwareID, idx, dname.c_str(), NULL);
 
 		if ((nValue == -1) && (sValue.empty()))
 			return;

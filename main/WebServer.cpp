@@ -1122,7 +1122,7 @@ namespace http {
 					m_sql.UpdatePreferencesVar("SmartMeterType", 0);
 				}
 			}
-			else if (IsNetworkDevice(htype)) 
+			else if (IsNetworkDevice(htype))
 			{
 				//Lan
 				if (address.empty() || port == 0)
@@ -1241,7 +1241,7 @@ namespace http {
 				(htype == HTYPE_NEST) ||
 				(htype == HTYPE_ANNATHERMOSTAT) ||
 				(htype == HTYPE_THERMOSMART) ||
-				(htype == HTYPE_Tado) || 
+				(htype == HTYPE_Tado) ||
 				(htype == HTYPE_Netatmo)
 				)
 			{
@@ -4210,7 +4210,7 @@ namespace http {
 					CDomoticzHardwareBase *pBaseHardware = reinterpret_cast<CDomoticzHardwareBase*>(m_mainworker.GetHardware(atoi(hwdid.c_str())));
 					if (pBaseHardware == NULL)
 						return;
-					if ((pBaseHardware->HwdType != HTYPE_EnOceanESP2) && (pBaseHardware->HwdType != HTYPE_EnOceanESP3) 
+					if ((pBaseHardware->HwdType != HTYPE_EnOceanESP2) && (pBaseHardware->HwdType != HTYPE_EnOceanESP3)
 						&& (pBaseHardware->HwdType != HTYPE_USBtinGateway) )
 						return;
 					unsigned long rID = 0;
@@ -4785,7 +4785,7 @@ namespace http {
 					CDomoticzHardwareBase *pBaseHardware = reinterpret_cast<CDomoticzHardwareBase*>(m_mainworker.GetHardware(atoi(hwdid.c_str())));
 					if (pBaseHardware == NULL)
 						return;
-					if ((pBaseHardware->HwdType != HTYPE_EnOceanESP2) && (pBaseHardware->HwdType != HTYPE_EnOceanESP3) 
+					if ((pBaseHardware->HwdType != HTYPE_EnOceanESP2) && (pBaseHardware->HwdType != HTYPE_EnOceanESP3)
 						&& (pBaseHardware->HwdType != HTYPE_USBtinGateway) )
 						return;
 					unsigned long rID = 0;
@@ -9844,7 +9844,7 @@ namespace http {
 						root["result"][ii]["ValueUnits"] = "";
 						root["result"][ii]["ShowNotifications"] = false;
 						double meteroffset = AddjValue;
-						
+
 						switch (metertype)
 						{
 						case MTYPE_ENERGY:
@@ -11993,10 +11993,14 @@ namespace http {
 			sstridx >> ullidx;
 			m_mainworker.m_eventsystem.WWWUpdateSingleState(ullidx, sname, m_mainworker.m_eventsystem.REASON_DEVICE);
 
-#ifdef ENABLE_PYTHON
-			// Notify plugin framework about the change
-			m_mainworker.m_pluginsystem.DeviceModified(idx);
-#endif
+			std::vector<std::vector<std::string> > result;
+			result = m_sql.safe_query("SELECT HardwareID FROM DeviceStatus WHERE (ID == '%q')", sidx.c_str());
+			if (result.size() != 1)
+				return;
+			std::stringstream ss(result[0][0]);
+			int HwdID;
+			ss >> HwdID;
+			m_mainworker.sOnDeviceReceived(HwdID, idx, sname, NULL);
 		}
 
 		void CWebServer::Cmd_RenameScene(WebEmSession & session, const request& req, Json::Value &root)
@@ -12043,10 +12047,14 @@ namespace http {
 			if (m_sql.m_bEnableEventSystem)
 				m_mainworker.m_eventsystem.RemoveSingleState(idx, m_mainworker.m_eventsystem.REASON_DEVICE);
 
-#ifdef ENABLE_PYTHON
-			// Notify plugin framework about the change
-			m_mainworker.m_pluginsystem.DeviceModified(idx);
-#endif
+			std::vector<std::vector<std::string> > result;
+			result = m_sql.safe_query("SELECT HardwareID, Name FROM DeviceStatus WHERE (ID == '%q')", sidx.c_str());
+			if (result.size() != 1)
+				return;
+			std::stringstream ss(result[0][0]);
+			int HwdID;
+			ss >> HwdID;
+			m_mainworker.sOnDeviceReceived(HwdID, idx, result[0][1].c_str(), NULL);
 		}
 
 		void CWebServer::Cmd_AddLogMessage(WebEmSession & session, const request& req, Json::Value &root)
@@ -12695,10 +12703,10 @@ namespace http {
 			}
 			else
 			{
-#ifdef ENABLE_PYTHON
-				// Notify plugin framework about the change
-				m_mainworker.m_pluginsystem.DeviceModified(atoi(idx.c_str()));
-#endif
+				std::stringstream sstridx(idx);
+				uint64_t ullidx;
+				sstridx >> ullidx;
+				m_mainworker.sOnDeviceReceived(HwdID, ullidx, name, NULL);
 			}
 			if (result.size() > 0)
 			{
