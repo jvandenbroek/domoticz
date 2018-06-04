@@ -1,30 +1,6 @@
 #include "stdafx.h"
 #include "NotifySystem.h"
 #include "Logger.h"
-#define __STDC_FORMAT_MACROS
-#include <inttypes.h>
-
-const CNotifySystem::_tNotifyTypeTable CNotifySystem::typeTable[] =
-{
-	{ NOTIFY_LOG,             "log"             },
-	{ NOTIFY_DZ_START,        "domoticzStart"   },
-	{ NOTIFY_DZ_STOP,         "domoticzStop"    },
-	{ NOTIFY_BACKUP_BEGIN,    "backupBegin"	    },
-	{ NOTIFY_BACKUP_END,      "backupEnd"       },
-	{ NOTIFY_HW_TIMEOUT,      "hardwareTimeout" },
-	{ NOTIFY_HW_START,        "hardwareStart"   },
-	{ NOTIFY_HW_STOP,         "hardwareStop"    },
-	{ NOTIFY_NOTIFICATION,    "notification"    },
-	{ NOTIFY_THREAD_ENDED,    "threadEnded"     },
-};
-
-const CNotifySystem::_tNotifyStatusTable CNotifySystem::statusTable[] =
-{
-	{ NOTIFY_OK,              "ok"              },
-	{ NOTIFY_INFO,            "info"            },
-	{ NOTIFY_ERROR,           "error"           },
-	{ NOTIFY_WARNING,         "warning"         }
-};
 
 CNotifySystem::CNotifySystem(void)
 {
@@ -61,25 +37,6 @@ void CNotifySystem::SetEnabled(const bool bEnabled)
 	bEnabled ? Start() : Stop();
 }
 
-std::string CNotifySystem::GetTypeString(const int type)
-{
-	for (uint8_t i = 0; i < sizeof(typeTable) / sizeof(typeTable[0]); i++)
-	{
-		if (typeTable[i].type == static_cast<_eNotifyType>(type))
-			return typeTable[i].name;
-	}
-	return "";
-}
-
-std::string CNotifySystem::GetStatusString(const int status)
-{
-	for (uint8_t i = 0; i < sizeof(statusTable) / sizeof(statusTable[0]); i++)
-	{
-		if (statusTable[i].status == static_cast<_eNotifyStatus>(status))
-			return statusTable[i].name;
-	}
-	return "";
-}
 
 void CNotifySystem::QueueThread()
 {
@@ -166,11 +123,6 @@ bool CNotifySystem::NotifyWait(const _eNotifyType type, const _eNotifyStatus sta
 	for (size_t i = 0; i < m_notify.size(); i++)
 		response |= m_notify[i]->NotifyReceiver(type, status, id, message);
 	return response;
-}
-
-bool CNotifySystem::NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message)
-{
-	return false;
 }
 
 bool CNotifySystem::Register(CNotifyObserver* pHardware)

@@ -305,6 +305,7 @@ main/Logger.cpp
 main/LuaCommon.cpp
 main/LuaHandler.cpp
 main/mainworker.cpp
+main/NotifyObserver.cpp
 main/NotifySystem.cpp
 main/RFXNames.cpp
 main/Scheduler.cpp
@@ -564,7 +565,7 @@ set(Boost_USE_STATIC_LIBS ${USE_STATIC_BOOST})
 set(Boost_USE_MULTITHREADED ON)
 unset(Boost_INCLUDE_DIR CACHE)
 unset(Boost_LIBRARY_DIRS CACHE)
-find_package(Boost REQUIRED COMPONENTS thread chrono system)
+find_package(Boost REQUIRED COMPONENTS thread system)
 
 if(USE_STATIC_BOOST)
    message(STATUS "Linking against boost static libraries")
