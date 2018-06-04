@@ -14,6 +14,8 @@
 #include "../main/localtime_r.h"
 #include <sstream>
 #include <openssl/md5.h>
+#include <chrono>
+#include <thread>
 
 #if defined WIN32
 #include "../msbuild/WindowsHelper.h"
@@ -89,7 +91,6 @@ void stdlower(std::string &inoutstring)
 {
 	std::transform(inoutstring.begin(), inoutstring.end(), inoutstring.begin(), ::tolower);
 }
-
 
 std::vector<std::string> GetSerialPorts(bool &bUseDirectPath)
 {
@@ -436,20 +437,12 @@ bool isInt(const std::string &s)
 
 void sleep_seconds(const long seconds)
 {
-#if (BOOST_VERSION < 105000)
-	boost::this_thread::sleep(boost::posix_time::seconds(seconds));
-#else
-	boost::this_thread::sleep_for(boost::chrono::seconds(seconds));
-#endif
+	std::this_thread::sleep_for(std::chrono::seconds(seconds));
 }
 
 void sleep_milliseconds(const long milliseconds)
 {
-#if (BOOST_VERSION < 105000)
-	boost::this_thread::sleep(boost::posix_time::milliseconds(milliseconds));
-#else
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(milliseconds));
-#endif
+	std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
 
 int createdir(const char *szDirName, int secattr)
@@ -787,6 +780,7 @@ bool IsLightOrSwitch(const int devType, const int subType)
 	case pTypeRemote:
 	case pTypeGeneralSwitch:
 	case pTypeHomeConfort:
+	case pTypeFS20:
 		bIsLightSwitch = true;
 		break;
 	case pTypeRadiator1:

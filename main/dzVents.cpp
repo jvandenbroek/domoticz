@@ -11,7 +11,7 @@
 #include <iostream>
 #include "NotifySystem.h"
 
-extern std::string szUserDataFolder, szWebRoot;
+extern std::string szUserDataFolder, szWebRoot, szStartupFolder;
 extern http::server::CWebServerHelper m_webservers;
 static std::string m_printprefix;
 
@@ -19,7 +19,7 @@ CdzVents CdzVents::m_dzvents;
 
 CdzVents::CdzVents(void)
 {
-	m_version = "2.4.5";
+	m_version = "2.4.6";
 	m_printprefix = "dzVents";
 }
 
@@ -464,7 +464,7 @@ int CdzVents::l_domoticz_print(lua_State* lua_state)
 
 void CdzVents::SetGlobalVariables(lua_State *lua_state, const bool reasonTime, const int secStatus)
 {
-	std::stringstream lua_DirT;
+	std::stringstream lua_DirT, runtime_DirT;
 
 	lua_DirT << szUserDataFolder <<
 #ifdef WIN32
@@ -473,12 +473,22 @@ void CdzVents::SetGlobalVariables(lua_State *lua_state, const bool reasonTime, c
 	"scripts/dzVents/";
 #endif
 
+	runtime_DirT << szStartupFolder <<
+#ifdef WIN32
+	"dzVents\\runtime\\";
+#else
+	"dzVents/runtime/";
+#endif
+
 	lua_createtable(lua_state, 0, 0);
 	lua_pushstring(lua_state, "Security");
 	lua_pushstring(lua_state, m_mainworker.m_eventsystem.m_szSecStatus[secStatus].c_str());
 	lua_rawset(lua_state, -3);
 	lua_pushstring(lua_state, "script_path");
 	lua_pushstring(lua_state, lua_DirT.str().c_str());
+	lua_rawset(lua_state, -3);
+	lua_pushstring(lua_state, "runtime_path");
+	lua_pushstring(lua_state, runtime_DirT.str().c_str());
 	lua_rawset(lua_state, -3);
 	lua_pushstring(lua_state, "isTimeEvent");
 	lua_pushboolean(lua_state, reasonTime);

@@ -71,7 +71,7 @@ static void dumpstack(void) {
 #endif
 
 const char *szHelp =
-"Usage: Domoticz -www port -verbose x\n"
+"Usage: Domoticz -www port\n"
 "\t-www port (for example -www 8080, or -www 0 to disable http)\n"
 "\t-wwwbind address (for example -wwwbind 0.0.0.0 or -wwwbind 192.168.0.20)\n"
 #ifdef WWW_ENABLE_SSL
@@ -79,7 +79,7 @@ const char *szHelp =
 "\t-sslcert file_path (for example /opt/domoticz/server_cert.pem)\n"
 "\t-sslkey file_path (if different from certificate file)\n"
 "\t-sslpass passphrase (to access to server private key in certificate)\n"
-"\t-sslmethod method (for SSL method)\n"
+"\t-sslmethod method (supported methods: tlsv1, tlsv1_server, sslv23, sslv23_server, tlsv11, tlsv11_server, tlsv12, tlsv12_server)\n"
 "\t-ssloptions options (for SSL options, default is 'default_workarounds,no_sslv2,no_sslv3,no_tlsv1,no_tlsv1_1,single_dh_use')\n"
 "\t-ssldhparam file_path (for SSL DH parameters)\n"
 #endif
@@ -93,10 +93,10 @@ const char *szHelp =
 "\t-userdata file_path (for example /opt/domoticz)\n"
 #endif
 "\t-webroot additional web root, useful with proxy servers (for example domoticz)\n"
-"\t-verbose x (where x=0 is none, x=1 is all important, x=2 is debug)\n"
 "\t-startupdelay seconds (default=0)\n"
 "\t-nowwwpwd (in case you forgot the web server username/password)\n"
 "\t-nocache (do not return appcache, use only when developing the web pages)\n"
+"\t-wwwcompress mode (on = always compress [default], off = always decompress, static = no processing but try precompressed first)\n"
 #if defined WIN32
 "\t-nobrowser (do not start web browser (Windows Only)\n"
 #endif
@@ -106,17 +106,16 @@ const char *szHelp =
 #else
 "\t-log file_path (for example /var/log/domoticz.log)\n"
 #endif
-"\t-loglevel (0=All, 1=Status+Error, 2=Error , 3= Trace )\n"
-"\t-debug    allow log trace level 3 \n"
+"\t-loglevel (combination of: normal,status,error,debug)\n"
+"\t-debuglevel (combination of: normal,hardware,received,webserver,eventsystem,python,thread_id)\n"
 "\t-notimestamps (do not prepend timestamps to logs; useful with syslog, etc.)\n"
-"\t-logthreadids (log thread ids; useful for trouble shooting.)\n"
-	"\t-php_cgi_path (for example /usr/bin/php-cgi)\n"
+"\t-php_cgi_path (for example /usr/bin/php-cgi)\n"
 #ifndef WIN32
-	"\t-daemon (run as background daemon)\n"
-	"\t-pidfile pid file location (for example /var/run/domoticz.pid)\n"
-	"\t-syslog [user|daemon|local0 .. local7] (use syslog as log output, defaults to facility 'user')\n"
+"\t-daemon (run as background daemon)\n"
+"\t-pidfile pid file location (for example /var/run/domoticz.pid)\n"
+"\t-syslog [user|daemon|local0 .. local7] (use syslog as log output, defaults to facility 'user')\n"
 #endif
-	"";
+"";
 
 #ifndef WIN32
 struct _facilities {
@@ -173,6 +172,7 @@ bool g_bStopApplication = false;
 bool g_bUseSyslog = false;
 bool g_bRunAsDaemon = false;
 bool g_bDontCacheWWW = false;
+_eWebCompressionMode g_wwwCompressMode = http::server::WWW_USE_GZIP;
 bool g_bUseUpdater = true;
 
 int pidFilehandle = 0;
@@ -546,6 +546,20 @@ int main(int argc, char**argv)
 	signal(SIGPIPE, SIG_IGN);
 #endif
 
+	if (cmdLine.HasSwitch("-loglevel"))
+	{
+		std::string szLevel = cmdLine.GetSafeArgument("-loglevel", 0, "");
+		_log.SetLogFlags(szLevel);
+	}
+	if (cmdLine.HasSwitch("-debuglevel"))
+	{
+		std::string szLevel = cmdLine.GetSafeArgument("-debuglevel", 0, "");
+		_log.SetDebugFlags(szLevel);
+	}
+	if (cmdLine.HasSwitch("-notimestamps"))
+	{
+		_log.EnableLogTimestamps(false);
+	}
 	if (cmdLine.HasSwitch("-log"))
 	{
 		if (cmdLine.GetArgumentCount("-log") != 1)
@@ -553,34 +567,6 @@ int main(int argc, char**argv)
 			_log.Log(LOG_ERROR, "Please specify an output log file");
 			return 1;
 		}
-	}
-	if (cmdLine.HasSwitch("-loglevel"))
-	{
-		if (cmdLine.GetArgumentCount("-loglevel") != 1)
-		{
-			_log.Log(LOG_ERROR, "Please specify logfile output level (0=All, 1=Status+Error, 2=Error)");
-			return 1;
-		}
-	}
-	if (cmdLine.HasSwitch("-verbose"))
-	{
-		if (cmdLine.GetArgumentCount("-verbose") != 1)
-		{
-			_log.Log(LOG_ERROR, "Please specify a verbose level");
-			return 1;
-		}
-	}
-	if (cmdLine.HasSwitch("-debug"))
-		_log.SetLogDebug(true);
-	else
-		_log.SetLogDebug(false);
-	if (cmdLine.HasSwitch("-notimestamps"))
-	{
-		_log.EnableLogTimestamps(false);
-	}
-	if (cmdLine.HasSwitch("-logthreadids"))
-	{
-		_log.EnableLogThreadIDs(true);
 	}
 
 	if (cmdLine.HasSwitch("-approot"))
@@ -855,7 +841,7 @@ int main(int argc, char**argv)
 			_log.Log(LOG_ERROR, "Please specify SSL options");
 			return 1;
 		}
-		secure_webserver_settings.options = cmdLine.GetSafeArgument("-ssloptions", 0, "");
+		secure_webserver_settings.ssl_options = cmdLine.GetSafeArgument("-ssloptions", 0, "");
 	}
 	if (cmdLine.HasSwitch("-ssldhparam"))
 	{
@@ -885,6 +871,20 @@ int main(int argc, char**argv)
 	if (cmdLine.HasSwitch("-nocache"))
 	{
 		g_bDontCacheWWW = true;
+	}
+	if (cmdLine.HasSwitch("-wwwcompress"))
+	{
+		if (cmdLine.GetArgumentCount("-wwwcompress") != 1)
+		{
+			_log.Log(LOG_ERROR, "Please specify a compress mode");
+			return 1;
+		}
+		std::string szmode = cmdLine.GetSafeArgument("-wwwcompress", 0, "on");
+		if (szmode == "off")
+			g_wwwCompressMode = http::server::WWW_FORCE_NO_GZIP_SUPPORT;
+		else if (szmode == "static")
+			g_wwwCompressMode = http::server::WWW_USE_STATIC_GZ_FILES;
+
 	}
 	std::string dbasefile = szUserDataFolder + "domoticz.db";
 #ifdef WIN32
@@ -1041,27 +1041,11 @@ int main(int argc, char**argv)
 	}
 	m_StartTime = time(NULL);
 
-  //set log level / log output file name verbose level if set on command line
-  //the value as been taken from database in call of GetLogPreference m_mainworker.Start()
 	if (cmdLine.HasSwitch("-log"))
 	{
 		logfile = cmdLine.GetSafeArgument("-log", 0, "domoticz.log");
 		_log.SetOutputFile(logfile.c_str());
 	}
-	if (cmdLine.HasSwitch("-loglevel"))
-	{
-		int Level = atoi(cmdLine.GetSafeArgument("-loglevel", 0, "").c_str());
-		if     (Level==0) _log.SetVerboseLevel(VBL_ALL);
-		else if(Level==1) _log.SetVerboseLevel(VBL_STATUS_ERROR);
-		else if(Level==2) _log.SetVerboseLevel(VBL_ERROR);
-		else if ((Level == 3) && (_log.GetLogDebug())) _log.SetVerboseLevel(VBL_TRACE);
-	}
-	if (cmdLine.HasSwitch("-verbose"))
-	{
-		int Level = atoi(cmdLine.GetSafeArgument("-verbose", 0, "").c_str());
-		m_mainworker.SetVerboseLevel((eVerboseLevel)Level);
-	}
-
 
 	/* now, lets get into an infinite loop of doing nothing. */
 #if defined WIN32

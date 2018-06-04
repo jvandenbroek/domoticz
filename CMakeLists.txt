@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8.4)
 project(domoticz)
 
 ## required min. libBoost version
-SET(DOMO_MIN_LIBBOOST_VERSION 105500)
+SET(DOMO_MIN_LIBBOOST_VERSION 106000)
 ##
 
 MACRO(Gitversion_GET_REVISION dir variable)
@@ -57,9 +57,24 @@ ELSE(USE_BUILTIN_LUA)
   find_package(PkgConfig)
   pkg_search_module(LUA lua5.2>=5.2 lua>=5.2 lua-5.2)
   IF(LUA_FOUND)
+    # Lua 5.2 pkg-config is broken.
+    # Depending on whether the used distro fixed that to
+    # provide backward compatibility we need to find the
+    # include dir and library name ourselves.
+    IF(NOT LUA_INCLUDE_DIRS)
+      find_path(LUA_INC_DIRS NAMES "lua.h" PATH_SUFFIXES "lua5.2")
+      set(LUA_INCLUDE_DIRS ${LUA_INC_DIRS})
+    ENDIF(LUA_INCLUDE_DIRS)
+    message(STATUS "Found lua.h at: ${LUA_INCLUDE_DIRS}")
     INCLUDE_DIRECTORIES(${LUA_INCLUDE_DIRS})
     add_definitions(-DWITH_EXTERNAL_LUA)
-    link_directories(${LUA_LIBRARY_DIRS})
+    IF(LUA_LIBRARY_DIRS)
+      link_directories(${LUA_LIBRARY_DIRS})
+    ELSE(LUA_LIBRARY_DIRS)
+      find_library(LUA_LIB NAMES lua lua5.2)
+      message(STATUS "Found lua library at: ${LUA_LIB}")
+      set(LUA_LIBRARIES ${LUA_LIB})
+    ENDIF(LUA_LIBRARY_DIRS)
   ELSE(LUA_FOUND)
     MESSAGE(FATAL_ERROR "LUA not found but USE_BUILTIN_LUA=NO")
   ENDIF(LUA_FOUND)
@@ -549,7 +564,7 @@ set(Boost_USE_STATIC_LIBS ${USE_STATIC_BOOST})
 set(Boost_USE_MULTITHREADED ON)
 unset(Boost_INCLUDE_DIR CACHE)
 unset(Boost_LIBRARY_DIRS CACHE)
-find_package(Boost REQUIRED COMPONENTS thread date_time system)
+find_package(Boost REQUIRED COMPONENTS thread system)
 
 if(USE_STATIC_BOOST)
    message(STATUS "Linking against boost static libraries")
@@ -581,6 +596,27 @@ else(USE_BUILTIN_ZLIB)
     MESSAGE(FATAL_ERROR "ZLIB not found on your system, see install.txt how to get them installed. (for example 'sudo apt-get install zlib1g-dev')")
   endif(ZLIB_FOUND)
 endif(USE_BUILTIN_ZLIB)
+
+#
+# MINIZIP
+#
+option(USE_BUILTIN_MINIZIP "Use builtin minizip library" YES)
+if(USE_BUILTIN_MINIZIP)
+  add_subdirectory(zip)
+  get_directory_property(MINIZIP_LIBRARIES DIRECTORY zip DEFINITION MINIZIP_LIBRARIES)
+  get_directory_property(MINIZIP_INCLUDE_DIRS DIRECTORY zip DEFINITION MINIZIP_INCLUDE_DIRS)
+  include_directories(${MINIZIP_INCLUDE_DIRS})
+else(USE_BUILTIN_MINIZIP)
+  find_package(PkgConfig)
+  pkg_check_modules(MINIZIP minizip)
+  if(MINIZIP_FOUND)
+    MESSAGE(STATUS "MINIZIP libraries found at: ${MINIZIP_LIBRARIES}")
+    MESSAGE(STATUS "MINIZIP includes found at: ${MINIZIP_INCLUDE_DIRS}")
+    include_directories(${MINIZIP_INCLUDE_DIRS})
+  else()
+    MESSAGE(FATAL_ERROR "MINIZIP not found on your system, see install.txt how to get them installed. (for example 'sudo apt-get install libminizip-dev')")
+  endif(MINIZIP_FOUND)
+endif(USE_BUILTIN_MINIZIP)
 
 #
 # CURL
@@ -704,11 +740,11 @@ else()
 endif (TELLDUSCORE_INCLUDE)
 
 IF(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  target_link_libraries(domoticz ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} pthread ${LUA_LIBRARIES} ${MQTT_LIBRARIES} ${SQLite_LIBRARIES} ${CMAKE_DL_LIBS} ${TELLDUS_LIBRARIES})
+  target_link_libraries(domoticz ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${MINIZIP_LIBRARIES} ${CURL_LIBRARIES} pthread ${LUA_LIBRARIES} ${MQTT_LIBRARIES} ${SQLite_LIBRARIES} ${CMAKE_DL_LIBS} ${TELLDUS_LIBRARIES})
 elseif(CMAKE_SYSTEM_NAME STREQUAL "OpenBSD")
-  target_link_libraries(domoticz ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} pthread ${LUA_LIBRARIES} ${MQTT_LIBRARIES} ${SQLite_LIBRARIES} ${CMAKE_DL_LIBS} ${TELLDUS_LIBRARIES} ${EXECINFO_LIBRARIES})
+  target_link_libraries(domoticz ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${MINIZIP_LIBRARIES} ${CURL_LIBRARIES} pthread ${LUA_LIBRARIES} ${MQTT_LIBRARIES} ${SQLite_LIBRARIES} ${CMAKE_DL_LIBS} ${TELLDUS_LIBRARIES} ${EXECINFO_LIBRARIES})
 else()
-  target_link_libraries(domoticz -lrt ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} pthread ${LUA_LIBRARIES} ${MQTT_LIBRARIES} ${SQLite_LIBRARIES} ${CMAKE_DL_LIBS} ${TELLDUS_LIBRARIES} ${EXECINFO_LIBRARIES})
+  target_link_libraries(domoticz -lrt ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${MINIZIP_LIBRARIES} ${CURL_LIBRARIES} pthread ${LUA_LIBRARIES} ${MQTT_LIBRARIES} ${SQLite_LIBRARIES} ${CMAKE_DL_LIBS} ${TELLDUS_LIBRARIES} ${EXECINFO_LIBRARIES})
 ENDIF()
 
 ADD_PRECOMPILED_HEADER(domoticz "main/stdafx.h")
