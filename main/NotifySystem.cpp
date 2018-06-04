@@ -74,6 +74,8 @@ void CNotifySystem::Notify(const _eNotifyType type, const _eNotifyStatus status)
 
 void CNotifySystem::Notify(const _eNotifyType type, const _eNotifyStatus status, const std::string &message)
 {
+	if (!m_bEnabled)
+		return;
 	Notify(type, status, 0, message);
 }
 

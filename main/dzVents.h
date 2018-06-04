@@ -46,6 +46,7 @@ private:
 	void ProcessHttpResponse(lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items);
 	void ProcessSecurity(lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items);
 	void ProcessNotify(lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items);
+	void ProcessNotifyItem(lua_State *lua_state, int &index, std::string &type, std::string &status, const CEventSystem::_tEventQueue &itt);
 	static int l_domoticz_print(lua_State* lua_state);
 	static CdzVents m_dzvents;
 	std::string m_version;
