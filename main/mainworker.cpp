@@ -13089,11 +13089,6 @@ bool MainWorker::UpdateDevice(const int HardwareID, const std::string &DeviceID,
 		}
 	}
 
-#ifdef ENABLE_PYTHON
-	// notify plugin
-	m_pluginsystem.DeviceModified(devidx);
-#endif
-
 	// signal connected devices (MQTT, fibaro, http push ... ) about the web update
 	if (parseTrigger)
 	{

@@ -751,3 +751,21 @@ void MQTT::SendSceneInfo(const uint64_t SceneIdx, const std::string &SceneName)
 		SendMessage(TOPIC_OUT, message);
 	}
 }
+
+bool MQTT::NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message)
+{
+	if (!m_IsConnected)
+		return false;
+	Json::Value root;
+
+	root["Type"] = NotifyGetTypeString(type);
+	root["Status"] = NotifyGetStatusString(status);
+	root["Message"] = message;
+
+	std::string msg = root.toStyledString();
+	if (m_publish_topics & PT_out)
+	{
+		SendMessage(TOPIC_OUT, msg);
+	}
+	return true;
+}

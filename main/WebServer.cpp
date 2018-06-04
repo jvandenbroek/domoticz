@@ -12004,10 +12004,15 @@ namespace http {
 			sstridx >> ullidx;
 			m_mainworker.m_eventsystem.WWWUpdateSingleState(ullidx, sname, m_mainworker.m_eventsystem.REASON_DEVICE);
 
-#ifdef ENABLE_PYTHON
-			// Notify plugin framework about the change
-			m_mainworker.m_pluginsystem.DeviceModified(idx);
-#endif
+			std::vector<std::vector<std::string> > result;
+			result = m_sql.safe_query("SELECT HardwareID FROM DeviceStatus WHERE (ID == '%q')", sidx.c_str());
+			if (result.size() != 1)
+				return;
+			std::stringstream ss;
+			ss << result[0][0];
+			int HwdID;
+			ss >> HwdID;
+			m_mainworker.sOnDeviceReceived(HwdID, idx, sname, NULL);
 		}
 
 		void CWebServer::Cmd_RenameScene(WebEmSession & session, const request& req, Json::Value &root)
@@ -12054,10 +12059,16 @@ namespace http {
 			if (m_sql.m_bEnableEventSystem)
 				m_mainworker.m_eventsystem.RemoveSingleState(idx, m_mainworker.m_eventsystem.REASON_DEVICE);
 
-#ifdef ENABLE_PYTHON
-			// Notify plugin framework about the change
-			m_mainworker.m_pluginsystem.DeviceModified(idx);
-#endif
+			std::vector<std::vector<std::string> > result;
+			result = m_sql.safe_query("SELECT HardwareID, Name FROM DeviceStatus WHERE (ID == '%q')", sidx.c_str());
+			if (result.size() != 1)
+				return;
+			std::stringstream ss;
+			ss << result[0][0];
+			int HwdID;
+			ss >> HwdID;
+			m_mainworker.sOnDeviceReceived(HwdID, idx, result[0][1].c_str(), NULL);
+
 		}
 
 		void CWebServer::Cmd_AddLogMessage(WebEmSession & session, const request& req, Json::Value &root)
@@ -12706,10 +12717,10 @@ namespace http {
 			}
 			else
 			{
-#ifdef ENABLE_PYTHON
-				// Notify plugin framework about the change
-				m_mainworker.m_pluginsystem.DeviceModified(atoi(idx.c_str()));
-#endif
+				std::stringstream sstridx(idx);
+				uint64_t ullidx;
+				sstridx >> ullidx;
+				m_mainworker.sOnDeviceReceived(HwdID, ullidx, name, NULL);
 			}
 			if (result.size() > 0)
 			{

@@ -10,8 +10,8 @@
 #include <mosquittopp.h>
 #endif
 #endif
-
-class MQTT : public MySensorsBase, mosqpp::mosquittopp
+#include "../main/NotifyObserver.h"
+class MQTT : public MySensorsBase, mosqpp::mosquittopp, CNotifyObserver
 {
 public:
 	MQTT(const int ID, const std::string &IPAddress, const unsigned short usIPPort, const std::string &Username, const std::string &Password, const std::string &CAFile, const int Topics);
@@ -36,6 +36,7 @@ private:
 	bool ConnectIntEx();
 	void SendDeviceInfo(const int m_HwdID, const uint64_t DeviceRowIdx, const std::string &DeviceName, const unsigned char *pRXCommand);
 	void SendSceneInfo(const uint64_t SceneIdx, const std::string &SceneName);
+	virtual bool NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message);
 protected:
 	std::string m_szIPAddress;
 	unsigned short m_usIPPort;
