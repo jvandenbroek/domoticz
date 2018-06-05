@@ -8,6 +8,7 @@
 #include "../main/SQLHelper.h"
 #include "../json/json.h"
 #include "../notifications/NotificationHelper.h"
+#include "../main/NotifySystem.h"
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 
@@ -758,8 +759,8 @@ bool MQTT::NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, 
 		return false;
 	Json::Value root;
 
-	root["Type"] = NotifyGetTypeString(type);
-	root["Status"] = NotifyGetStatusString(status);
+	root["Type"] = _notify.GetTypeString(type);
+	root["Status"] = _notify.GetStatusString(status);
 	root["Message"] = message;
 
 	std::string msg = root.toStyledString();

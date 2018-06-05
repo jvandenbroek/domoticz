@@ -18,6 +18,8 @@ public:
 	bool Register(CNotifyObserver* pHardware);
 	bool Unregister(CNotifyObserver* pHardware);
 	void SetEnabled(const bool bEnabled);
+	std::string const GetTypeString(const int type);
+	std::string const GetStatusString(const int status);
 
 private:
 	struct _tNotifyQueue
@@ -27,6 +29,16 @@ private:
 		_eNotifyStatus status;
 		std::string message;
 		queue_element_trigger* trigger;
+	};
+	struct _tNotifyTypeTable
+	{
+		_eNotifyType type;
+		std::string name;
+	};
+	struct _tNotifyStatusTable
+	{
+		_eNotifyStatus status;
+		std::string name;
 	};
 
 	void Start();
@@ -39,6 +51,9 @@ private:
 	concurrent_queue<_tNotifyQueue> m_notifyqueue;
 	boost::shared_ptr<boost::thread> m_pQueueThread;
 	bool m_bEnabled;
+
+	static const _tNotifyTypeTable typeTable[];
+	static const _tNotifyStatusTable statusTable[];
 };
 
 extern CNotifySystem _notify;
