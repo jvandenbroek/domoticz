@@ -18,6 +18,7 @@
 #include "../main/WebServer.h"
 #include "../webserver/cWebem.h"
 #include "../main/mainworker.h"
+#include "../main/NotifySystem.h"
 
 #include "../json/json.h"
 #include "../main/localtime_r.h"
@@ -803,6 +804,8 @@ void COpenZWave::OnZWaveNotification(OpenZWave::Notification const* _notificatio
 			_log.Log(LOG_STATUS, "OpenZWave: All Nodes queried");
 		else
 			_log.Log(LOG_STATUS, "OpenZWave: All Nodes queried (Some Dead)");
+
+		_notify.Notify("zwaveReady");
 		m_bNeedSave = true;
 		break;
 	case OpenZWave::Notification::Type_NodeQueriesComplete:
@@ -957,7 +960,7 @@ bool COpenZWave::OpenSerialConnector()
 	}
 	// Create the OpenZWave Manager.
 	// The first argument is the path to the config files (where the manufacturer_specific.xml file is located
-	// The second argument is the path for saved Z-Wave network state and the log file.  If you leave it NULL 
+	// The second argument is the path for saved Z-Wave network state and the log file.  If you leave it NULL
 	// the log file will appear in the program's working directory.
 	_log.Log(LOG_STATUS, "OpenZWave: using config in: %s", ConfigPath.c_str());
 	OpenZWave::Options::Create(ConfigPath, UserPath, "--SaveConfiguration=true ");
@@ -4546,7 +4549,7 @@ namespace http {
 						root["result"][ii]["State"] = pOZWHardware->GetNodeStateString(homeID, nodeID);
 						root["result"][ii]["HaveUserCodes"] = pNode->HaveUserCodes;
 						root["result"][ii]["IsPlus"] = pNode->IsPlus;
-						
+
 						char szDate[80];
 						struct tm loctime;
 						localtime_r(&pNode->LastSeen, &loctime);

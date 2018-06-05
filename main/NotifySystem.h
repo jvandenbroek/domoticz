@@ -7,6 +7,7 @@ class CNotifySystem
 public:
 	CNotifySystem(void);
 	~CNotifySystem(void);
+	void Notify(const std::string &type);
 	void Notify(const _eNotifyType type);
 	void Notify(const _eNotifyType type, const _eNotifyStatus status);
 	void Notify(const _eNotifyType type, const _eNotifyStatus status, const std::string &message);
@@ -51,6 +52,8 @@ private:
 	concurrent_queue<_tNotifyQueue> m_notifyqueue;
 	boost::shared_ptr<boost::thread> m_pQueueThread;
 	bool m_bEnabled;
+
+	std::vector<std::string> m_customTypes;
 
 	static const _tNotifyTypeTable typeTable[];
 	static const _tNotifyStatusTable statusTable[];

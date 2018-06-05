@@ -1,6 +1,6 @@
 #pragma once
 
-enum _eNotifyType
+enum _eNotifyType : uint16_t
 {
 	NOTIFY_LOG,             // 0
 	NOTIFY_DZ_START,        // 1

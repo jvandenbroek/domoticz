@@ -3,7 +3,7 @@
 #include "Logger.h"
 
 const CNotifySystem::_tNotifyTypeTable CNotifySystem::typeTable[] =
-{
+{ // don't change order
 	{ NOTIFY_LOG,             "log"             },
 	{ NOTIFY_DZ_START,        "domoticzStart"   },
 	{ NOTIFY_DZ_STOP,         "domoticzStop"    },
@@ -17,7 +17,7 @@ const CNotifySystem::_tNotifyTypeTable CNotifySystem::typeTable[] =
 };
 
 const CNotifySystem::_tNotifyStatusTable CNotifySystem::statusTable[] =
-{
+{ // don't change order
 	{ NOTIFY_OK,              "ok"              },
 	{ NOTIFY_INFO,            "info"            },
 	{ NOTIFY_ERROR,           "error"           },
@@ -62,21 +62,24 @@ void CNotifySystem::SetEnabled(const bool bEnabled)
 
 std::string const CNotifySystem::GetTypeString(const int type)
 {
-	for (uint8_t i = 0; i < sizeof(typeTable) / sizeof(typeTable[0]); i++)
+	if (type <= UINT8_MAX) // constants defined in _eNotifyType
 	{
-		if (typeTable[i].type == static_cast<_eNotifyType>(type))
-			return typeTable[i].name;
+		if (type < sizeof(typeTable) / sizeof(typeTable[0]))
+			return typeTable[type].name;
+	}
+	else
+	{
+		uint8_t shiftType = (type >> UINT8_WIDTH) - 1; // shift back to get correct value from custom type vector
+		if (shiftType < m_customTypes.size())
+			return m_customTypes[shiftType];
 	}
 	return "";
 }
 
 std::string const CNotifySystem::GetStatusString(const int status)
 {
-	for (uint8_t i = 0; i < sizeof(statusTable) / sizeof(statusTable[0]); i++)
-	{
-		if (statusTable[i].status == static_cast<_eNotifyStatus>(status))
-			return statusTable[i].name;
-	}
+	if (status < sizeof(statusTable) / sizeof(statusTable[0]))
+			return statusTable[status].name;
 	return "";
 }
 
@@ -100,13 +103,32 @@ void CNotifySystem::QueueThread()
 	}
 }
 
+void CNotifySystem::Notify(const std::string &type)
+{
+	if (!m_bEnabled)
+		return;
+	bool found = false;
+	uint16_t i = 0;
+	for (; i < m_customTypes.size(); i++)
+	{
+		if (m_customTypes[i] == type)
+		{
+			found = true;
+			break;
+		}
+	}
+	if (!found && m_customTypes.size() < UINT8_MAX)
+		m_customTypes.push_back(type);
+
+	Notify(static_cast<_eNotifyType>(++i << UINT8_WIDTH), NOTIFY_INFO, 0, "");  // first 8 bits (LE) reserved for internal types
+}
+
 void CNotifySystem::Notify(const _eNotifyType type)
 {
 	if (!m_bEnabled)
 		return;
 	Notify(type, NOTIFY_INFO, 0, "");
 }
-
 void CNotifySystem::Notify(const _eNotifyType type, const _eNotifyStatus status)
 {
 	if (!m_bEnabled)
