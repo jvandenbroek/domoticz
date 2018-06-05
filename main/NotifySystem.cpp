@@ -62,14 +62,14 @@ void CNotifySystem::SetEnabled(const bool bEnabled)
 
 std::string const CNotifySystem::GetTypeString(const int type)
 {
-	if (type <= UINT8_MAX) // constants defined in _eNotifyType
+	if (type <= 255) // constants defined in _eNotifyType
 	{
 		if (type < sizeof(typeTable) / sizeof(typeTable[0]))
 			return typeTable[type].name;
 	}
 	else
 	{
-		uint8_t shiftType = (type >> UINT8_WIDTH) - 1; // shift back to get correct value from custom type vector
+		uint8_t shiftType = (type >> 8) - 1; // shift back to get correct value from custom type vector
 		if (shiftType < m_customTypes.size())
 			return m_customTypes[shiftType];
 	}
@@ -117,10 +117,10 @@ void CNotifySystem::Notify(const std::string &type)
 			break;
 		}
 	}
-	if (!found && m_customTypes.size() < UINT8_MAX)
+	if (!found && m_customTypes.size() < 255)
 		m_customTypes.push_back(type);
 
-	Notify(static_cast<_eNotifyType>(++i << UINT8_WIDTH), NOTIFY_INFO, 0, "");  // first 8 bits (LE) reserved for internal types
+	Notify(static_cast<_eNotifyType>(++i << 8), NOTIFY_INFO, 0, "");  // first 8 bits (LE) reserved for internal types
 }
 
 void CNotifySystem::Notify(const _eNotifyType type)
