@@ -14,6 +14,7 @@ const CNotifySystem::_tNotifyTypeTable CNotifySystem::typeTable[] =
 	{ NOTIFY_HW_STOP,         "hardwareStop"    },
 	{ NOTIFY_NOTIFICATION,    "notification"    },
 	{ NOTIFY_THREAD_ENDED,    "threadEnded"     },
+	{ NOTIFY_SWITCHCMD,       "switchCmd"       }
 };
 
 const CNotifySystem::_tNotifyStatusTable CNotifySystem::statusTable[] =
@@ -103,7 +104,7 @@ void CNotifySystem::QueueThread()
 	}
 }
 
-void CNotifySystem::Notify(const std::string &type)
+void CNotifySystem::Notify(const std::string &type, const uint64_t id)
 {
 	if (!m_bEnabled)
 		return;
@@ -120,7 +121,7 @@ void CNotifySystem::Notify(const std::string &type)
 	if (!found && m_customTypes.size() < 255)
 		m_customTypes.push_back(type);
 
-	Notify(static_cast<_eNotifyType>(++i << 8), NOTIFY_INFO, 0, "");  // first byte reserved for constant types
+	Notify(static_cast<_eNotifyType>(++i << 8), NOTIFY_INFO, id, "");  // first byte reserved for constant types
 }
 
 void CNotifySystem::Notify(const _eNotifyType type)

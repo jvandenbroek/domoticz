@@ -3107,7 +3107,10 @@ bool CSQLHelper::SwitchLightFromTasker(uint64_t idx, const std::string &switchcm
 		return false;
 
 	std::vector<std::string> sd = result[0];
-	return m_mainworker.SwitchLightInt(sd, switchcmd, level, color, false);
+	if (m_mainworker.SwitchLightInt(sd, switchcmd, level, color, false))
+		return true;
+	_notify.Notify(NOTIFY_SWITCHCMD, NOTIFY_ERROR, idx, switchcmd);
+	return false;
 }
 
 void CSQLHelper::Do_Work()

@@ -11,7 +11,8 @@ enum _eNotifyType
 	NOTIFY_HW_START,        // 6
 	NOTIFY_HW_STOP,         // 7
 	NOTIFY_NOTIFICATION,    // 8
-	NOTIFY_THREAD_ENDED     // 9
+	NOTIFY_THREAD_ENDED,    // 9
+	NOTIFY_SWITCHCMD        // 10
 };
 
 enum _eNotifyStatus

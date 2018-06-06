@@ -805,7 +805,7 @@ void COpenZWave::OnZWaveNotification(OpenZWave::Notification const* _notificatio
 		else
 			_log.Log(LOG_STATUS, "OpenZWave: All Nodes queried (Some Dead)");
 
-		_notify.Notify("zwaveReady");
+		_notify.Notify("zwaveReady", m_HwdID);
 		m_bNeedSave = true;
 		break;
 	case OpenZWave::Notification::Type_NodeQueriesComplete:
