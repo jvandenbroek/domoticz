@@ -120,7 +120,7 @@ void CNotifySystem::Notify(const std::string &type)
 	if (!found && m_customTypes.size() < 255)
 		m_customTypes.push_back(type);
 
-	Notify(static_cast<_eNotifyType>(++i << 8), NOTIFY_INFO, 0, "");  // first 8 bits (LE) reserved for internal types
+	Notify(static_cast<_eNotifyType>(++i << 8), NOTIFY_INFO, 0, "");  // first byte reserved for constant types
 }
 
 void CNotifySystem::Notify(const _eNotifyType type)
