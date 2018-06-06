@@ -1,6 +1,6 @@
 #pragma once
 
-enum _eNotifyType
+enum _eNotifyType : uint16_t
 {
 	NOTIFY_LOG,             // 0
 	NOTIFY_DZ_START,        // 1
@@ -21,27 +21,11 @@ enum _eNotifyStatus
 	NOTIFY_ERROR,
 	NOTIFY_WARNING
 };
+
 class CNotifyObserver
 {
 public:
 	CNotifyObserver(void);
 	~CNotifyObserver(void);
 	virtual bool NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message) = 0;
-protected:
-	std::string NotifyGetTypeString(const int type);
-	std::string NotifyGetStatusString(const int status);
-private:
-	struct _tNotifyTypeTable
-	{
-		_eNotifyType type;
-		std::string name;
-	};
-	struct _tNotifyStatusTable
-	{
-		_eNotifyStatus status;
-		std::string name;
-	};
-	static const _tNotifyTypeTable typeTable[];
-	static const _tNotifyStatusTable statusTable[];
-
 };

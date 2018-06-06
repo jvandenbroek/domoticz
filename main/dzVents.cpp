@@ -71,43 +71,68 @@ void CdzVents::EvaluateDzVents(lua_State *lua_state, const std::vector<CEventSys
 		ProcessNotify(lua_state, items);
 }
 
+void CdzVents::ProcessNotifyItem(lua_State *lua_state, int &index, std::string &type, std::string &status, const CEventSystem::_tEventQueue &itt)
+{
+	lua_pushnumber(lua_state, (lua_Number)index);
+	lua_createtable(lua_state, 1, 4);
+	if (itt.nValue)
+		type = _notify.GetTypeString(itt.nValue);
+
+	if (itt.lastLevel)
+		status = _notify.GetStatusString(itt.lastLevel);
+
+	if (itt.id > 0)
+	{
+		lua_pushstring(lua_state, "id");
+		lua_pushnumber(lua_state, (lua_Number)itt.id);
+		lua_rawset(lua_state, -3);
+	}
+	lua_pushstring(lua_state, "type");
+	lua_pushstring(lua_state, type.c_str());
+	lua_rawset(lua_state, -3);
+	lua_pushstring(lua_state, "status");
+	lua_pushstring(lua_state, status.c_str());
+	lua_rawset(lua_state, -3);
+	lua_pushstring(lua_state, "message");
+	lua_pushstring(lua_state, itt.sValue.c_str());
+	lua_rawset(lua_state, -3);
+	lua_settable(lua_state, -3); // number entry
+	index++;
+	//_log.Log(LOG_STATUS, "dzVents: type: %s, status: %s, message: %s", type.c_str(), status.c_str(), itt.sValue.c_str());
+}
+
 void CdzVents::ProcessNotify(lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items)
 {
 	int index = 1;
-	std::string type, status, message;
-	lua_createtable(lua_state, 0, 0);
+	std::string type, status;
+	bool bHardware = false;
+	lua_createtable(lua_state, 1, 1);
+	lua_pushstring(lua_state, "domoticz");
+	lua_createtable(lua_state, 0, 1);
 	std::vector<CEventSystem::_tEventQueue>::const_iterator itt;
 	for (itt = items.begin(); itt != items.end(); itt++)
 	{
 		if (itt->reason == m_mainworker.m_eventsystem.REASON_NOTIFY)
 		{
-			lua_pushnumber(lua_state, (lua_Number)index);
-			lua_createtable(lua_state, 0, 0);
-			if (itt->nValue)
-				type = m_mainworker.m_eventsystem.NotifyGetTypeString(itt->nValue);
-
-			if (itt->lastLevel)
-				status = m_mainworker.m_eventsystem.NotifyGetStatusString(itt->lastLevel);
-
-			if (!itt->sValue.empty())
-				message = itt->sValue;
-			lua_pushstring(lua_state, "id");
-			lua_pushnumber(lua_state, (lua_Number)itt->id);
-			lua_rawset(lua_state, -3);
-			lua_pushstring(lua_state, "type");
-			lua_pushstring(lua_state, type.c_str());
-			lua_rawset(lua_state, -3);
-			lua_pushstring(lua_state, "status");
-			lua_pushstring(lua_state, status.c_str());
-			lua_rawset(lua_state, -3);
-			lua_pushstring(lua_state, "message");
-			lua_pushstring(lua_state, message.c_str());
-			lua_rawset(lua_state, -3);
-			lua_settable(lua_state, -3); // number entry
-			index++;
-			//_log.Log(LOG_STATUS, "dzVents: type: %s, status: %s, message: %s", type.c_str(), status.c_str(), message.c_str());
+			if (!itt->id)
+				ProcessNotifyItem(lua_state, index, type, status, *itt);
+			else
+				bHardware = true;
 		}
 	}
+	lua_settable(lua_state, -3); // domoticz
+	lua_pushstring(lua_state, "hardware");
+	lua_createtable(lua_state, 0, 1);
+	if (bHardware)
+	{
+		index = 1;
+		for (itt = items.begin(); itt != items.end(); itt++)
+		{
+			if (itt->reason == m_mainworker.m_eventsystem.REASON_NOTIFY && itt->id > 0)
+				ProcessNotifyItem(lua_state, index, type, status, *itt);
+		}
+	}
+	lua_settable(lua_state, -3); // hardware
 	lua_setglobal(lua_state, "Notify");
 }
 

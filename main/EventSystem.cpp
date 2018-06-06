@@ -3133,10 +3133,10 @@ void CEventSystem::EvaluateLuaClassic(lua_State *lua_state, const _tEventQueue &
 		lua_pushnumber(lua_state, (lua_Number)item.id);
 		lua_rawset(lua_state, -3);
 		lua_pushstring(lua_state, "type");
-		lua_pushstring(lua_state, NotifyGetTypeString(item.nValue).c_str());
+		lua_pushstring(lua_state, _notify.GetTypeString(item.nValue).c_str());
 		lua_rawset(lua_state, -3);
 		lua_pushstring(lua_state, "status");
-		lua_pushstring(lua_state, NotifyGetStatusString(item.lastLevel).c_str());
+		lua_pushstring(lua_state, _notify.GetStatusString(item.lastLevel).c_str());
 		lua_rawset(lua_state, -3);
 		lua_pushstring(lua_state, "message");
 		lua_pushstring(lua_state, item.sValue.c_str());

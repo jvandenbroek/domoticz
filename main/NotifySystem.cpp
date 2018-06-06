@@ -2,6 +2,28 @@
 #include "NotifySystem.h"
 #include "Logger.h"
 
+const CNotifySystem::_tNotifyTypeTable CNotifySystem::typeTable[] =
+{ // don't change order
+	{ NOTIFY_LOG,             "log"             },
+	{ NOTIFY_DZ_START,        "domoticzStart"   },
+	{ NOTIFY_DZ_STOP,         "domoticzStop"    },
+	{ NOTIFY_BACKUP_BEGIN,    "backupBegin"	    },
+	{ NOTIFY_BACKUP_END,      "backupEnd"       },
+	{ NOTIFY_HW_TIMEOUT,      "hardwareTimeout" },
+	{ NOTIFY_HW_START,        "hardwareStart"   },
+	{ NOTIFY_HW_STOP,         "hardwareStop"    },
+	{ NOTIFY_NOTIFICATION,    "notification"    },
+	{ NOTIFY_THREAD_ENDED,    "threadEnded"     },
+};
+
+const CNotifySystem::_tNotifyStatusTable CNotifySystem::statusTable[] =
+{ // don't change order
+	{ NOTIFY_OK,              "ok"              },
+	{ NOTIFY_INFO,            "info"            },
+	{ NOTIFY_ERROR,           "error"           },
+	{ NOTIFY_WARNING,         "warning"         }
+};
+
 CNotifySystem::CNotifySystem(void)
 {
 }
@@ -38,6 +60,29 @@ void CNotifySystem::SetEnabled(const bool bEnabled)
 }
 
 
+std::string const CNotifySystem::GetTypeString(const int type)
+{
+	if (type <= 255) // constants defined in _eNotifyType
+	{
+		if (type < sizeof(typeTable) / sizeof(typeTable[0]))
+			return typeTable[type].name;
+	}
+	else
+	{
+		uint8_t shiftType = (type >> 8) - 1; // shift back to get correct value from custom type vector
+		if (shiftType < m_customTypes.size())
+			return m_customTypes[shiftType];
+	}
+	return "";
+}
+
+std::string const CNotifySystem::GetStatusString(const int status)
+{
+	if (status < sizeof(statusTable) / sizeof(statusTable[0]))
+			return statusTable[status].name;
+	return "";
+}
+
 void CNotifySystem::QueueThread()
 {
 	_tNotifyQueue item;
@@ -58,13 +103,32 @@ void CNotifySystem::QueueThread()
 	}
 }
 
+void CNotifySystem::Notify(const std::string &type)
+{
+	if (!m_bEnabled)
+		return;
+	bool found = false;
+	uint16_t i = 0;
+	for (; i < m_customTypes.size(); i++)
+	{
+		if (m_customTypes[i] == type)
+		{
+			found = true;
+			break;
+		}
+	}
+	if (!found && m_customTypes.size() < 255)
+		m_customTypes.push_back(type);
+
+	Notify(static_cast<_eNotifyType>(++i << 8), NOTIFY_INFO, 0, "");  // first 8 bits (LE) reserved for internal types
+}
+
 void CNotifySystem::Notify(const _eNotifyType type)
 {
 	if (!m_bEnabled)
 		return;
 	Notify(type, NOTIFY_INFO, 0, "");
 }
-
 void CNotifySystem::Notify(const _eNotifyType type, const _eNotifyStatus status)
 {
 	if (!m_bEnabled)
@@ -74,6 +138,8 @@ void CNotifySystem::Notify(const _eNotifyType type, const _eNotifyStatus status)
 
 void CNotifySystem::Notify(const _eNotifyType type, const _eNotifyStatus status, const std::string &message)
 {
+	if (!m_bEnabled)
+		return;
 	Notify(type, status, 0, message);
 }
 
