@@ -14,6 +14,7 @@ const CNotifySystem::_tNotifyTypeTable CNotifySystem::typeTable[] =
 	{ NOTIFY_HW_STOP,         "hardwareStop"    },
 	{ NOTIFY_NOTIFICATION,    "notification"    },
 	{ NOTIFY_THREAD_ENDED,    "threadEnded"     },
+	{ NOTIFY_SWITCHCMD,       "switchCmd"       }
 };
 
 const CNotifySystem::_tNotifyStatusTable CNotifySystem::statusTable[] =

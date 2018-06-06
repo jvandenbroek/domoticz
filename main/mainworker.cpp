@@ -11898,7 +11898,12 @@ bool MainWorker::SwitchLight(const uint64_t idx, const std::string &switchcmd, c
 		return true;
 	}
 	else
-		return SwitchLightInt(sd, switchcmd, level, color, false);
+	{
+		if (SwitchLightInt(sd, switchcmd, level, color, false))
+			return true;
+		_notify.Notify(NOTIFY_SWITCHCMD, NOTIFY_ERROR, idx, switchcmd);
+		return false;
+	}
 }
 
 bool MainWorker::SetSetPoint(const std::string &idx, const float TempValue, const std::string &newMode, const std::string &until)
