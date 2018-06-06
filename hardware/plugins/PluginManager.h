@@ -27,6 +27,7 @@ namespace Plugins {
 		boost::signals2::connection m_sDeviceReceivedConnection;
 
 		void Do_Work();
+		void DeviceModified(const int HwdID, const uint64_t DeviceRowIdx, const std::string &DeviceName, const unsigned char *pRXCommand);
 
 	public:
 		CPluginSystem();
@@ -41,7 +42,6 @@ namespace Plugins {
 		bool StopPluginSystem();
 		void AllPluginsStarted() { m_bAllPluginsStarted = true; };
 		static void LoadSettings();
-		void	DeviceModified(const int HwdID, const uint64_t DeviceRowIdx, const std::string &DeviceName, const unsigned char *pRXCommand);
 	};
 };
 
