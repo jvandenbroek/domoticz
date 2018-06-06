@@ -62,7 +62,7 @@ void CNotifySystem::SetEnabled(const bool bEnabled)
 
 std::string const CNotifySystem::GetTypeString(const int type)
 {
-	if (type <= UINT8_MAX) // constants defined in _eNotifyType
+	if (type <= 255) // constants defined in _eNotifyType
 	{
 		if (type < sizeof(typeTable) / sizeof(typeTable[0]))
 			return typeTable[type].name;
@@ -117,7 +117,7 @@ void CNotifySystem::Notify(const std::string &type)
 			break;
 		}
 	}
-	if (!found && m_customTypes.size() < UINT8_MAX)
+	if (!found && m_customTypes.size() < 255)
 		m_customTypes.push_back(type);
 
 	Notify(static_cast<_eNotifyType>(++i << 8), NOTIFY_INFO, 0, "");  // first byte reserved for constant types
