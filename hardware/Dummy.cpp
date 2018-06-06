@@ -33,7 +33,7 @@ bool CDummy::StartHardware()
 	Init();
 	m_bIsStarted=true;
 	sOnConnected(this);
-	_notify.Notify("dummyTest");
+	_notify.Notify("dummyTest", m_HwdID);
 	return true;
 }
 

@@ -7,7 +7,7 @@ class CNotifySystem
 public:
 	CNotifySystem(void);
 	~CNotifySystem(void);
-	void Notify(const std::string &type);
+	void Notify(const std::string &type, const uint64_t id);
 	void Notify(const _eNotifyType type);
 	void Notify(const _eNotifyType type, const _eNotifyStatus status);
 	void Notify(const _eNotifyType type, const _eNotifyStatus status, const std::string &message);
