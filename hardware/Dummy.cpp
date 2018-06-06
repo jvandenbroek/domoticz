@@ -8,6 +8,7 @@
 #include "../webserver/cWebem.h"
 #include "../json/json.h"
 #include "hardwaretypes.h"
+#include "../main/NotifySystem.h"
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 #include <sstream>
@@ -32,6 +33,7 @@ bool CDummy::StartHardware()
 	Init();
 	m_bIsStarted=true;
 	sOnConnected(this);
+	_notify.Notify("dummyTest");
 	return true;
 }
 
