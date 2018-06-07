@@ -106,7 +106,6 @@ void CdzVents::ProcessNotify(lua_State *lua_state, const std::vector<CEventSyste
 	int index = 1;
 	std::string type, status;
 	bool bHardware = false;
-	lua_createtable(lua_state, 1, 1);
 	lua_pushstring(lua_state, "domoticz");
 	lua_createtable(lua_state, 0, 1);
 	std::vector<CEventSystem::_tEventQueue>::const_iterator itt;
