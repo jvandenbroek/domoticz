@@ -161,8 +161,8 @@ int ActYear;
 time_t m_StartTime=time(NULL);
 
 CNotifySystem _notify;
-CLogger _log;
 MainWorker m_mainworker;
+CLogger _log;
 http::server::CWebServerHelper m_webservers;
 CSQLHelper m_sql;
 CNotificationHelper m_notifications;
