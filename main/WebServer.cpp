@@ -64,8 +64,6 @@
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 
-#include "NotifySystem.h"
-
 #define round(a) ( int ) ( a + .5 )
 
 extern std::string szUserDataFolder;
@@ -7860,15 +7858,6 @@ namespace http {
 			}
 			m_sql.UpdatePreferencesVar("DzVentsLogLevel", atoi(request::findValue(&req, "DzVentsLogLevel").c_str()));
 
-			rnOldvalue = 0;
-			m_sql.GetPreferencesVar("EnableNotifySystem", rnOldvalue);
-			std::string EnableNotifySystem = request::findValue(&req, "EnableNotifySystem");
-			int iEnableNotifySystem = (EnableNotifySystem == "on" ? 1 : 0);
-			m_sql.UpdatePreferencesVar("EnableNotifySystem", iEnableNotifySystem);
-			m_sql.m_bEnableNotifySystem = (iEnableNotifySystem == 1);
-			if (iEnableNotifySystem != rnOldvalue)
-				_notify.SetEnabled(m_sql.m_bEnableNotifySystem);
-
 			std::string EnableWidgetOrdering = request::findValue(&req, "AllowWidgetOrdering");
 			int iEnableAllowWidgetOrdering = (EnableWidgetOrdering == "on" ? 1 : 0);
 			m_sql.UpdatePreferencesVar("AllowWidgetOrdering", iEnableAllowWidgetOrdering);
@@ -12745,10 +12734,10 @@ namespace http {
 				"NotificationSwitchInterval",   "RemoteSharedPort",         "WindUnit",                 "TempUnit",
 				"WeightUnit",                   "AuthenticationMethod",     "ReleaseChannel",           "AcceptNewHardware",
 				"HideDisabledHardwareSensors",  "ShowUpdateEffect",         "EnableEventScriptSystem",  "LogEventScriptTrigger",
-				"DisableDzVentsSystem",         "DzVentsLogLevel",          "EnableNotifySystem",       "SecOnDelay",
-				"AllowWidgetOrdering",          "FloorplanPopupDelay",      "FloorplanFullscreenMode",  "FloorplanAnimateZoom",
-				"FloorplanShowSensorValues",    "FloorplanShowSwitchValues","FloorplanShowSceneNames",  "FloorplanActiveOpacity",
-				"FloorplanInactiveOpacity",     "SensorTimeout",            "SendErrorsAsNotification", "IFTTTEnabled",
+				"DisableDzVentsSystem",         "DzVentsLogLevel",          "SecOnDelay",				"AllowWidgetOrdering",
+				"FloorplanPopupDelay",          "FloorplanFullscreenMode",  "FloorplanAnimateZoom",     "FloorplanShowSensorValues",
+				"FloorplanShowSwitchValues",    "FloorplanShowSceneNames",  "FloorplanActiveOpacity",   "FloorplanInactiveOpacity",
+				"SensorTimeout",                "SendErrorsAsNotification", "IFTTTEnabled",
 #ifndef NOCLOUD
 				"MyDomoticzSubsystems",
 #endif

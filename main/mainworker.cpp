@@ -1189,7 +1189,6 @@ bool MainWorker::Stop()
 		m_pluginsystem.StopPluginSystem();
 #endif
 
-		_notify.SetEnabled(false);
 		//    m_cameras.StopCameraGrabber();
 
 		m_stoprequested = true;
@@ -1619,7 +1618,6 @@ void MainWorker::Do_Work()
 			m_hardwareStartCounter++;
 			if (m_hardwareStartCounter >= 2)
 			{
-				_notify.SetEnabled(m_sql.m_bEnableNotifySystem);
 				m_eventsystem.SetEnabled(m_sql.m_bEnableEventSystem);
 				m_eventsystem.StartEventSystem();
 				_notify.Notify(NOTIFY_DZ_START);

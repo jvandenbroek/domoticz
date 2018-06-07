@@ -1249,6 +1249,8 @@ bool CEventSystem::GetEventTrigger(const uint64_t ulDevID, const _eReason reason
 
 bool CEventSystem::NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message)
 {
+	if (!m_bEnabled)
+		return false;
 	_tEventQueue item;
 	item.reason = REASON_NOTIFY;
 	item.id = id;

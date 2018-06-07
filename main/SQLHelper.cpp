@@ -657,7 +657,6 @@ CSQLHelper::CSQLHelper(void)
 	m_iAcceptHardwareTimerCounter = 0;
 	m_bEnableEventSystem = true;
 	m_bDisableDzVentsSystem = false;
-	m_bEnableNotifySystem = true;
 	m_ShortLogInterval = 5;
 	m_bPreviousAcceptNewHardware = false;
 
@@ -2973,13 +2972,6 @@ bool CSQLHelper::OpenDatabase()
 		nValue = 1;
 	}
 	m_bLogEventScriptTrigger = (nValue != 0);
-
-	if (!GetPreferencesVar("EnableNotifySystem", nValue))
-	{
-		UpdatePreferencesVar("EnableNotifySystem", 1);
-		nValue = 1;
-	}
-	m_bEnableNotifySystem = (nValue == 1);
 
 	if ((!GetPreferencesVar("WebTheme", sValue)) || (sValue.empty()))
 	{
