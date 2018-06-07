@@ -18,7 +18,6 @@ public:
 	bool NotifyWait(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message);
 	bool Register(CNotifyObserver* pHardware);
 	bool Unregister(CNotifyObserver* pHardware);
-	void SetEnabled(const bool bEnabled);
 	std::string const GetTypeString(const int type);
 	std::string const GetStatusString(const int status);
 
@@ -42,8 +41,6 @@ private:
 		std::string name;
 	};
 
-	void Start();
-	void Stop();
 	void QueueThread();
 
 	volatile bool m_stoprequested;
@@ -51,7 +48,6 @@ private:
 	std::vector<CNotifyObserver*> m_notify;
 	concurrent_queue<_tNotifyQueue> m_notifyqueue;
 	boost::shared_ptr<boost::thread> m_pQueueThread;
-	bool m_bEnabled;
 
 	std::vector<std::string> m_customTypes;
 
