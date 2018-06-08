@@ -1060,7 +1060,6 @@ bool MainWorker::AddHardwareFromParams(
 	case HTYPE_PythonPlugin:
 #ifdef ENABLE_PYTHON
 		pHardware = m_pluginsystem.RegisterPlugin(ID, Name, Extra);
-		m_pythonThreads[pHardware] = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CDomoticzHardwareBase::Start, pHardware)));
 #endif
 		break;
 	case HTYPE_XiaomiGateway:
@@ -1118,10 +1117,7 @@ bool MainWorker::AddHardwareFromParams(
 		AddDomoticzHardware(pHardware);
 
 		if (bDoStart)
-		{
-			if (Type != HTYPE_PythonPlugin)
-				pHardware->Start();
-		}
+			pHardware->Start();
 		return true;
 	}
 	return false;
@@ -1198,16 +1194,6 @@ bool MainWorker::Stop()
 		m_stoprequested = true;
 		m_thread->join();
 		m_thread.reset();
-		if (m_pythonThreads.size() > 0)
-		{
-			std::map<CDomoticzHardwareBase*, boost::shared_ptr<boost::thread> >::iterator itt;
-			for (itt = m_pythonThreads.begin(); itt != m_pythonThreads.end(); itt++)
-			{
-				itt->second->join();
-				itt->second.reset();
-				m_pythonThreads.erase(itt);
-			}
-		}
 	}
 	return true;
 }
