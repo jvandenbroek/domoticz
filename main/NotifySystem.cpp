@@ -27,7 +27,6 @@ const CNotifySystem::_tNotifyStatusTable CNotifySystem::statusTable[] =
 
 CNotifySystem::CNotifySystem(void)
 {
-	Start();
 }
 
 CNotifySystem::~CNotifySystem(void)
@@ -75,7 +74,6 @@ std::string const CNotifySystem::GetStatusString(const int status)
 void CNotifySystem::QueueThread()
 {
 	_tNotifyQueue item;
-
 	while (!m_stoprequested)
 	{
 		bool hasPopped = m_notifyqueue.timed_wait_and_pop<boost::posix_time::milliseconds>(item, boost::posix_time::milliseconds(5000));
