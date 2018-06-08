@@ -27,9 +27,7 @@ const CNotifySystem::_tNotifyStatusTable CNotifySystem::statusTable[] =
 
 CNotifySystem::CNotifySystem(void)
 {
-	m_stoprequested = false;
-	if (!m_pQueueThread)
-		m_pQueueThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CNotifySystem::QueueThread, this)));
+	Start();
 }
 
 CNotifySystem::~CNotifySystem(void)
@@ -42,6 +40,13 @@ CNotifySystem::~CNotifySystem(void)
 		m_notifyqueue.push(item);
 		m_pQueueThread->join();
 	}
+}
+
+void CNotifySystem::Start()
+{
+	m_stoprequested = false;
+	if (!m_pQueueThread)
+		m_pQueueThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CNotifySystem::QueueThread, this)));
 }
 
 std::string const CNotifySystem::GetTypeString(const int type)

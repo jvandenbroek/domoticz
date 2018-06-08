@@ -1632,6 +1632,7 @@ void MainWorker::Do_Work()
 			m_hardwareStartCounter++;
 			if (m_hardwareStartCounter >= 2)
 			{
+				_notify.Start(); // seems on some systems it won't start on object creation, try to start it again here
 				m_eventsystem.SetEnabled(m_sql.m_bEnableEventSystem);
 				m_eventsystem.StartEventSystem();
 				_notify.Notify(NOTIFY_DZ_START);
