@@ -64,7 +64,7 @@ ELSE(USE_BUILTIN_LUA)
     IF(NOT LUA_INCLUDE_DIRS)
       find_path(LUA_INC_DIRS NAMES "lua.h" PATH_SUFFIXES "lua5.2")
       set(LUA_INCLUDE_DIRS ${LUA_INC_DIRS})
-    ENDIF(LUA_INCLUDE_DIRS)
+    ENDIF(NOT LUA_INCLUDE_DIRS)
     message(STATUS "Found lua.h at: ${LUA_INCLUDE_DIRS}")
     INCLUDE_DIRECTORIES(${LUA_INCLUDE_DIRS})
     add_definitions(-DWITH_EXTERNAL_LUA)
@@ -233,12 +233,13 @@ MACRO(ADD_PRECOMPILED_HEADER _targetName _input)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
   ENDIF()
   IF(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -pthread")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
   ENDIF()
   IF(CMAKE_COMPILER_IS_GNUCXX)
-  #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-switch")
-  #ADD_DEFINITIONS( -Wall -O0 -ggdb )
-  #ADD_DEFINITIONS( -Wfatal-errors -Wformat=2 -Werror=format-security )
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    #SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-switch")
+    #ADD_DEFINITIONS( -Wall -O0 -ggdb )
+    #ADD_DEFINITIONS( -Wfatal-errors -Wformat=2 -Werror=format-security )
 
     GET_FILENAME_COMPONENT(_name ${_input} NAME)
     SET(_source "${CMAKE_CURRENT_SOURCE_DIR}/${_input}")
@@ -347,6 +348,7 @@ hardware/DarkSky.cpp
 hardware/DavisLoggerSerial.cpp
 hardware/DenkoviSmartdenIPInOut.cpp
 hardware/DenkoviSmartdenLan.cpp
+hardware/DenkoviDevices.cpp
 hardware/DomoticzHardware.cpp
 hardware/DomoticzInternal.cpp
 hardware/DomoticzTCP.cpp
