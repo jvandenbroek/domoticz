@@ -20,6 +20,7 @@ public:
 	bool Unregister(CNotifyObserver* pHardware);
 	std::string const GetTypeString(const int type);
 	std::string const GetStatusString(const int status);
+	void Start();
 
 private:
 	struct _tNotifyQueue

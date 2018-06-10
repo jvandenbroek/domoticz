@@ -111,6 +111,7 @@
 #include "../hardware/RAVEn.h"
 #include "../hardware/DenkoviSmartdenLan.h"
 #include "../hardware/DenkoviSmartdenIPInOut.h"
+#include "../hardware/DenkoviDevices.h"
 #include "../hardware/AccuWeather.h"
 #include "../hardware/BleBox.h"
 #include "../hardware/Ec3kMeterTCP.h"
@@ -899,6 +900,10 @@ bool MainWorker::AddHardwareFromParams(
 		//LAN
 		pHardware = new CDenkoviSmartdenIPInOut(ID, Address, Port, Password, Mode1);
 		break;
+	case HTYPE_DenkoviDevices:
+		//LAN
+		pHardware = new CDenkoviDevices(ID, Address, Port, Password, Mode1, Mode2);
+		break;
 	case HTYPE_HEOS:
 		//HEOS by DENON
 		pHardware = new CHEOS(ID, Address, Port, Username, Password, Mode1, Mode2);
@@ -1618,6 +1623,7 @@ void MainWorker::Do_Work()
 			m_hardwareStartCounter++;
 			if (m_hardwareStartCounter >= 2)
 			{
+				_notify.Start();
 				m_eventsystem.SetEnabled(m_sql.m_bEnableEventSystem);
 				m_eventsystem.StartEventSystem();
 				_notify.Notify(NOTIFY_DZ_START);
@@ -11888,9 +11894,9 @@ bool MainWorker::SwitchLight(const uint64_t idx, const std::string &switchcmd, c
 	//Check if we have an On-Delay, if yes, add it to the tasker
 	if (((bIsOn) && (iOnDelay != 0)) || ExtraDelay)
 	{
-		if (ExtraDelay != 0)
+		if (iOnDelay + ExtraDelay != 0)
 		{
-			_log.Log(LOG_NORM, "Delaying switch [%s] action (%s) for %d seconds", devName.c_str(), switchcmd.c_str(), ExtraDelay);
+			_log.Log(LOG_NORM, "Delaying switch [%s] action (%s) for %d seconds", devName.c_str(), switchcmd.c_str(), iOnDelay + ExtraDelay);
 		}
 		m_sql.AddTaskItem(_tTaskItem::SwitchLightEvent(static_cast<float>(iOnDelay + ExtraDelay), idx, switchcmd, level, color, "Switch with Delay"));
 		return true;
