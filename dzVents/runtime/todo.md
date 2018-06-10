@@ -20,3 +20,5 @@ more settings in domoticz.settings
 load global_data as the first module: http://www.domoticz.com/forum/viewtopic.php?f=59&t=23018&p=177534#p177534
 
 support for PUT and DELETE in http requests
+
+adjust docs that wildcards can be used in other areas than on-devices.

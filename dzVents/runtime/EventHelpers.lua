@@ -6,7 +6,7 @@ local utils = require('Utils')
 local persistence = require('persistence')
 local HTTPResponse = require('HTTPResponse')
 local Timer = require('Timer')
-local SystemEvent = require('SystemEvent')
+local DomoticzEvent = require('DomoticzEvent')
 local Security = require('Security')
 
 local HistoricalStorage = require('HistoricalStorage')
@@ -185,7 +185,14 @@ local function EventHelpers(domoticz, mainMethod)
 		utils.log(msg, utils.LOG_ERROR)
 	end
 
-	function self.callEventHandler(eventHandler, device, variable, security, scenegroup, httpResponse, systemEvent)
+	function self.callEventHandler(
+			eventHandler,
+			device,
+			variable,
+			security,
+			scenegroup,
+			httpResponse,
+			domoticzEvent)
 
 		local useStorage = false
 
@@ -240,11 +247,11 @@ local function EventHelpers(domoticz, mainMethod)
 				info.trigger = httpResponse.callback
 				local response = HTTPResponse(self.domoticz, httpResponse)
 				ok, res = pcall(eventHandler['execute'], self.domoticz, response, info)
-			elseif (systemEvent ~= nil ) then
-				info = getEventInfo(eventHandler, self.domoticz.EVENT_TYPE_SYSTEM)
-				info.trigger = systemEvent.type
-				local system = SystemEvent(self.domoticz, systemEvent)
-				ok, res = pcall(eventHandler['execute'], self.domoticz, system, info)
+			elseif (domoticzEvent ~= nil ) then
+				info = getEventInfo(eventHandler, self.domoticz.EVENT_TYPE_DOMOTICZ)
+				info.trigger = domoticzEvent.type
+				local dze = DomoticzEvent(self.domoticz, domoticzEvent)
+				ok, res = pcall(eventHandler['execute'], self.domoticz, dze, info)
 			else
 				-- timer
 				info = getEventInfo(eventHandler, self.domoticz.EVENT_TYPE_TIMER)
@@ -342,7 +349,14 @@ local function EventHelpers(domoticz, mainMethod)
 		return res
 	end
 
-	function self.handleEvents(events, device, variable, security, scenegroup, httpResponse, systemEvent)
+	function self.handleEvents(
+			events,
+			device,
+			variable,
+			security,
+			scenegroup,
+			httpResponse,
+			domoticzEvent)
 
 		local originalLogLevel = _G.logLevel -- a script can override the level
 
@@ -386,14 +400,14 @@ local function EventHelpers(domoticz, mainMethod)
 				moduleLabelInfo = (scenegroup.baseType == 'scene' and ' Scene' or ' Group') .. ': "' .. scenegroup.name .. '", Index: ' .. tostring(scenegroup.id)
 			elseif (httpResponse) then
 				moduleLabelInfo = ' HTTPResponse: "' .. httpResponse.callback ..'"'
-			elseif (systemEvent) then
-				moduleLabelInfo = ' System: "' .. systemEvent.type .. '"'
+			elseif (domoticzEvent) then
+				moduleLabelInfo = ' Domoticz event: "' .. domoticzEvent.type .. '"'
 			end
 
 			triggerInfo = eventHandler.trigger and ', trigger: ' .. eventHandler.trigger or ''
 
 			utils.log('------ Start ' ..  scriptType ..  moduleLabel ..':' .. moduleLabelInfo .. triggerInfo, utils.LOG_MODULE_EXEC_INFO)
-			self.callEventHandler(eventHandler, device, variable, security, scenegroup, httpResponse, systemEvent)
+			self.callEventHandler(eventHandler, device, variable, security, scenegroup, httpResponse, domoticzEvent)
 			utils.log('------ Finished ' .. moduleLabel, utils.LOG_MODULE_EXEC_INFO)
 
 			restoreLogging()
@@ -621,10 +635,10 @@ local function EventHelpers(domoticz, mainMethod)
 											for i, callbackName in pairs(event) do
 												addBindingEvent(bindings, callbackName, module)
 											end
-										elseif (mode == 'system' and j == 'system') then
-											-- { ['system'] = { 'start', 'end' }
-											for i, systemEvent in pairs(event) do
-												addBindingEvent(bindings, systemEvent, module)
+										elseif (mode == 'domoticz' and j == 'domoticz') then
+											-- { ['domotcz'] = { 'start', 'end' }
+											for i, domoticzEvent in pairs(event) do
+												addBindingEvent(bindings, domoticzEvent, module)
 											end
 										end
 									end
@@ -664,8 +678,8 @@ local function EventHelpers(domoticz, mainMethod)
 		return self.getEventBindings('security', nil)
 	end
 
-	function self.getSystemEventHandlers()
-		return self.getEventBindings('system', nil)
+	function self.getDomoticzEventHandlers()
+		return self.getEventBindings('domoticz', nil)
 	end
 
 	function self.dumpCommandArray(commandArray, fromIndex, force)
@@ -937,26 +951,30 @@ local function EventHelpers(domoticz, mainMethod)
 
 	end
 
-	function self.dispatchSystemEventsToScripts(domoticz)
+	function self.dispatchDomoticzEventsToScripts(domoticz)
 		if (domoticz == nil) then -- you can pass a domoticz object for testing purposes
 			domoticz = self.domoticz
 		end
 
-		local systemEventScripts = self.getSystemEventHandlers()
+		local domoticzEventScripts = self.getDomoticzEventHandlers()
 
-		local sytemEvents = _G.Notify
+		if (_G.Notify == nil) then
+			return
+		end
 
-		if (sytemEvents ~= nil) then
-			for i, systemEvent in pairs(sytemEvents) do
+		local domoticzEvents = _G.Notify.domoticz
 
-				local trigger = systemEvent.type
+		if (domoticzEvents ~= nil) then
+			for i, event in pairs(domoticzEvents) do
+
+				local trigger = event.type
 				local caSize = _.size(self.domoticz.commandArray)
 
-				local scriptsToExecute = self.findScriptForTarget(trigger, systemEventScripts)
+				local scriptsToExecute = self.findScriptForTarget(trigger, domoticzEventScripts)
 
 				if (scriptsToExecute ~= nil) then
-					utils.log('Handling system-events for: "' .. trigger, utils.LOG_INFO)
-					self.handleEvents(scriptsToExecute, nil, nil, nil, nil, nil, systemEvent)
+					utils.log('Handling Domoticz system event for: "' .. trigger, utils.LOG_INFO)
+					self.handleEvents(scriptsToExecute, nil, nil, nil, nil, nil, event)
 					self.dumpCommandArray(self.domoticz.commandArray, caSize + 1)
 				end
 			end

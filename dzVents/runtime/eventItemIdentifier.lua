@@ -9,7 +9,7 @@ return {
 		item.isTimer = false
 		item.isVariable = false
 		item.isSecurity = false
-		item.isSystem = false
+		item.isDomoticzEvent = false
 		item.isHardware = false
 
 		item[typeName] = true

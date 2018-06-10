@@ -98,7 +98,7 @@ void CdzVents::ProcessNotifyItem(lua_State *lua_state, int &index, std::string &
 	lua_rawset(lua_state, -3);
 	lua_settable(lua_state, -3); // number entry
 	index++;
-	_log.Log(LOG_STATUS, "dzVents: type: %s, status: %s, message: %s", type.c_str(), status.c_str(), itt.sValue.c_str());
+	//_log.Log(LOG_STATUS, "dzVents: type: %s, status: %s, message: %s", type.c_str(), status.c_str(), itt.sValue.c_str());
 }
 
 void CdzVents::ProcessNotify(lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items)

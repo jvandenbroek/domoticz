@@ -31,9 +31,9 @@ local EventHelpers = require('EventHelpers')
 local helpers = EventHelpers()
 local utils = require('Utils')
 
-print(1)
-require('lodash').print(_G.Notify)
-print(2)
+--print(1)
+--require('lodash').print(_G.Notify)
+--print(2)
 
 if (tonumber(globalvariables['dzVents_log_level']) == utils.LOG_DEBUG or TESTMODE) then
 	print('Debug: Dumping domoticz data to ' .. scriptPath .. 'domoticzData.lua')
@@ -70,7 +70,7 @@ helpers.dispatchVariableEventsToScripts()
 helpers.dispatchSecurityEventsToScripts()
 helpers.dispatchSceneGroupEventsToScripts()
 helpers.dispatchHTTPResponseEventsToScripts()
-helpers.dispatchSystemEventsToScripts()
+helpers.dispatchDomoticzEventsToScripts()
 
 commandArray = helpers.domoticz.commandArray
 
