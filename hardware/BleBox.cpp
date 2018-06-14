@@ -37,6 +37,8 @@ BleBox::~BleBox()
 
 bool BleBox::StartHardware()
 {
+	m_stoprequested = false;
+
 	LoadNodes();
 	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&BleBox::Do_Work, this)));
 	m_bIsStarted = true;
@@ -135,7 +137,7 @@ void BleBox::GetDevicesState()
 						break;
 
 					const std::string currentColor = root["light"]["currentColor"].asString();
-					int hexNumber;
+					unsigned int hexNumber;
 					sscanf(currentColor.c_str(), "%x", &hexNumber);
 					int level = (int)(hexNumber / (255.0 / 100.0));
 
@@ -148,7 +150,7 @@ void BleBox::GetDevicesState()
 						break;
 
 					const std::string currentColor = root["rgbw"]["currentColor"].asString();
-					int hexNumber;
+					unsigned int hexNumber;
 					sscanf(currentColor.c_str(), "%x", &hexNumber);
 
 					SendRGBWSwitch(IP, 0, 255, hexNumber, true, DevicesType[itt->second].name);
@@ -646,7 +648,7 @@ void BleBox::SetSettings(const int pollIntervalSec)
 {
 	m_PollInterval = 30;
 
-	if (pollIntervalSec > 1)
+	if (pollIntervalSec > 0)
 		m_PollInterval = pollIntervalSec;
 }
 
@@ -737,7 +739,7 @@ namespace http {
 
 			std::vector<std::vector<std::string> > result;
 			result = m_sql.safe_query("SELECT ID,Name,DeviceID FROM DeviceStatus WHERE (HardwareID=='%d')", pBaseHardware->m_HwdID);
-			if (result.size() > 0)
+			if (!result.empty())
 			{
 				std::vector<std::vector<std::string> >::const_iterator itt;
 				int ii = 0;
@@ -1115,7 +1117,7 @@ bool BleBox::LoadNodes()
 
 	std::vector<std::vector<std::string> > result;
 	result = m_sql.safe_query("SELECT ID,DeviceID FROM DeviceStatus WHERE (HardwareID==%d)", m_HwdID);
-	if (result.size() > 0)
+	if (!result.empty())
 	{
 		std::vector<std::vector<std::string> >::const_iterator itt;
 		for (itt = result.begin(); itt != result.end(); ++itt)

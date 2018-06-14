@@ -13,14 +13,13 @@
 
 extern std::string szUserDataFolder, szWebRoot, szStartupFolder;
 extern http::server::CWebServerHelper m_webservers;
-static std::string m_printprefix;
 
 CdzVents CdzVents::m_dzvents;
 
-CdzVents::CdzVents(void)
+CdzVents::CdzVents(void) :
+	m_version("2.4.6")
 {
-	m_version = "2.4.6";
-	m_printprefix = "dzVents";
+	m_bdzVentsExist = false;
 }
 
 CdzVents::~CdzVents(void)
@@ -44,7 +43,7 @@ void CdzVents::EvaluateDzVents(lua_State *lua_state, const std::vector<CEventSys
 	bool reasonSecurity = false;
 	bool reasonNotify = false;
 	std::vector<CEventSystem::_tEventQueue>::const_iterator itt;
-	for (itt = items.begin(); itt != items.end(); itt++)
+	for (itt = items.begin(); itt != items.end(); ++itt)
 	{
 		if (itt->reason == m_mainworker.m_eventsystem.REASON_URL)
 			reasonURL = true;
@@ -143,7 +142,7 @@ void CdzVents::ProcessSecurity(lua_State *lua_state, const std::vector<CEventSys
 	std::string secstatusw = "";
 	lua_createtable(lua_state, 0, 0);
 	std::vector<CEventSystem::_tEventQueue>::const_iterator itt;
-	for (itt = items.begin(); itt != items.end(); itt++)
+	for (itt = items.begin(); itt != items.end(); ++itt)
 	{
 		if (itt->reason == m_mainworker.m_eventsystem.REASON_SECURITY)
 		{
@@ -171,7 +170,7 @@ void CdzVents::ProcessHttpResponse(lua_State *lua_state, const std::vector<CEven
 
 	lua_createtable(lua_state, 0, 0);
 	std::vector<CEventSystem::_tEventQueue>::const_iterator itt;
-	for (itt = items.begin(); itt != items.end(); itt++)
+	for (itt = items.begin(); itt != items.end(); ++itt)
 	{
 		if (itt->reason == m_mainworker.m_eventsystem.REASON_URL)
 		{
@@ -182,7 +181,7 @@ void CdzVents::ProcessHttpResponse(lua_State *lua_state, const std::vector<CEven
 			if (itt->vData.size() > 0)
 			{
 				std::vector<std::string>::const_iterator itt2;
-				for (itt2 = itt->vData.begin(); itt2 != itt->vData.end() - 1; itt2++)
+				for (itt2 = itt->vData.begin(); itt2 != itt->vData.end() - 1; ++itt2)
 				{
 					size_t pos = (*itt2).find(": ");
 					if (pos != std::string::npos)
@@ -220,14 +219,14 @@ bool CdzVents::OpenURL(lua_State *lua_state, const std::vector<_tLuaTableValues>
 	std::string URL, extraHeaders, method, postData, trigger;
 
 	std::vector<_tLuaTableValues>::const_iterator itt;
-	for (itt = vLuaTable.begin(); itt != vLuaTable.end(); itt++)
+	for (itt = vLuaTable.begin(); itt != vLuaTable.end(); ++itt)
 	{
 		if (itt->isTable && itt->sValue == "headers" && itt != vLuaTable.end() - 1)
 		{
 			int tIndex = itt->tIndex;
 			itt++;
 			std::vector<_tLuaTableValues>::const_iterator itt2;
-			for (itt2 = itt; itt2 != vLuaTable.end(); itt2++)
+			for (itt2 = itt; itt2 != vLuaTable.end(); ++itt2)
 			{
 				if (itt2->tIndex != tIndex)
 				{
@@ -287,7 +286,7 @@ bool CdzVents::UpdateDevice(lua_State *lua_state, const std::vector<_tLuaTableVa
 	std::string sValue;
 
 	std::vector<_tLuaTableValues>::const_iterator itt;
-	for (itt = vLuaTable.begin(); itt != vLuaTable.end(); itt++)
+	for (itt = vLuaTable.begin(); itt != vLuaTable.end(); ++itt)
 	{
 		if (itt->type == TYPE_INTEGER)
 		{
@@ -316,13 +315,13 @@ bool CdzVents::UpdateDevice(lua_State *lua_state, const std::vector<_tLuaTableVa
 
 bool CdzVents::UpdateVariable(lua_State *lua_state, const std::vector<_tLuaTableValues> &vLuaTable)
 {
-	std::string variableName, variableValue;
+	std::string variableValue;
 	float delayTime = 0;
 	bool bEventTrigger = false;
 	uint64_t idx;
 
 	std::vector<_tLuaTableValues>::const_iterator itt;
-	for (itt = vLuaTable.begin(); itt != vLuaTable.end(); itt++)
+	for (itt = vLuaTable.begin(); itt != vLuaTable.end(); ++itt)
 	{
 		if (itt->type == TYPE_INTEGER)
 		{
@@ -353,7 +352,7 @@ bool CdzVents::CancelItem(lua_State *lua_state, const std::vector<_tLuaTableValu
 	std::string type;
 
 	std::vector<_tLuaTableValues>::const_iterator itt;
-	for (itt = vLuaTable.begin(); itt != vLuaTable.end(); itt++)
+	for (itt = vLuaTable.begin(); itt != vLuaTable.end(); ++itt)
 	{
 		if (itt->type == TYPE_INTEGER && itt->name == "idx")
 			idx = static_cast<uint64_t>(itt->iValue);
@@ -472,11 +471,11 @@ int CdzVents::l_domoticz_print(lua_State* lua_state)
 			std::string lstring = lua_tostring(lua_state, i);
 			if (lstring.find("Error: ") != std::string::npos)
 			{
-				_log.Log(LOG_ERROR, "%s: %s", m_printprefix.c_str(), lstring.c_str());
+				_log.Log(LOG_ERROR, "dzVents: %s", lstring.c_str());
 			}
 			else
 			{
-				_log.Log(LOG_STATUS, "%s: %s", m_printprefix.c_str(), lstring.c_str());
+				_log.Log(LOG_STATUS, "dzVents: %s", lstring.c_str());
 			}
 		}
 		else
@@ -654,7 +653,7 @@ void CdzVents::ExportDomoticzDataToLua(lua_State *lua_state, const std::vector<C
 
 		bool triggerDevice = false;
 		std::vector<CEventSystem::_tEventQueue>::const_iterator itt;
-		for (itt = items.begin(); itt != items.end(); itt++)
+		for (itt = items.begin(); itt != items.end(); ++itt)
 		{
 			if (sitem.ID == itt->id && itt->reason == m_mainworker.m_eventsystem.REASON_DEVICE)
 			{
@@ -854,7 +853,7 @@ void CdzVents::ExportDomoticzDataToLua(lua_State *lua_state, const std::vector<C
 		CEventSystem::_tScenesGroups sgitem = ittScenes->second;
 		bool triggerScene = false;
 		std::vector<CEventSystem::_tEventQueue>::const_iterator itt;
-		for (itt = items.begin(); itt != items.end(); itt++)
+		for (itt = items.begin(); itt != items.end(); ++itt)
 		{
 			if (sgitem.ID == itt->id && itt->reason == m_mainworker.m_eventsystem.REASON_SCENEGROUP)
 			{
@@ -910,7 +909,7 @@ void CdzVents::ExportDomoticzDataToLua(lua_State *lua_state, const std::vector<C
 		if (sgitem.memberID.size() > 0)
 		{
 			int index = 1;
-			for (itt2 = sgitem.memberID.begin(); itt2 != sgitem.memberID.end(); itt2++)
+			for (itt2 = sgitem.memberID.begin(); itt2 != sgitem.memberID.end(); ++itt2)
 			{
 				lua_pushnumber(lua_state, (lua_Number)index);
 				lua_pushnumber(lua_state, (lua_Number)*itt2);
@@ -935,7 +934,7 @@ void CdzVents::ExportDomoticzDataToLua(lua_State *lua_state, const std::vector<C
 		CEventSystem::_tUserVariable uvitem = it_var->second;
 		bool triggerVar = false;
 		std::vector<CEventSystem::_tEventQueue>::const_iterator itt;
-		for (itt = items.begin(); itt != items.end(); itt++)
+		for (itt = items.begin(); itt != items.end(); ++itt)
 		{
 			if (uvitem.ID == itt->id && itt->reason == m_mainworker.m_eventsystem.REASON_USERVARIABLE)
 			{
