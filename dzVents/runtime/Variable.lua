@@ -1,5 +1,6 @@
 local Time = require('Time')
 local TimedCommand = require('TimedCommand')
+local evenItemIdentifier = require('eventItemIdentifier')
 
 local function Variable(domoticz, data)
 
@@ -10,15 +11,9 @@ local function Variable(domoticz, data)
 		['changed'] = data.changed,
 		['id'] = data.id,
 		['lastUpdate'] = Time(data.lastUpdate),
-		['baseType'] = domoticz.BASETYPE_VARIABLE,
-		isVariable = true,
-		isHTTPResponse = false,
-	    isDevice = false,
-	    isScene = false,
-	    isGroup = false,
-	    isTimer = false,
-		isSecurity = false
 	}
+
+	evenItemIdentifier.setType(self, 'isVariable', domoticz.BASETYPE_VARIABLE, data.name)
 
 	if (data.variableType == 'float' or data.variableType == 'integer') then
 		-- actually this isn't needed as value is already in the

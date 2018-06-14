@@ -1,12 +1,12 @@
 local _  = require('lodash')
 local utils = require('Utils')
+local evenItemIdentifier = require('eventItemIdentifier')
 
 local function HTTPResponce(domoticz, responseData)
 
     local self = {}
 
     self.headers = responseData.headers or {}
-    self.baseType = domoticz.BASETYPE_HTTP_RESPONSE
 
     self.data = responseData.data or nil
 
@@ -21,16 +21,9 @@ local function HTTPResponce(domoticz, responseData)
         self.ok = true
     end
 
-    self.isHTTPResponse = true
-    self.isDevice = false
-    self.isScene = false
-    self.isGroup = false
-    self.isTimer = false
-    self.isVariable = false
-    self.isSecurity = false
-
     self.callback = responseData.callback
-    self.trigger = responseData.callback
+
+    evenItemIdentifier.setType(self, 'isHTTPResponse', domoticz.BASETYPE_HTTP_RESPONSE, responseData.callback)
 
     if (string.match(self._contentType, 'application/json') and self.data) then
         local json = utils.fromJSON(self.data)

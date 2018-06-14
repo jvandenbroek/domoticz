@@ -1,5 +1,6 @@
 local Time = require('Time')
 local TimedCommand = require('TimedCommand')
+local evenItemIdentifier = require('eventItemIdentifier')
 
 -- some states will be 'booleanized'
 local function stateToBool(state, _states)
@@ -68,6 +69,8 @@ return {
 		device.isVariable = false
 		device.isHTTPResponse = false
 		device.isSecurity = false
+		device.isSystem = false
+		device.isHardwary = false
 
 
 		if (data.baseType == 'device') then
