@@ -61,14 +61,14 @@ std::string const CNotifySystem::GetTypeString(const int type)
 		if (shiftType < m_customTypes.size())
 			return m_customTypes[shiftType];
 	}
-	return "";
+	return "unknown";
 }
 
 std::string const CNotifySystem::GetStatusString(const int status)
 {
 	if (status < sizeof(statusTable) / sizeof(statusTable[0]))
 			return statusTable[status].name;
-	return "";
+	return "unknown";
 }
 
 void CNotifySystem::QueueThread()
