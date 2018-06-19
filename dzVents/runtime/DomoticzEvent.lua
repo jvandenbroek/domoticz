@@ -6,10 +6,6 @@ local function DomoticzEvent(domoticz, eventData)
 
     local self = {}
 
-    print(111)
-	print(domoticz.BASE_TYPE_DOMOTICZ_EVENT)
-	print(222)
-
     self.type = eventData.type
     self.status = eventData.status
     self.message = eventData.message
