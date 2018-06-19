@@ -7,7 +7,6 @@ local function Security(domoticz, rule)
     }
 
 	evenItemIdentifier.setType(self, 'isSecurity', domoticz.BASETYPE_SECURITY, rule)
-
     return self
 
 end

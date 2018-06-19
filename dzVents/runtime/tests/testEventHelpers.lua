@@ -81,6 +81,15 @@ describe('event helpers', function()
 			['SECURITY_DISARMED'] = 'Disarmed',
 			['SECURITY_ARMEDAWAY'] = 'Armed Away',
 			['SECURITY_ARMEDHOME'] = 'Armed Home',
+			['BASETYPE_DEVICE'] = 'device',
+			['BASETYPE_SCENE'] = 'scene',
+			['BASETYPE_GROUP'] = 'group',
+			['BASETYPE_VARIABLE'] = 'variable',
+			['BASETYPE_SECURITY'] = 'security',
+			['BASETYPE_TIMER'] = 'timer',
+			['BASETYPE_HTTP_RESPONSE'] = 'httpResponse',
+			['BASETYPE_DOMOTICZ_EVENT'] = 'domoticz',
+			['BASETYPE_HARDWARE'] = 'hardware',
 			['settings'] = {},
 			['radixSeparator'] = '.',
 			['security'] = 'Armed Away',
@@ -431,7 +440,8 @@ describe('event helpers', function()
 
 			local res = helpers.callEventHandler(internal,
 				{
-					name = 'device'
+					name = 'device',
+					baseType = 'device'
 				})
 			-- should pass the arguments to the execute function
 			-- and catch the results from the function
@@ -439,7 +449,8 @@ describe('event helpers', function()
 
 			res = helpers.callEventHandler(script1,
 				{
-					name = 'device'
+					name = 'device',
+					baseType = 'device'
 				})
 			-- should pass the arguments to the execute function
 			-- and catch the results from the function
@@ -452,9 +463,9 @@ describe('event helpers', function()
 			local myVar1 = bindings['myVar1'][1]
 
 			local res = helpers.callEventHandler(myVar1,
-				nil,
 				{
 					name = 'myVar1',
+					baseType = 'variable',
 					set = function()
 					end
 				})
@@ -468,16 +479,17 @@ describe('event helpers', function()
 			local bindings = helpers.getEventBindings('httpResponse')
 			local trigger1 = bindings['trigger1'][1]
 
-			local res = helpers.callEventHandler(trigger1, nil, nil, nil, nil, {
+			local res = helpers.callEventHandler(trigger1, {
 				callback = 'trigger1',
-                statusCode = 200
+                statusCode = 200,
+				baseType = 'httpResponse'
 			})
 			-- should pass the arguments to the execute function
 			-- and catch the results from the function
 			assert.is_same('trigger1', res)
 		end)
 
-		it('should call the event handler for security events', function()
+		it('#tag should call the event handler for security events', function()
 
 			local bindings = helpers.getEventBindings('security')
 
@@ -498,18 +510,12 @@ describe('event helpers', function()
 			}, modulesFound)
 
 
-			local res = helpers.callEventHandler(scriptSecurity,
-				nil,
-				nil,
-				'Armed Away')
+			local res = helpers.callEventHandler(scriptSecurity, { baseType = 'security', trigger = 'Armed Away' })
 			-- should pass the arguments to the execute function
 			-- and catch the results from the function
 			assert.is_same('script_security: true Armed Away', res)
 
-			local res = helpers.callEventHandler(scriptSecurityGrouped,
-				nil,
-				nil,
-				'Armed Home')
+			local res = helpers.callEventHandler(scriptSecurityGrouped, { baseType = 'security', trigger = 'Armed Home' })
 			-- should pass the arguments to the execute function
 			-- and catch the results from the function
 			assert.is_same('script_security: Armed Away Armed Away', res)
@@ -693,11 +699,11 @@ describe('event helpers', function()
 				dumped = true
 			end
 
-			helpers.handleEvents = function(_scripts, __, ___, ____, _scenegroup)
+			helpers.handleEvents = function(_scripts, subject)
 				_.forEach(_scripts, function(s)
 					table.insert(scripts, s.name)
 				end)
-				table.insert(scenegroups, _scenegroup.name)
+				table.insert(scenegroups, subject.name)
 			end
 			local res = helpers.dispatchSceneGroupEventsToScripts({
 				['changedScenes'] = function()
@@ -813,11 +819,11 @@ describe('event helpers', function()
 				dumped = true
 			end
 
-			helpers.handleEvents = function(_scripts, _device, _variable)
+			helpers.handleEvents = function(_scripts, subject)
 				_.forEach(_scripts, function(s)
 					table.insert(scripts, s.name)
 				end)
-				table.insert(variables, _variable.name)
+				table.insert(variables, subject.name)
 			end
 			local res = helpers.dispatchVariableEventsToScripts({
 				['changedVariables'] = function()
@@ -853,11 +859,11 @@ describe('event helpers', function()
 				dumped = true
 			end
 
-			helpers.handleEvents = function(_scripts, _device, _variable, _security, _scenegroup, _httpResponse)
+			helpers.handleEvents = function(_scripts, subject)
 				_.forEach(_scripts, function(s)
 					table.insert(scripts, s.name)
 				end)
-				table.insert(responses, _httpResponse.callback)
+				table.insert(responses, subject.callback)
 			end
 			local res = helpers.dispatchHTTPResponseEventsToScripts({})
 
