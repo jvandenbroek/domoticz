@@ -142,8 +142,8 @@ local function Domoticz(settings)
 		['BASETYPE_SECURITY'] = 'security',
 		['BASETYPE_TIMER'] = 'timer',
 		['BASETYPE_HTTP_RESPONSE'] = 'httpResponse',
-		['BASE_TYPE_DOMOTICZ_EVENT'] = 'domoticz',
-		['BASE_TYPE_HARDWARE'] = 'hardware',
+		['BASETYPE_DOMOTICZ_EVENT'] = 'domoticz',
+		['BASETYPE_HARDWARE'] = 'hardware',
 
 		utils = {
 			_ = _,
