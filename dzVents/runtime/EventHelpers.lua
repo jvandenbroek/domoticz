@@ -7,6 +7,7 @@ local persistence = require('persistence')
 local HTTPResponse = require('HTTPResponse')
 local Timer = require('Timer')
 local DomoticzEvent = require('DomoticzEvent')
+local Hardware = require('Hardware')
 local Security = require('Security')
 
 local HistoricalStorage = require('HistoricalStorage')
@@ -252,6 +253,10 @@ local function EventHelpers(domoticz, mainMethod)
 				local dze = DomoticzEvent(self.domoticz, subject)
 				ok, res = pcall(eventHandler['execute'], self.domoticz, dze, info)
 
+			elseif (baseType == domoticz.BASETYPE_HARDWARE) then
+				info = getEventInfo(eventHandler, self.domoticz.EVENT_TYPE_HARDWARE)
+				info.trigger = subject.type
+				ok, res = pcall(eventHandler['execute'], self.domoticz, subject, info)
 			else
 				-- timer
 				info = getEventInfo(eventHandler, self.domoticz.EVENT_TYPE_TIMER)
@@ -390,13 +395,15 @@ local function EventHelpers(domoticz, mainMethod)
 			elseif (baseType == domoticz.BASETYPE_VARIABLE) then
 				moduleLabelInfo = ' Variable: "' .. subject.name .. '" Index: ' .. tostring(subject.id)
 			elseif (baseType == domoticz.BASETYPE_SECURITY) then
-				moduleLabelInfo = ' Security: "' .. subject .. '"'
+				moduleLabelInfo = ' Security: "' .. subject.name .. '"'
 			elseif (baseType == domoticz.BASETYPE_SCENE or baseType == domoticz.BASETYPE_GROUP) then
 				moduleLabelInfo = (subject.baseType == 'scene' and ' Scene' or ' Group') .. ': "' .. subject.name .. '", Index: ' .. tostring(subject.id)
 			elseif (baseType == domoticz.BASETYPE_HTTP_RESPONSE) then
 				moduleLabelInfo = ' HTTPResponse: "' .. subject.callback .. '"'
 			elseif (baseType == domoticz.BASETYPE_DOMOTICZ_EVENT) then
 				moduleLabelInfo = ' Domoticz event: "' .. subject.type .. '"'
+			elseif (baseType == domoticz.BASETYPE_HARDWARE) then
+				moduleLabelInfo = ' Hardware event: "' .. subject.name .. '"'
 			end
 
 			triggerInfo = eventHandler.trigger and ', trigger: ' .. eventHandler.trigger or ''
@@ -459,7 +466,6 @@ local function EventHelpers(domoticz, mainMethod)
 		local bindings = {}
 		local errModules = {}
 		local internalScripts
-		local hasInternals = false
 		local ok, diskScripts, externalNames, moduleName, i, event, j, device, err
 		local modules = {}
 
@@ -635,6 +641,11 @@ local function EventHelpers(domoticz, mainMethod)
 											for i, domoticzEvent in pairs(event) do
 												addBindingEvent(bindings, domoticzEvent, module)
 											end
+										elseif (mode == 'hardware' and j == 'hardware') then
+											-- { ['hardware'] = { 'bla', 'boo' }
+											for i, hardwareEvent in pairs(event) do
+												addBindingEvent(bindings, hardwareEvent, module)
+											end
 										end
 									end
 								end
@@ -675,6 +686,10 @@ local function EventHelpers(domoticz, mainMethod)
 
 	function self.getDomoticzEventHandlers()
 		return self.getEventBindings('domoticz', nil)
+	end
+
+	function self.getHardwareEventHandlers()
+		return self.getEventBindings('hardware', nil)
 	end
 
 	function self.dumpCommandArray(commandArray, fromIndex, force)
@@ -870,13 +885,18 @@ local function EventHelpers(domoticz, mainMethod)
 
 			for i, securityState in pairs(updates) do
 
+				local security = {
+					baseType = domoticz.BASETYPE_SECURITY,
+					name = securityState
+				}
+
 				local caSize = _.size(self.domoticz.commandArray)
 
 				self.domoticz.security = securityState
 
 				local scriptsToExecute = self.getSecurityHandlers()
 
-				self.handleEvents(scriptsToExecute, securityState)
+				self.handleEvents(scriptsToExecute, security)
 
 				self.dumpCommandArray(self.domoticz.commandArray, caSize + 1)
 			end
@@ -927,6 +947,7 @@ local function EventHelpers(domoticz, mainMethod)
 		if (responses ~= nil) then
 			for i, response in pairs(responses) do
 
+				response.baseType = domoticz.BASETYPE_HTTP_RESPONSE
 				local callback = response.callback
 				local caSize = _.size(self.domoticz.commandArray)
 
@@ -963,6 +984,8 @@ local function EventHelpers(domoticz, mainMethod)
 			for i, event in pairs(domoticzEvents) do
 
 				local trigger = event.type
+				event.baseType = domoticz.BASETYPE_DOMOTICZ_EVENT
+
 				local caSize = _.size(self.domoticz.commandArray)
 
 				local scriptsToExecute = self.findScriptForTarget(trigger, domoticzEventScripts)
@@ -971,6 +994,46 @@ local function EventHelpers(domoticz, mainMethod)
 					utils.log('Handling Domoticz system event for: "' .. trigger, utils.LOG_INFO)
 					self.handleEvents(scriptsToExecute, event)
 					self.dumpCommandArray(self.domoticz.commandArray, caSize + 1)
+				end
+			end
+		end
+
+		return self.domoticz.commandArray
+	end
+
+	function self.dispatchHardwareEventsToScripts(domoticz)
+		if (domoticz == nil) then
+			-- you can pass a domoticz object for testing purposes
+			domoticz = self.domoticz
+		end
+
+		local hardwareEventScripts = self.getHardwareEventHandlers()
+
+		if (_G.Notify == nil) then
+			return
+		end
+
+		local hardwareEvents = _G.Notify.hardware
+
+		if (hardwareEvents ~= nil) then
+			for i, event in pairs(hardwareEvents) do
+
+				local trigger = event.type
+
+				local caSize = _.size(self.domoticz.commandArray)
+
+				local scriptsToExecute = self.findScriptForTarget(trigger, hardwareEventScripts)
+
+				local hw = domoticz.hardware(event.id)
+
+				if (hw ~= nil) then
+					if (scriptsToExecute ~= nil) then
+						utils.log('Handling hardware event for: "' .. trigger, utils.LOG_INFO)
+						self.handleEvents(scriptsToExecute, hw)
+						self.dumpCommandArray(self.domoticz.commandArray, caSize + 1)
+					end
+				else
+					utils.log('Cannot find hardware with id: "' .. event.id .. '"', utils.LOG_INFO)
 				end
 			end
 		end
@@ -1033,6 +1096,15 @@ local function EventHelpers(domoticz, mainMethod)
 			end
 		end
 
+		local hardwareEvents = _G.Notify and _G.Notify.hardware or nil
+
+		if (hardwareEvents ~= nil) then
+			for i, hardwareEvent in pairs(hardwareEvents) do
+				require('lodash').print(hardwareEvent)
+				table.insert(items, '- Hardware: ' .. hardwareEvent.type)
+				length = length + 1
+			end
+		end
 		return items, length;
 
 	end

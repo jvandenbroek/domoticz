@@ -21,6 +21,8 @@ local function Hardware(domoticz, data)
 		["mode1"] = data.mode1,
 	}
 
+	require('lodash').print("hw", data)
+
 	evenItemIdentifier.setType(self, 'isHardware', domoticz.BASETYPE_HARDWARE, data.name)
 
 	return self
