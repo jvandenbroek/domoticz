@@ -9,7 +9,6 @@
 #include "../hardware/hardwaretypes.h"
 #include "NotificationHelper.h"
 #include "NotificationProwl.h"
-#include "NotificationNma.h"
 #include "NotificationPushbullet.h"
 #include "NotificationPushover.h"
 #include "NotificationPushsafer.h"
@@ -44,7 +43,6 @@ CNotificationHelper::CNotificationHelper()
 	/* more notifiers can be added here */
 
 	AddNotifier(new CNotificationProwl());
-	AddNotifier(new CNotificationNma());
 	AddNotifier(new CNotificationPushbullet());
 	AddNotifier(new CNotificationTelegram());
 	AddNotifier(new CNotificationPushover());
