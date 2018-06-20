@@ -549,7 +549,7 @@ const char *RFX_Type_SubType_Desc(const unsigned char dType, const unsigned char
 		{ pTypeHUM, sTypeHUM1, "LaCrosse TX3" },
 		{ pTypeHUM, sTypeHUM2, "LaCrosse WS2300" },
 
-		{ pTypeTEMP_HUM, sTypeTH1, "THGN122/123, THGN132, THGR122/228/238/268" },
+		{ pTypeTEMP_HUM, sTypeTH1, "THGN122/123/132, THGR122/228/238/268" },
 		{ pTypeTEMP_HUM, sTypeTH2, "THGR810, THGN800" },
 		{ pTypeTEMP_HUM, sTypeTH3, "RTGR328" },
 		{ pTypeTEMP_HUM, sTypeTH4, "THGR328" },
@@ -607,6 +607,7 @@ const char *RFX_Type_SubType_Desc(const unsigned char dType, const unsigned char
 		{ pTypeLighting1, sTypeEnergenie5, "Energenie 5-gang" },
 		{ pTypeLighting1, sTypeGDR2, "COCO GDR2" },
 		{ pTypeLighting1, sTypeHQ, "HQ COCO-20" },
+		{ pTypeLighting1, sTypeOase, "Oase Inscenio" },
 
 		{ pTypeLighting2, sTypeAC, "AC" },
 		{ pTypeLighting2, sTypeHEU, "HomeEasy EU" },
@@ -626,7 +627,7 @@ const char *RFX_Type_SubType_Desc(const unsigned char dType, const unsigned char
 		{ pTypeLighting5, sTypeTRC02_2, "TRC02_2 (RGB)" },
 		{ pTypeLighting5, sTypeAoke, "Aoke" },
 		{ pTypeLighting5, sTypeEurodomest, "Eurodomest" },
-		{ pTypeLighting5, sTypeLivoloAppliance, "Livolo Appliance" },
+		{ pTypeLighting5, sTypeLivoloAppliance, "Livolo" },
 		{ pTypeLighting5, sTypeRGB432W, "RGB432W" },
 		{ pTypeLighting5, sTypeMDREMOTE107, "MDRemote 107" },
 		{ pTypeLighting5, sTypeLegrandCAD, "Legrand CAD" },
@@ -641,7 +642,7 @@ const char *RFX_Type_SubType_Desc(const unsigned char dType, const unsigned char
 
 		{ pTypeCurtain, sTypeHarrison, "Harrison" },
 
-		{ pTypeBlinds, sTypeBlindsT0, "RollerTrol, Hasta new" },
+		{ pTypeBlinds, sTypeBlindsT0, "RollerTrol/Hasta" },
 		{ pTypeBlinds, sTypeBlindsT1, "Hasta old" },
 		{ pTypeBlinds, sTypeBlindsT2, "A-OK RF01" },
 		{ pTypeBlinds, sTypeBlindsT3, "A-OK AC114" },
@@ -649,21 +650,22 @@ const char *RFX_Type_SubType_Desc(const unsigned char dType, const unsigned char
 		{ pTypeBlinds, sTypeBlindsT5, "Media Mount" },
 		{ pTypeBlinds, sTypeBlindsT6, "DC106" },
 		{ pTypeBlinds, sTypeBlindsT7, "Forest" },
-		{ pTypeBlinds, sTypeBlindsT8, "Chamberlain CS4330CN" },
+		{ pTypeBlinds, sTypeBlindsT8, "Chamberlain" },
 		{ pTypeBlinds, sTypeBlindsT9, "Sunpery" },
 		{ pTypeBlinds, sTypeBlindsT10, "Dolat DLM-1" },
 		{ pTypeBlinds, sTypeBlindsT11, "ASP" },
 		{ pTypeBlinds, sTypeBlindsT12, "Confexx" },
 		{ pTypeBlinds, sTypeBlindsT13, "Screenline" },
+		{ pTypeBlinds, sTypeBlindsT14, "Hualite" },
 
 		{ pTypeSecurity1, sTypeSecX10, "X10 security" },
 		{ pTypeSecurity1, sTypeSecX10M, "X10 security motion" },
 		{ pTypeSecurity1, sTypeSecX10R, "X10 security remote" },
 		{ pTypeSecurity1, sTypeKD101, "KD101 smoke detector" },
-		{ pTypeSecurity1, sTypePowercodeSensor, "Visonic PowerCode sensor - primary contact" },
-		{ pTypeSecurity1, sTypePowercodeMotion, "Visonic PowerCode motion" },
+		{ pTypeSecurity1, sTypePowercodeSensor, "Visonic sensor - primary contact" },
+		{ pTypeSecurity1, sTypePowercodeMotion, "Visonic motion" },
 		{ pTypeSecurity1, sTypeCodesecure, "Visonic CodeSecure" },
-		{ pTypeSecurity1, sTypePowercodeAux, "Visonic PowerCode sensor - auxiliary contact" },
+		{ pTypeSecurity1, sTypePowercodeAux, "Visonic sensor - auxiliary contact" },
 		{ pTypeSecurity1, sTypeMeiantech, "Meiantech/Atlantic/Aidebao" },
 		{ pTypeSecurity1, sTypeSA30, "Alecto SA30 smoke detector" },
 		{ pTypeSecurity1, sTypeDomoticzSecurity, "Security Panel" },
@@ -679,7 +681,7 @@ const char *RFX_Type_SubType_Desc(const unsigned char dType, const unsigned char
 		{ pTypeRemote, sTypeATIrw2, "ATI Remote Wonder II" },
 
 		{ pTypeThermostat1, sTypeDigimax, "Digimax" },
-		{ pTypeThermostat1, sTypeDigimaxShort, "Digimax with short format" },
+		{ pTypeThermostat1, sTypeDigimaxShort, "Digimax short" },
 
 		{ pTypeThermostat2, sTypeHE105, "HE105" },
 		{ pTypeThermostat2, sTypeRTS10, "RTS10" },
@@ -771,6 +773,11 @@ const char *RFX_Type_SubType_Desc(const unsigned char dType, const unsigned char
 		{ pTypeFan, sTypeSiemensSF01 , "Siemens SF01" },
 		{ pTypeFan, sTypeItho , "Itho CVE RFT" },
 		{ pTypeFan, sTypeLucciAir, "Lucci Air" },
+		{ pTypeFan, sTypeSeavTXS4, "SEAV TXS4" },
+		{ pTypeFan, sTypeWestinghouse, "Westinghouse" },
+		{ pTypeFan, sTypeLucciAirDC, "Lucci Air DC" },
+		{ pTypeFan, sTypeCasafan, "Casafan" },
+		{ pTypeFan, sTypeFT1211R, "FT1211R" },
 
 		{ pTypeTEMP_RAIN, sTypeTR1, "Alecto WS1200" },
 
@@ -1071,6 +1078,7 @@ void GetLightStatus(
 		case sTypeEnergenie5:
 		case sTypeGDR2:
 		case sTypeHQ:
+		case sTypeOase:
 			bHaveGroupCmd = true;
 			switch (nValue)
 			{
@@ -2044,6 +2052,31 @@ void GetLightStatus(
 				break;
 			case fan_LucciLight:
 				lstatus = "light";
+				break;
+			}
+		}
+		break;
+		case sTypeLucciAirDC:
+		{
+			switch (nValue)
+			{
+			case fan_LucciDCPower:
+				lstatus = "pow";
+				break;
+			case fan_LucciDCPlus:
+				lstatus = "plus";
+				break;
+			case fan_LucciDCMin:
+				lstatus = "min";
+				break;
+			case fan_LucciDCLight:
+				lstatus = "light";
+				break;
+			case fan_LucciDCReverse:
+				lstatus = "rev";
+				break;
+			case fan_LucciDCNaturalflow:
+				lstatus = "nat";
 				break;
 			}
 		}
@@ -3427,6 +3460,22 @@ bool GetLightCommand(
 			{
 				cmd = fan_LucciLight;
 			}
+		}
+		break;
+		case sTypeLucciAirDC:
+		{
+			if (switchcmd == "pow")
+				cmd = fan_LucciDCPower;
+			else if (switchcmd == "plus")
+				cmd = fan_LucciDCPlus;
+			else if (switchcmd == "min")
+				cmd = fan_LucciDCMin;
+			else if (switchcmd == "light")
+				cmd = fan_LucciDCLight;
+			else if (switchcmd == "rev")
+				cmd = fan_LucciDCReverse;
+			else if (switchcmd == "nat")
+				cmd = fan_LucciDCNaturalflow;
 		}
 		break;
 		}

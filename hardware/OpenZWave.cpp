@@ -3593,7 +3593,7 @@ void COpenZWave::EnableNodePoll(const unsigned int homeID, const int nodeID, con
 	std::vector<std::vector<std::string> > result;
 	result = m_sql.safe_query("SELECT ProductDescription FROM ZWaveNodes WHERE (HardwareID==%d) AND (HomeID==%u) AND (NodeID==%d)",
 		m_HwdID, homeID, nodeID);
-	if (result.size() > 0)
+	if (!result.empty())
 	{
 		std::string ProductDescription = result[0][0];
 		bSingleIndexPoll = (
@@ -4519,7 +4519,7 @@ namespace http {
 			std::vector<std::vector<std::string> > result;
 			result = m_sql.safe_query("SELECT ID,HomeID,NodeID,Name,ProductDescription,PollTime FROM ZWaveNodes WHERE (HardwareID==%d)",
 				iHardwareID);
-			if (result.size() > 0)
+			if (!result.empty())
 			{
 				std::vector<std::vector<std::string> >::const_iterator itt;
 				int ii = 0;
@@ -4595,7 +4595,7 @@ namespace http {
 				idx.c_str()
 			);
 			result = m_sql.safe_query("SELECT HardwareID, HomeID, NodeID from ZWaveNodes WHERE (ID==%s)", idx.c_str());
-			if (result.size() > 0)
+			if (!result.empty())
 			{
 				int hwid = atoi(result[0][0].c_str());
 				unsigned int homeID = boost::lexical_cast<unsigned int>(result[0][1]);
@@ -4623,7 +4623,7 @@ namespace http {
 				return;
 			std::vector<std::vector<std::string> > result;
 			result = m_sql.safe_query("SELECT HardwareID,HomeID,NodeID from ZWaveNodes WHERE (ID=='%q')", idx.c_str());
-			if (result.size() > 0)
+			if (!result.empty())
 			{
 				int hwid = atoi(result[0][0].c_str());
 				unsigned int homeID = boost::lexical_cast<unsigned int>(result[0][1]);
@@ -4975,7 +4975,7 @@ namespace http {
 				result = m_sql.safe_query("SELECT ID,HomeID,NodeID,Name FROM ZWaveNodes WHERE (HardwareID==%d)",
 					iHardwareID);
 
-				if (result.size() > 0)
+				if (!result.empty())
 				{
 					int MaxNoOfGroups = 0;
 					std::vector<std::vector<std::string> >::const_iterator itt;
@@ -5061,7 +5061,7 @@ namespace http {
 				return;
 			std::vector<std::vector<std::string> > result;
 			result = m_sql.safe_query("SELECT HardwareID,HomeID,NodeID from ZWaveNodes WHERE (ID=='%q')", idx.c_str());
-			if (result.size() > 0)
+			if (!result.empty())
 			{
 				int hwid = atoi(result[0][0].c_str());
 				unsigned int homeID = boost::lexical_cast<unsigned int>(result[0][1]);
@@ -5085,7 +5085,7 @@ namespace http {
 				return;
 			std::vector<std::vector<std::string> > result;
 			result = m_sql.safe_query("SELECT HardwareID,HomeID,NodeID from ZWaveNodes WHERE (ID==%q)", idx.c_str());
-			if (result.size() > 0)
+			if (!result.empty())
 			{
 				int hwid = atoi(result[0][0].c_str());
 				unsigned int homeID = boost::lexical_cast<unsigned int>(result[0][1]);
@@ -5531,7 +5531,7 @@ namespace http {
 
 			std::vector<std::vector<std::string> > result;
 			result = m_sql.safe_query("SELECT HardwareID,HomeID,NodeID from ZWaveNodes WHERE (ID=='%q')", idx.c_str());
-			if (result.size() > 0)
+			if (!result.empty())
 			{
 				int hwid = atoi(result[0][0].c_str());
 				unsigned int homeID = boost::lexical_cast<unsigned int>(result[0][1]);
@@ -5556,7 +5556,7 @@ namespace http {
 
 			std::vector<std::vector<std::string> > result;
 			result = m_sql.safe_query("SELECT HardwareID,HomeID,NodeID from ZWaveNodes WHERE (ID==%q)", idx.c_str());
-			if (result.size() > 0)
+			if (!result.empty())
 			{
 				int hwid = atoi(result[0][0].c_str());
 				unsigned int homeID = boost::lexical_cast<unsigned int>(result[0][1]);
