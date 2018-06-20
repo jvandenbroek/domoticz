@@ -395,7 +395,7 @@ local function EventHelpers(domoticz, mainMethod)
 			elseif (baseType == domoticz.BASETYPE_VARIABLE) then
 				moduleLabelInfo = ' Variable: "' .. subject.name .. '" Index: ' .. tostring(subject.id)
 			elseif (baseType == domoticz.BASETYPE_SECURITY) then
-				moduleLabelInfo = ' Security: "' .. subject .. '"'
+				moduleLabelInfo = ' Security: "' .. subject.name .. '"'
 			elseif (baseType == domoticz.BASETYPE_SCENE or baseType == domoticz.BASETYPE_GROUP) then
 				moduleLabelInfo = (subject.baseType == 'scene' and ' Scene' or ' Group') .. ': "' .. subject.name .. '", Index: ' .. tostring(subject.id)
 			elseif (baseType == domoticz.BASETYPE_HTTP_RESPONSE) then
@@ -885,14 +885,18 @@ local function EventHelpers(domoticz, mainMethod)
 
 			for i, securityState in pairs(updates) do
 
-				securityState.baseType = domoticz.BASETYPE_SECURITY
+				local security = {
+					baseType = domoticz.BASETYPE_SECURITY,
+					name = securityState
+				}
+
 				local caSize = _.size(self.domoticz.commandArray)
 
 				self.domoticz.security = securityState
 
 				local scriptsToExecute = self.getSecurityHandlers()
 
-				self.handleEvents(scriptsToExecute, securityState)
+				self.handleEvents(scriptsToExecute, security)
 
 				self.dumpCommandArray(self.domoticz.commandArray, caSize + 1)
 			end
