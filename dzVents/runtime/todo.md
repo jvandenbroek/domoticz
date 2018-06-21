@@ -22,3 +22,5 @@ load global_data as the first module: http://www.domoticz.com/forum/viewtopic.ph
 support for PUT and DELETE in http requests
 
 adjust docs that wildcards can be used in other areas than on-devices.
+
+fix couple of code-block formats in doc (section historical data)

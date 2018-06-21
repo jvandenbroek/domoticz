@@ -1090,8 +1090,8 @@ local function EventHelpers(domoticz, mainMethod)
 
 		if (domoticzEvents ~= nil) then
 			for i, domoticzEvent in pairs(domoticzEvents) do
-				require('lodash').print(domoticzEvent)
-				table.insert(items, '- Domoticz: ' .. domoticzEvent.type .. ' - ' .. domoticzEvent.status)
+				--require('lodash').print(domoticzEvent)
+				table.insert(items, '- Domoticz: ' .. domoticzEvent.type) -- .. ' - ' .. domoticzEvent.status)
 				length = length + 1
 			end
 		end
@@ -1100,7 +1100,7 @@ local function EventHelpers(domoticz, mainMethod)
 
 		if (hardwareEvents ~= nil) then
 			for i, hardwareEvent in pairs(hardwareEvents) do
-				require('lodash').print(hardwareEvent)
+				--require('lodash').print(hardwareEvent)
 				table.insert(items, '- Hardware: ' .. hardwareEvent.type)
 				length = length + 1
 			end
