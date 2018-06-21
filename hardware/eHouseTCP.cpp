@@ -480,7 +480,7 @@ eHouseTCP::eHouseTCP(const int ID, const std::string &IPAddress, const unsigned 
 
 		if (EvQ[i] == NULL)
 		{
-			LOG(LOG_ERROR, "Can't Alloc Events Queue Memory");
+			_log.Log(LOG_ERROR, "Can't Alloc Events Queue Memory");
 			return;
 		}
 		memset(EvQ[i], 0, sizeof(struct EventQueueT));
@@ -537,7 +537,7 @@ bool eHouseTCP::StopHardware()
 {
 
 	//#ifdef DEBUG_eHouse
-	LOG(LOG_STATUS, "eHouse: Stop hardware");
+	_log.Log(LOG_STATUS, "eHouse: Stop hardware");
 	//#endif
 	TerminateUDP();
 	ssl(1);
@@ -684,13 +684,13 @@ int eHouseTCP::ConnectTCP(unsigned int IP)
 
 	if (setsockopt(TCPSocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout)) < 0)   //Set socket Read operation Timeout
 	{
-		LOG(LOG_ERROR, "[TCP Client Status] Set Read Timeout failed");
+		_log.Log(LOG_ERROR, "[TCP Client Status] Set Read Timeout failed");
 		perror("[TCP Client Status] Set Read Timeout failed\n");
 	}
 
 	if (setsockopt(TCPSocket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) < 0)   //Set Socket Write operation Timeout
 	{
-		LOG(LOG_ERROR, "[TCP Client Status] Set Write Timeout failed");
+		_log.Log(LOG_ERROR, "[TCP Client Status] Set Write Timeout failed");
 		perror("[TCP Client Status] Set Write Timeout failed\n");
 	}
 
@@ -699,7 +699,7 @@ int eHouseTCP::ConnectTCP(unsigned int IP)
 
 	if (setsockopt(TCPSocket, IPPROTO_TCP, TCP_NODELAY, &opt, sizeof(opt)) < 0)
 		{
-		LOG(LOG_ERROR, "[TCP Cli Status] Set TCP No Delay failed");
+		_log.Log(LOG_ERROR, "[TCP Cli Status] Set TCP No Delay failed");
 		perror("[TCP Cli Status] Set TCP No Delay failed\n");
 		}
 
@@ -716,7 +716,7 @@ bool eHouseTCP::CheckAddress()
 {
 	if (m_IPAddress.size() == 0 || m_IPPort < 1 || m_IPPort > 65535)
 	{
-		LOG(LOG_ERROR, "eHouse: Empty IP Address or bad Port");
+		_log.Log(LOG_ERROR, "eHouse: Empty IP Address or bad Port");
 		return false;
 	}
 
@@ -731,7 +731,7 @@ bool eHouseTCP::CheckAddress()
 		SrvAddrM = (ip >> 8) & 0xff;
 		SrvAddrL = ip >> 24;
 		SrvAddrH = (ip >> 16) & 0xff;
-		LOG(LOG_STATUS, "[eHouse PRO] IP Address: %d.%d.%d.%d\r\n", SrvAddrU, SrvAddrM, SrvAddrH, SrvAddrL);
+		_log.Log(LOG_STATUS, "[eHouse PRO] IP Address: %d.%d.%d.%d\r\n", SrvAddrU, SrvAddrM, SrvAddrH, SrvAddrL);
 		if ((SrvAddrU != 192) || (SrvAddrM != 168))
 			ViaTCP = 1;
 	}
@@ -740,7 +740,7 @@ bool eHouseTCP::CheckAddress()
 		hostent *he = gethostbyname(m_IPAddress.c_str());
 		if (he == NULL)
 		{
-			LOG(LOG_ERROR, "eHouse: cannot resolve host name");
+			_log.Log(LOG_ERROR, "eHouse: cannot resolve host name");
 			return false;
 		}
 		else
@@ -750,7 +750,7 @@ bool eHouseTCP::CheckAddress()
 			SrvAddrM = (ip >> 8) & 0xff;
 			SrvAddrL = ip >> 24;
 			SrvAddrH = (ip >> 16) & 0xff;
-			LOG(LOG_STATUS, "[eHouse PRO] %s =>IP Address: %d.%d.%d.%d\r\n", m_IPAddress.c_str(), SrvAddrU, SrvAddrM, SrvAddrH, SrvAddrL);
+			_log.Log(LOG_STATUS, "[eHouse PRO] %s =>IP Address: %d.%d.%d.%d\r\n", m_IPAddress.c_str(), SrvAddrU, SrvAddrM, SrvAddrH, SrvAddrL);
 			if ((SrvAddrU != 192) || (SrvAddrM != 168))
 				ViaTCP = 1;
 		}
@@ -795,7 +795,7 @@ int  eHouseTCP::getrealERMpgm(int32_t ID, int level)
 	ev[1] = devl;
 	gettype(devh, devl);
 	if (Dtype != EH_LAN) return -1;
-	LOG(LOG_STATUS, "LAN PGM");
+	_log.Log(LOG_STATUS, "LAN PGM");
 	int index = devl - INITIAL_ADDRESS_LAN;
 	if ((Dsubtype < 249))  //ERMs Only =>No PoolManager/CommManager/LevelManager
 	{

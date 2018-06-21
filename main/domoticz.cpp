@@ -1248,7 +1248,7 @@ int main(int argc, char**argv)
 	_log.Log(LOG_STATUS, "Closing application!...");
 	fflush(stdout);
 	_log.Log(LOG_STATUS, "Stopping worker...");
-	_notify.NotifyWait(NOTIFY_DZ_STOP); // blocking call
+	_notify.NotifyWait(NOTIFY::DZ_STOP); // blocking call
 	try
 	{
 		m_mainworker.Stop();

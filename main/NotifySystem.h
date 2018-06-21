@@ -8,14 +8,19 @@ public:
 	CNotifySystem(void);
 	~CNotifySystem(void);
 	void Notify(const std::string &type, const uint64_t id);
-	void Notify(const _eNotifyType type);
-	void Notify(const _eNotifyType type, const _eNotifyStatus status);
-	void Notify(const _eNotifyType type, const _eNotifyStatus status, const std::string &message);
-	void Notify(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message);
-	bool NotifyWait(const _eNotifyType type);
-	bool NotifyWait(const _eNotifyType type, const _eNotifyStatus status);
-	bool NotifyWait(const _eNotifyType type, const _eNotifyStatus status, const std::string &message);
-	bool NotifyWait(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message);
+	void Notify(const NOTIFY::_eType type);
+	void Notify(const NOTIFY::_eType type, const NOTIFY::_eStatus status);
+	void Notify(const NOTIFY::_eType type, const NOTIFY::_eStatus status, const std::string &message);
+	void Notify(const NOTIFY::_eType type, const NOTIFY::_eStatus status, const char *message);
+	void Notify(const NOTIFY::_eType type, const NOTIFY::_eStatus status, const void *genericPtr);
+	void Notify(const NOTIFY::_eType type, const NOTIFY::_eStatus status, const uint64_t id, const std::string &message);
+	void Notify(const NOTIFY::_eType type, const NOTIFY::_eStatus status, const uint64_t id, const std::string &message, const void *genericPtr);
+	bool NotifyWait(const NOTIFY::_eType type);
+	bool NotifyWait(const NOTIFY::_eType type, const NOTIFY::_eStatus status);
+	bool NotifyWait(const NOTIFY::_eType type, const NOTIFY::_eStatus status, const std::string &message);
+	bool NotifyWait(const NOTIFY::_eType type, const NOTIFY::_eStatus status, const char *message);
+	bool NotifyWait(const NOTIFY::_eType type, const NOTIFY::_eStatus status, const void *genericPtr);
+	bool NotifyWait(const NOTIFY::_eType type, const NOTIFY::_eStatus status, const uint64_t id, const std::string &message, const void *genericPtr);
 	bool Register(CNotifyObserver* pHardware);
 	bool Unregister(CNotifyObserver* pHardware);
 	std::string const GetTypeString(const int type);
@@ -26,19 +31,20 @@ private:
 	struct _tNotifyQueue
 	{
 		uint64_t id;
-		_eNotifyType type;
-		_eNotifyStatus status;
+		NOTIFY::_eType type;
+		NOTIFY::_eStatus status;
 		std::string message;
+		const void *genericPtr;
 		queue_element_trigger* trigger;
 	};
 	struct _tNotifyTypeTable
 	{
-		_eNotifyType type;
+		NOTIFY::_eType type;
 		std::string name;
 	};
 	struct _tNotifyStatusTable
 	{
-		_eNotifyStatus status;
+		NOTIFY::_eStatus status;
 		std::string name;
 	};
 

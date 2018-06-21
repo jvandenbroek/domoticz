@@ -119,7 +119,7 @@ bool CNotificationHelper::SendMessageEx(
 	ShowSystemTrayNotification(Subject.c_str());
 #endif
 	_log.Log(LOG_STATUS, "Notification: %s", Subject.c_str());
-	_notify.Notify(NOTIFY_NOTIFICATION, NOTIFY_INFO, Subject);
+	_notify.Notify(NOTIFY::NOTIFICATION, NOTIFY::INFO, Subject);
 
 	std::vector<std::string> sResult;
 	StringSplit(Subsystems, ";", sResult);
@@ -144,7 +144,7 @@ bool CNotificationHelper::SendMessageEx(
 		}
 	}
 	if (!bRet)
-		_notify.Notify(NOTIFY_NOTIFICATION, NOTIFY_ERROR, Subject);
+		_notify.Notify(NOTIFY::NOTIFICATION, NOTIFY::ERROR, Subject);
 	return bRet;
 }
 

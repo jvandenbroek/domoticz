@@ -80,10 +80,19 @@ void CdzVents::ProcessNotifyItem(lua_State *lua_state, int &index, std::string &
 	if (itt.lastLevel)
 		status = _notify.GetStatusString(itt.lastLevel);
 
-	if (itt.id > 0)
+	if (itt.genericPtr == NULL)
+	{
+		lua_pushstring(lua_state, "message");
+		lua_pushstring(lua_state, itt.sValue.c_str());
+		lua_rawset(lua_state, -3);
+	}
+	else if (itt.nValue >= NOTIFY::HW_TIMEOUT && itt.nValue <= NOTIFY::HW_THREAD_ENDED)
 	{
 		lua_pushstring(lua_state, "id");
-		lua_pushnumber(lua_state, (lua_Number)itt.id);
+		lua_pushnumber(lua_state, (lua_Number)reinterpret_cast<const CDomoticzHardwareBase*>(itt.genericPtr)->m_HwdID);
+		lua_rawset(lua_state, -3);
+		lua_pushstring(lua_state, "name");
+		lua_pushstring(lua_state, reinterpret_cast<const CDomoticzHardwareBase*>(itt.genericPtr)->Name.c_str());
 		lua_rawset(lua_state, -3);
 	}
 	lua_pushstring(lua_state, "type");
@@ -91,9 +100,6 @@ void CdzVents::ProcessNotifyItem(lua_State *lua_state, int &index, std::string &
 	lua_rawset(lua_state, -3);
 	lua_pushstring(lua_state, "status");
 	lua_pushstring(lua_state, status.c_str());
-	lua_rawset(lua_state, -3);
-	lua_pushstring(lua_state, "message");
-	lua_pushstring(lua_state, itt.sValue.c_str());
 	lua_rawset(lua_state, -3);
 	lua_settable(lua_state, -3); // number entry
 	index++;
@@ -113,7 +119,7 @@ void CdzVents::ProcessNotify(lua_State *lua_state, const std::vector<CEventSyste
 	{
 		if (itt->reason == m_mainworker.m_eventsystem.REASON_NOTIFY)
 		{
-			if (!itt->id)
+			if (!itt->id && itt->genericPtr == NULL)
 				ProcessNotifyItem(lua_state, index, type, status, *itt);
 			else
 				bHardware = true;
@@ -127,7 +133,10 @@ void CdzVents::ProcessNotify(lua_State *lua_state, const std::vector<CEventSyste
 		index = 1;
 		for (itt = items.begin(); itt != items.end(); itt++)
 		{
-			if (itt->reason == m_mainworker.m_eventsystem.REASON_NOTIFY && itt->id > 0)
+			if (
+				itt->reason == m_mainworker.m_eventsystem.REASON_NOTIFY &&
+				itt->genericPtr != NULL &&
+				itt->nValue >= NOTIFY::HW_TIMEOUT && itt->nValue <= NOTIFY::HW_THREAD_ENDED)
 				ProcessNotifyItem(lua_state, index, type, status, *itt);
 		}
 	}
@@ -561,13 +570,14 @@ void CdzVents::SetGlobalVariables(lua_State *lua_state, const bool reasonTime, c
 	lua_setglobal(lua_state, "globalvariables");
 }
 
-void CdzVents::ExportHardwareData(lua_State *lua_state, int &index)
+void CdzVents::ExportHardwareData(lua_State *lua_state, int &index, const std::vector<CEventSystem::_tEventQueue> &items)
 {
-	std::vector<CDomoticzHardwareBase*> *hardwaredevices = m_mainworker.GetHardwareDevices();
-	std::vector<CDomoticzHardwareBase*>::iterator itt;
 	boost::lock_guard<boost::mutex> l(m_mainworker.m_devicemutex);
-	for (itt = (*hardwaredevices).begin(); itt != (*hardwaredevices).end(); ++itt)
+	const std::vector<CDomoticzHardwareBase*> *hardwareDevices = m_mainworker.GetHardwareDevices();
+	std::vector<CDomoticzHardwareBase*>::const_iterator itt;
+	for (itt = (*hardwareDevices).begin(); itt != (*hardwareDevices).end(); ++itt)
 	{
+		//hwIDs.push_back((*itt->m_HwdID));
 		lua_pushnumber(lua_state, (lua_Number)index);
 		lua_createtable(lua_state, 1, 14);
 		lua_pushstring(lua_state, "id");
@@ -1005,7 +1015,7 @@ void CdzVents::ExportDomoticzDataToLua(lua_State *lua_state, const std::vector<C
 
 		index++;
 	}
-	ExportHardwareData(lua_state, index);
+	ExportHardwareData(lua_state, index, items);
 
 	lua_setglobal(lua_state, "domoticzData");
 }

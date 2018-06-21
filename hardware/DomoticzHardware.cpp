@@ -11,6 +11,7 @@
 #include "hardwaretypes.h"
 
 #define round(a) ( int ) ( a + .5 )
+extern bool g_bStopApplication;
 
 CDomoticzHardwareBase::CDomoticzHardwareBase()
 {
@@ -45,14 +46,18 @@ bool CDomoticzHardwareBase::CustomCommand(const uint64_t idx, const std::string 
 bool CDomoticzHardwareBase::Start()
 {
 	m_iHBCounter = 0;
-	_notify.Notify(NOTIFY_HW_START, NOTIFY_INFO, m_HwdID, Name);
+	_notify.Notify(NOTIFY::HW_START, NOTIFY::INFO, reinterpret_cast<void*>(this));
 	return StartHardware();
 }
 
 bool CDomoticzHardwareBase::Stop()
 {
 	boost::lock_guard<boost::mutex> l(readQueueMutex);
-	_notify.Notify(NOTIFY_HW_STOP, NOTIFY_INFO, m_HwdID, Name);
+	if (!g_bStopApplication)
+		_notify.Notify(NOTIFY::HW_STOP, NOTIFY::INFO, reinterpret_cast<void*>(this));
+	else
+		_notify.NotifyWait(NOTIFY::HW_STOP, NOTIFY::INFO, reinterpret_cast<void*>(this));
+
 	return StopHardware();
 }
 

@@ -474,7 +474,7 @@ CDomoticzHardwareBase* MainWorker::GetHardwareByType(const _eHardwareTypes HWTyp
 	return NULL;
 }
 
-std::vector<CDomoticzHardwareBase*>* MainWorker::GetHardwareDevices()
+const std::vector<CDomoticzHardwareBase*>* MainWorker::GetHardwareDevices()
 {
 	return &m_hardwaredevices;
 }
@@ -1615,7 +1615,7 @@ void MainWorker::Do_Work()
 				_notify.Start();
 				m_eventsystem.SetEnabled(m_sql.m_bEnableEventSystem);
 				m_eventsystem.StartEventSystem();
-				_notify.Notify(NOTIFY_DZ_START);
+				_notify.Notify(NOTIFY::DZ_START);
 				m_bStartHardware = false;
 				StartDomoticzHardware();
 #ifdef ENABLE_PYTHON
@@ -11479,11 +11479,11 @@ bool MainWorker::SwitchLightInt(const std::vector<std::string> &sd, std::string 
 		lcmd.BLINDS1.id3 = ID3;
 		lcmd.BLINDS1.id4 = 0;
 		if (
-			(dSubType == sTypeBlindsT0) || 
-			(dSubType == sTypeBlindsT1) || 
-			(dSubType == sTypeBlindsT3) || 
-			(dSubType == sTypeBlindsT8) || 
-			(dSubType == sTypeBlindsT12) || 
+			(dSubType == sTypeBlindsT0) ||
+			(dSubType == sTypeBlindsT1) ||
+			(dSubType == sTypeBlindsT3) ||
+			(dSubType == sTypeBlindsT8) ||
+			(dSubType == sTypeBlindsT12) ||
 			(dSubType == sTypeBlindsT13) ||
 			(dSubType == sTypeBlindsT14)
 			)
@@ -11923,7 +11923,7 @@ bool MainWorker::SwitchLight(const uint64_t idx, const std::string &switchcmd, c
 	{
 		if (SwitchLightInt(sd, switchcmd, level, color, false))
 			return true;
-		_notify.Notify(NOTIFY_SWITCHCMD, NOTIFY_ERROR, idx, switchcmd);
+		_notify.Notify(NOTIFY::SWITCHCMD, NOTIFY::ERROR, idx, switchcmd);
 		return false;
 	}
 }
@@ -12861,14 +12861,7 @@ void MainWorker::HandleLogNotifications()
 void MainWorker::HeartbeatUpdate(const std::string &component)
 {
 	boost::lock_guard<boost::mutex> l(m_heartbeatmutex);
-	time_t now = time(0);
-	std::map<std::string, time_t >::iterator itt = m_componentheartbeats.find(component);
-	if (itt != m_componentheartbeats.end()) {
-		itt->second = now;
-	}
-	else {
-		m_componentheartbeats[component] = now;
-	}
+	m_componentheartbeats[component] = time(NULL);
 }
 
 void MainWorker::HeartbeatRemove(const std::string &component)
@@ -12898,7 +12891,7 @@ void MainWorker::HeartbeatCheck()
 		if (dif > 60)
 		{
 			_log.Log(LOG_ERROR, "%s thread seems to have ended unexpectedly", iterator->first.c_str());
-			_notify.Notify(NOTIFY_THREAD_ENDED, NOTIFY_ERROR, iterator->first);
+			_notify.Notify(NOTIFY::HW_THREAD_ENDED, NOTIFY::ERROR, iterator->first);
 		}
 	}
 
@@ -12919,7 +12912,7 @@ void MainWorker::HeartbeatCheck()
 				if (diff > 60)
 				{
 					_log.Log(LOG_ERROR, "%s hardware (%d) thread seems to have ended unexpectedly", pHardware->Name.c_str(), pHardware->m_HwdID);
-					_notify.Notify(NOTIFY_THREAD_ENDED, NOTIFY_ERROR, pHardware->m_HwdID, pHardware->Name);
+					_notify.Notify(NOTIFY::HW_THREAD_ENDED, NOTIFY::ERROR, reinterpret_cast<void*>(pHardware));
 				}
 			}
 
@@ -12964,7 +12957,7 @@ void MainWorker::HeartbeatCheck()
 					}
 
 					_log.Log(LOG_ERROR, "%s hardware (%d) nothing received for more than %d %s!....", pHardware->Name.c_str(), pHardware->m_HwdID, totNum, sDataTimeout.c_str());
-					_notify.Notify(NOTIFY_HW_TIMEOUT, NOTIFY_ERROR, pHardware->m_HwdID, pHardware->Name.c_str());
+					_notify.Notify(NOTIFY::HW_TIMEOUT, NOTIFY::ERROR, reinterpret_cast<void*>(pHardware));
 					m_devicestorestart.push_back(pHardware);
 				}
 			}

@@ -1,32 +1,34 @@
 #pragma once
 
-enum _eNotifyType
-{
-	NOTIFY_LOG,             // 0
-	NOTIFY_DZ_START,        // 1
-	NOTIFY_DZ_STOP,         // 2
-	NOTIFY_BACKUP_BEGIN,    // 3
-	NOTIFY_BACKUP_END,      // 4
-	NOTIFY_HW_TIMEOUT,      // 5
-	NOTIFY_HW_START,        // 6
-	NOTIFY_HW_STOP,         // 7
-	NOTIFY_NOTIFICATION,    // 8
-	NOTIFY_THREAD_ENDED,    // 9
-	NOTIFY_SWITCHCMD        // 10
-};
-
-enum _eNotifyStatus
-{
-	NOTIFY_OK,
-	NOTIFY_INFO,
-	NOTIFY_ERROR,
-	NOTIFY_WARNING
-};
-
 class CNotifyObserver
 {
 public:
+	enum _eType
+	{
+		LOG,             // 0
+		DZ_START,        // 1
+		DZ_STOP,         // 2
+		BACKUP_BEGIN,    // 3
+		BACKUP_END,      // 4
+		HW_TIMEOUT,      // 5
+		HW_START,        // 6
+		HW_STOP,         // 7
+		HW_THREAD_ENDED, // 8
+		NOTIFICATION,    // 9
+		SWITCHCMD        // 10
+	};
+
+	enum _eStatus
+	{
+		OK,
+		INFO,
+		ERROR,
+		WARNING
+	};
+
 	CNotifyObserver(void);
 	~CNotifyObserver(void);
-	virtual bool NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message) = 0;
+	virtual bool NotifyReceiver(const _eType type, const _eStatus status, const uint64_t id, const std::string &message, const void *genericPtr) = 0;
 };
+
+typedef CNotifyObserver NOTIFY;

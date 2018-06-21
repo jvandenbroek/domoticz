@@ -159,7 +159,7 @@ void WINAPI TelldusWinService::serviceMain( DWORD argc, TCHAR* argv[] ) {
 		devInterface.dbcc_size = sizeof(DEV_BROADCAST_DEVICEINTERFACE);
 		devInterface.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
 		devInterface.dbcc_classguid = GUID_DEVINTERFACE_USBRAW;
-		HDEVNOTIFY deviceNotificationHandle = RegisterDeviceNotificationW(instance.serviceStatusHandle, &devInterface, DEVICE_NOTIFY_SERVICE_HANDLE);
+		HDEVNOTIFY deviceNotificationHandle = RegisterDeviceNotificationW(instance.serviceStatusHandle, &devInterface, DEVICE_NOTIFY::SERVICE_HANDLE);
 
 		Log::notice("TelldusService started");
 

@@ -44,16 +44,16 @@ void eHouseTCP::eCMaloc(int eHEIndex, int devaddrh, int devaddrl)
 	//	if (strlen((char *) &ECMn) < 1)
 	if (ECMn == NULL)
 	{
-		LOG(LOG_STATUS, "Allocating CommManager LAN Controller (192.168.%d.%d)", devaddrh, devaddrl);
+		_log.Log(LOG_STATUS, "Allocating CommManager LAN Controller (192.168.%d.%d)", devaddrh, devaddrl);
 		ECMn = (struct CommManagerNamesT *) malloc(sizeof(struct CommManagerNamesT));
-		if (ECMn == NULL) LOG(LOG_ERROR, "CAN'T Allocate ECM Names Memory");
+		if (ECMn == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate ECM Names Memory");
 		ECMn->INITIALIZED = 'a';	//first byte of structure for detection of allocated memory
 		ECMn->AddrH = devaddrh;
 		ECMn->AddrL = devaddrl;
 		ECM = (union CMStatusT *) malloc(sizeof(union CMStatusT));
 		ECMPrv = (union CMStatusT *) malloc(sizeof(union CMStatusT));
-		if (ECM == NULL) LOG(LOG_ERROR, "CAN'T Allocate ECM Memory");
-		if (ECMPrv == NULL) LOG(LOG_ERROR, "CAN'T Allocate ECMPrev Memory");
+		if (ECM == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate ECM Memory");
+		if (ECMPrv == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate ECMPrev Memory");
 	}
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,16 +64,16 @@ void eHouseTCP::eHPROaloc(int eHEIndex, int devaddrh, int devaddrl)
 	//	if (strlen((char *) &eHouseProN) < 1)
 	if (eHouseProN == NULL)
 	{
-		LOG(LOG_STATUS, "Allocating eHouse PRO Controller (192.168.%d.%d)", devaddrh, devaddrl);
+		_log.Log(LOG_STATUS, "Allocating eHouse PRO Controller (192.168.%d.%d)", devaddrh, devaddrl);
 		eHouseProN = (struct eHouseProNamesT *) malloc(sizeof(struct eHouseProNamesT));
-		if (eHouseProN == NULL) LOG(LOG_ERROR, "CAN'T Allocate PRO Names Memory");
+		if (eHouseProN == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate PRO Names Memory");
 		eHouseProN->INITIALIZED = 'a';	//first byte of structure for detection of allocated memory
 		eHouseProN->AddrH[0] = devaddrh;
 		eHouseProN->AddrL[0] = devaddrl;
 		eHouseProStatus = (union eHouseProStatusUT *)  malloc(sizeof(union eHouseProStatusUT));
 		eHouseProStatusPrv = (union eHouseProStatusUT *) malloc(sizeof(union eHouseProStatusUT));
-		if (eHouseProStatus == NULL) LOG(LOG_ERROR, "CAN'T Allocate PRO Stat Memory");
-		if (eHouseProStatusPrv == NULL) LOG(LOG_ERROR, "CAN'T Allocate PRO Stat PRV Memory");
+		if (eHouseProStatus == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate PRO Stat Memory");
+		if (eHouseProStatusPrv == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate PRO Stat PRV Memory");
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,18 +89,18 @@ void eHouseTCP::eAURAaloc(int eHEIndex, int devaddrh, int devaddrl)
 		//if (strlen((char *) & (AuraN[i])) < 1)
 		if (AuraN[i] == NULL)
 		{
-			LOG(LOG_STATUS, "Allocating Aura Thermostat (%d.%d)", devaddrh, i + 1);
+			_log.Log(LOG_STATUS, "Allocating Aura Thermostat (%d.%d)", devaddrh, i + 1);
 			AuraN[i] = (struct AuraNamesT *) malloc(sizeof(struct AuraNamesT));
-			if (AuraN[i] == NULL) LOG(LOG_ERROR, "CAN'T Allocate AURA Names Memory");
+			if (AuraN[i] == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate AURA Names Memory");
 			AuraN[i]->INITIALIZED = 'a';	//first byte of structure for detection of allocated memory
 			AuraN[i]->AddrH = devaddrh;
 			AuraN[i]->AddrL = i + 1;
 			AuraDev[i] = (struct AURAT *) malloc(sizeof(struct AURAT));
 			AuraDevPrv[i] = (struct AURAT *) malloc(sizeof(struct AURAT));
 			adcs[i] = (struct CtrlADCT *) malloc(sizeof(struct CtrlADCT));
-			if (adcs[i] == NULL) LOG(LOG_ERROR, "CAN'T Allocate ADCs Memory");
-			if (AuraDev[i] == NULL) LOG(LOG_ERROR, "CAN'T Allocate AURA Stat Memory");
-			if (AuraDevPrv[i] == NULL) LOG(LOG_ERROR, "CAN'T Allocate AURA Stat Prv Memory");
+			if (adcs[i] == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate ADCs Memory");
+			if (AuraDev[i] == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate AURA Stat Memory");
+			if (AuraDevPrv[i] == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate AURA Stat Prv Memory");
 			AuraN[i]->BinaryStatus[0] = 0;	//modified flag
 			AuraDevPrv[i]->Addr = 0;		//modified flag
 		}
@@ -120,16 +120,16 @@ void eHouseTCP::eHEaloc(int eHEIndex, int devaddrh, int devaddrl)
 		//	if (strlen((char *) & (eHEn[i])) < 1)
 		if (eHEn[i] == NULL)
 		{
-			LOG(LOG_STATUS, "Allocating eHouse LAN controller (192.168.%d.%d)", devaddrh, i + INITIAL_ADDRESS_LAN);
+			_log.Log(LOG_STATUS, "Allocating eHouse LAN controller (192.168.%d.%d)", devaddrh, i + INITIAL_ADDRESS_LAN);
 			eHEn[i] = (struct EtherneteHouseNamesT *) malloc(sizeof(struct EtherneteHouseNamesT));
-			if (eHEn[i] == NULL) LOG(LOG_ERROR, "CAN'T Allocate LAN Names Memory");
+			if (eHEn[i] == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate LAN Names Memory");
 			eHEn[i]->INITIALIZED = 'a';	//first byte of structure for detection of allocated memory
 			eHEn[i]->AddrH = devaddrh;
 			eHEn[i]->AddrL = i + INITIAL_ADDRESS_LAN;
 			eHERMs[i] = (union ERMFullStatT *) malloc(sizeof(union ERMFullStatT));
 			eHERMPrev[i] = (union ERMFullStatT *) malloc(sizeof(union ERMFullStatT));
-			if (eHERMs[i] == NULL) LOG(LOG_ERROR, "CAN'T Allocate LAN Stat Memory");
-			if (eHERMPrev[i] == NULL) LOG(LOG_ERROR, "CAN'T Allocate LAN Stat Prv Memory");
+			if (eHERMs[i] == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate LAN Stat Memory");
+			if (eHERMPrev[i] == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate LAN Stat Prv Memory");
 			eHEn[i]->BinaryStatus[0] = 0;	//modification flags
 			eHERMPrev[i]->data[0] = 0;
 		}
@@ -149,7 +149,7 @@ void eHouseTCP::eHaloc(int eHEIndex, int devaddrh, int devaddrl)
 		if (eHn[i] == NULL)
 		{
 			eHn[i] = (struct eHouse1NamesT *) malloc(sizeof(struct eHouse1NamesT));
-			if (eHn[i] == NULL) LOG(LOG_ERROR, "CAN'T Allocate RS-485 Names Memory");
+			if (eHn[i] == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate RS-485 Names Memory");
 			eHn[i]->INITIALIZED = 'a';	//first byte of structure for detection of allocated memory
 			if (i == 0)
 			{
@@ -167,11 +167,11 @@ void eHouseTCP::eHaloc(int eHEIndex, int devaddrh, int devaddrl)
 					eHn[i]->AddrH = 55;
 					eHn[i]->AddrL = i;
 				}
-			LOG(LOG_STATUS, "Allocating eHouse RS-485 Controller (%d,%d)", eHn[i]->AddrH, eHn[i]->AddrL);
+			_log.Log(LOG_STATUS, "Allocating eHouse RS-485 Controller (%d,%d)", eHn[i]->AddrH, eHn[i]->AddrL);
 			eHRMs[i] = (union ERMFullStatT *) malloc(sizeof(union ERMFullStatT));
 			eHRMPrev[i] = (union ERMFullStatT *) malloc(sizeof(union ERMFullStatT));
-			if (eHRMs[i] == NULL) LOG(LOG_ERROR, "CANT Allocate RS-485 Stat Memory");
-			if (eHRMPrev[i] == NULL) LOG(LOG_ERROR, "CANT Allocate RS-485 Stat Prev Memory");
+			if (eHRMs[i] == NULL) _log.Log(LOG_ERROR, "CANT Allocate RS-485 Stat Memory");
+			if (eHRMPrev[i] == NULL) _log.Log(LOG_ERROR, "CANT Allocate RS-485 Stat Prev Memory");
 			eHn[i]->BinaryStatus[0] = 0;		//modification flags
 			eHRMPrev[i]->data[0] = 0;
 		}
@@ -190,17 +190,17 @@ void eHouseTCP::eHWIFIaloc(int eHEIndex, int devaddrh, int devaddrl)
 		//			if (strlen((char *) &eHWIFIn[i]) < 1)
 		if (eHWIFIn[i] == NULL)
 		{
-			LOG(LOG_STATUS, "Allocating eHouse WiFi Controller (192.168.%d.%d)", devaddrh, INITIAL_ADDRESS_WIFI + i);
+			_log.Log(LOG_STATUS, "Allocating eHouse WiFi Controller (192.168.%d.%d)", devaddrh, INITIAL_ADDRESS_WIFI + i);
 			eHWIFIn[i] = (struct WiFieHouseNamesT *) malloc(sizeof(struct WiFieHouseNamesT));
-			if (eHWIFIn[i] == NULL) LOG(LOG_ERROR, "CAN'T Allocate WiFi Names Memory");
+			if (eHWIFIn[i] == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate WiFi Names Memory");
 			eHWIFIn[i]->INITIALIZED = 'a';	//first byte of structure for detection of allocated memory
 			eHWIFIn[i]->AddrH = devaddrh;
 			eHWIFIn[i]->AddrL = devaddrl;
 			eHWiFi[i] = (union WiFiStatusT *) malloc(sizeof(union WiFiStatusT));
 			eHWIFIs[i] = (union WIFIFullStatT *) malloc(sizeof(union WIFIFullStatT));
 			eHWIFIPrev[i] = (union WIFIFullStatT *) malloc(sizeof(union WIFIFullStatT));
-			if (eHWIFIs[i] == NULL) LOG(LOG_ERROR, "CAN'T Allocate WiFi Stat Memory");
-			if (eHWIFIPrev[i] == NULL) LOG(LOG_ERROR, "CAN'T Allocate WiFi Stat Memory");
+			if (eHWIFIs[i] == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate WiFi Stat Memory");
+			if (eHWIFIPrev[i] == NULL) _log.Log(LOG_ERROR, "CAN'T Allocate WiFi Stat Memory");
 			eHWIFIn[i]->BinaryStatus[0] = 0;
 			eHWIFIPrev[i]->data[0] = 0;
 		}
@@ -1086,19 +1086,19 @@ void eHouseTCP::TerminateUDP(void)
 		timeout.tv_usec = 100000ul;	//100ms for delay
 		if (setsockopt(TCPSocket, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, sizeof(timeout)) < 0)   //Set socket Read operation Timeout
 			{
-			LOG(LOG_ERROR, "[TCP Client Status] Set Read Timeout failed");
+			_log.Log(LOG_ERROR, "[TCP Client Status] Set Read Timeout failed");
 			perror("[TCP Client Status] Set Read Timeout failed\n");
 			}
 		if (setsockopt(TCPSocket, SOL_SOCKET, SO_SNDTIMEO, (char *) &timeout, sizeof(timeout)) < 0)   //Set Socket Write operation Timeout
 			{
-			LOG(LOG_ERROR, "[TCP Client Status] Set Write Timeout failed");
+			_log.Log(LOG_ERROR, "[TCP Client Status] Set Write Timeout failed");
 			perror("[TCP Client Status] Set Write Timeout failed\n");
 			}
 		opt = 1;
 		//status = 1L;
 		if (setsockopt(TCPSocket, IPPROTO_TCP, TCP_NODELAY, &opt, sizeof(opt)) < 0)   //Set socket send data imediatelly
 			{
-			LOG(LOG_ERROR, "[TCP Cli Status] Set TCP No Delay failed");
+			_log.Log(LOG_ERROR, "[TCP Cli Status] Set TCP No Delay failed");
 			perror("[TCP Cli Status] Set TCP No Delay failed\n");
 			}*/
 	}
@@ -2333,12 +2333,12 @@ void eHouseTCP::Do_Work()
 	if (ViaTCP)
 	{
 		sprintf(LogPrefix, "eHouse TCP");
-		LOG(LOG_STATUS, "[eHouse] TCP");
+		_log.Log(LOG_STATUS, "[eHouse] TCP");
 	}
 	else
 	{
 		sprintf(LogPrefix, "eHouse UDP");
-		LOG(LOG_STATUS, "[eHouse] UDP");
+		_log.Log(LOG_STATUS, "[eHouse] UDP");
 	}
 
 	if (access("/usr/local/ehouse/disable_udp_rs485.cfg", F_OK) != -1)        //file exists read cfg
@@ -2380,7 +2380,7 @@ void eHouseTCP::Do_Work()
 		opt = 100;	setsockopt(eHouseUDPSocket, SOL_SOCKET, SO_SNDTIMEO, (char *)&opt, sizeof(opt));
 		opt = 1;	setsockopt(eHouseUDPSocket, IPPROTO_UDP, TCP_NODELAY, (char *)&opt, sizeof(opt));// < 0)
 		/*{
-		LOG(LOG_ERROR, "[TCP Cli Status] Set TCP No Delay failed");
+		_log.Log(LOG_ERROR, "[TCP Cli Status] Set TCP No Delay failed");
 		perror("[TCP Cli Status] Set TCP No Delay failed\n");
 		}
 
@@ -2393,7 +2393,7 @@ void eHouseTCP::Do_Work()
 	m_stoprequested = false;
 	int SecIter = 0;
 	unsigned char ou = 0;
-	//	LOG(LOG_STATUS, "TIM: %d", mytime(NULL) - m_LastHeartbeat);
+	//	_log.Log(LOG_STATUS, "TIM: %d", mytime(NULL) - m_LastHeartbeat);
 	m_LastHeartbeat = mytime(NULL);
 	int prevtim, tim = clock();
 	prevtim = tim;
@@ -2406,7 +2406,7 @@ void eHouseTCP::Do_Work()
 							//   similar for UDP listener
 							//   non critical value (used for retransmission events)
 		{
-			//LOG(LOG_STATUS, "TIM: %d", tim-prevtim);
+			//_log.Log(LOG_STATUS, "TIM: %d", tim-prevtim);
 			//prevtim = tim;
 			SecIter++;
 			//ExecQueuedEvents();				//perform Event Queue
@@ -2416,7 +2416,7 @@ void eHouseTCP::Do_Work()
 		if ((SecIter % 20) == 1)		//timing tests
 		{
 			//	performTCPClientThreads();
-				//LOG(LOG_STATUS, "TIM: %d", tim - prevtim);
+				//_log.Log(LOG_STATUS, "TIM: %d", tim - prevtim);
 				//prevtim = tim;
 		}
 		if (ViaTCP)
@@ -2436,7 +2436,7 @@ void eHouseTCP::Do_Work()
 			if ((SecIter % 100) == 1)
 			{
 
-				//LOG(LOG_STATUS, "!!!!TTTTIM: %d", time(NULL) - tt);
+				//_log.Log(LOG_STATUS, "!!!!TTTTIM: %d", time(NULL) - tt);
 				//tt = time(NULL);
 				m_LastHeartbeat = mytime(NULL);
 			}
@@ -2472,7 +2472,7 @@ void eHouseTCP::Do_Work()
 				else        //problem receive data
 					if (nbytes > 0)
 					{
-						LOG(LOG_STATUS, "Problem receive data<3");
+						_log.Log(LOG_STATUS, "Problem receive data<3");
 						recv(TCPSocket, (char *)&udp_status, MAXMSG, 0);
 						continue;
 					}
@@ -2503,13 +2503,13 @@ void eHouseTCP::Do_Work()
 
 				if ((udp_status[0] == 0) || (udp_status[2] == 0) || (nbytes == 0))
 				{
-					LOG(LOG_STATUS, "[eHouse TCP] Data Is Zero");
+					_log.Log(LOG_STATUS, "[eHouse TCP] Data Is Zero");
 					recv(TCPSocket, (char *)&udp_status, MAXMSG, 0);
 					continue;
 				}
 				if (eH1(udp_status[1], udp_status[2]))					///!!!!! tymczasowo do uruhcmonienia wifi ?? translation in English please!
 				{
-					//					LOG(LOG_STATUS, "EH 1");
+					//					_log.Log(LOG_STATUS, "EH 1");
 					len--;
 					eh1 = 1;
 				}
@@ -2613,10 +2613,10 @@ void eHouseTCP::Do_Work()
 						if ((ipaddrh != SrvAddrH) || (ipaddrl != SrvAddrL))
 						{
 							if (TESTTEST)
-								LOG(LOG_STATUS, "[%s PRO] Ignore other PRO installation from Server: 192.168.%d.%d", LogPrefix, ipaddrh, ipaddrl);
+								_log.Log(LOG_STATUS, "[%s PRO] Ignore other PRO installation from Server: 192.168.%d.%d", LogPrefix, ipaddrh, ipaddrl);
 							continue;
 						}
-					if (StatusDebug) LOG(LOG_STATUS, "[%s PRO] status installation from Server: 192.168.%d.%d", LogPrefix, ipaddrh, ipaddrl);
+					if (StatusDebug) _log.Log(LOG_STATUS, "[%s PRO] status installation from Server: 192.168.%d.%d", LogPrefix, ipaddrh, ipaddrl);
 					memcpy(eHouseProStatus->data, &udp_status, sizeof(eHouseProStatus->data));
 					UpdatePROToSQL(devaddrh, devaddrl);
 				}
@@ -2665,7 +2665,7 @@ void eHouseTCP::Do_Work()
 					if (nbytes > 6)
 					{
 						strncpy((char *)&log, (char *)&udp_status[4], nbytes - 6);
-						LOG(LOG_STATUS, "[%s Log] (%-3d,%-3d) - %s", LogPrefix, devaddrh, devaddrl, log);
+						_log.Log(LOG_STATUS, "[%s Log] (%-3d,%-3d) - %s", LogPrefix, devaddrh, devaddrl, log);
 						if (IRPerform)
 						{
 							if (strstr((char *)&log, "[IR]"))
@@ -2683,7 +2683,7 @@ void eHouseTCP::Do_Work()
 				{
 					if (((ipaddrh != SrvAddrH) || (ipaddrl != SrvAddrL)) && (!ViaTCP))
 					{
-						if (TESTTEST) LOG(LOG_STATUS, "Ignore other instalation from Serwer: 192.168.%d.%d", ipaddrh, ipaddrl);
+						if (TESTTEST) _log.Log(LOG_STATUS, "Ignore other instalation from Serwer: 192.168.%d.%d", ipaddrh, ipaddrl);
 						continue;
 					}
 
@@ -2865,9 +2865,9 @@ void eHouseTCP::Do_Work()
 									AuraDev[aindex]->ID |= AuraN[aindex]->BinaryStatus[i++];
 									AuraDev[aindex]->ID = AuraDev[aindex]->ID << 8;
 									AuraDev[aindex]->ID |= AuraN[aindex]->BinaryStatus[i++];
-									if (DEBUG_AURA) LOG(LOG_STATUS, "[Aura UDP %d] ID: %lx\t", aindex + 1, (long int)AuraDev[aindex]->ID);
+									if (DEBUG_AURA) _log.Log(LOG_STATUS, "[Aura UDP %d] ID: %lx\t", aindex + 1, (long int)AuraDev[aindex]->ID);
 									AuraDev[aindex]->DType = AuraN[aindex]->BinaryStatus[i++];            //device type
-									if (DEBUG_AURA) LOG(LOG_STATUS, " DevType: %d\t", AuraDev[index]->DType);
+									if (DEBUG_AURA) _log.Log(LOG_STATUS, " DevType: %d\t", AuraDev[index]->DType);
 									i++;//params count
 									int m, k = 0;
 									int bkpi = i + 2;
@@ -2906,7 +2906,7 @@ void eHouseTCP::Do_Work()
 													AuraDev[aindex]->TempSet = AuraDev[aindex]->LocalTempSet;
 													AuraDev[aindex]->ServerTempSet = AuraDev[aindex]->LocalTempSet;
 													AuraDev[aindex]->PrevServerTempSet = AuraDev[aindex]->LocalTempSet;
-													if (DEBUG_AURA) LOG(LOG_STATUS, "LTempC: %f\t", AuraDev[aindex]->TempSet);
+													if (DEBUG_AURA) _log.Log(LOG_STATUS, "LTempC: %f\t", AuraDev[aindex]->TempSet);
 												}
 												if (AuraDev[aindex]->ServerTempSet != AuraDev[aindex]->PrevServerTempSet)
 												{
@@ -2914,7 +2914,7 @@ void eHouseTCP::Do_Work()
 													AuraDev[aindex]->TempSet = AuraDev[aindex]->ServerTempSet;
 													//AuraDev[auraindex].LocalTempSet = AuraDev[auraindex].ServerTempSet;
 													AuraDev[aindex]->PrevServerTempSet = AuraDev[aindex]->ServerTempSet;
-													if (DEBUG_AURA) LOG(LOG_STATUS, "STempC: %f\t", AuraDev[aindex]->TempSet);
+													if (DEBUG_AURA) _log.Log(LOG_STATUS, "STempC: %f\t", AuraDev[aindex]->TempSet);
 													//AuraN[auraindex].ParamPreset[0] = (unsigned int) (AuraDev[auraindex].TempSet*10);
 												}
 												//for (i = 0; i<AuraDev[auraindex].ParamsCount; i++)
@@ -2939,13 +2939,13 @@ void eHouseTCP::Do_Work()
 										}
 									}
 									AuraDev[aindex]->RSSI = -(255 - AuraN[aindex]->BinaryStatus[i++]);
-									if (DEBUG_AURA) LOG(LOG_STATUS, " RSSI: %d\t", AuraDev[aindex]->RSSI);
+									if (DEBUG_AURA) _log.Log(LOG_STATUS, " RSSI: %d\t", AuraDev[aindex]->RSSI);
 									AuraN[aindex]->Vcc = AuraN[aindex]->BinaryStatus[i++];
 									AuraDev[aindex]->volt = AuraN[aindex]->Vcc;
 									AuraDev[aindex]->volt /= 10;
-									if (DEBUG_AURA) LOG(LOG_STATUS, " Vcc: %d\t", AuraN[aindex]->Vcc);
+									if (DEBUG_AURA) _log.Log(LOG_STATUS, " Vcc: %d\t", AuraN[aindex]->Vcc);
 									AuraDev[aindex]->Direction = AuraN[aindex]->BinaryStatus[i++];
-									if (DEBUG_AURA) LOG(LOG_STATUS, "Direction: %d\t", AuraDev[aindex]->Direction);
+									if (DEBUG_AURA) _log.Log(LOG_STATUS, "Direction: %d\t", AuraDev[aindex]->Direction);
 									AuraDev[aindex]->DoorState = AuraN[aindex]->BinaryStatus[i++];
 									switch (AuraDev[aindex]->DoorState & 0x7)
 									{
@@ -3015,9 +3015,9 @@ void eHouseTCP::Do_Work()
 									{
 										AuraDev[aindex]->Lock = 0;
 									}
-									if (DEBUG_AURA) LOG(LOG_STATUS, "DoorState: %d\t", AuraDev[aindex]->DoorState);
+									if (DEBUG_AURA) _log.Log(LOG_STATUS, "DoorState: %d\t", AuraDev[aindex]->DoorState);
 									AuraDev[aindex]->Door = AuraN[aindex]->BinaryStatus[i++];
-									if (DEBUG_AURA) LOG(LOG_STATUS, "Door: %d\t", AuraDev[aindex]->Door);
+									if (DEBUG_AURA) _log.Log(LOG_STATUS, "Door: %d\t", AuraDev[aindex]->Door);
 									adcs[aindex]->flagsa = AuraN[aindex]->BinaryStatus[i++];
 									adcs[aindex]->flagsa = adcs[aindex]->flagsa << 8;
 									adcs[aindex]->flagsa |= AuraN[aindex]->BinaryStatus[i++];
@@ -3025,7 +3025,7 @@ void eHouseTCP::Do_Work()
 									adcs[aindex]->flagsa |= AuraN[aindex]->BinaryStatus[i++];
 									adcs[aindex]->flagsa = adcs[aindex]->flagsa << 8;
 									adcs[aindex]->flagsa |= AuraN[aindex]->BinaryStatus[i++];
-									if (DEBUG_AURA) LOG(LOG_STATUS, "FlagsA: %lx\t", adcs[aindex]->flagsa);
+									if (DEBUG_AURA) _log.Log(LOG_STATUS, "FlagsA: %lx\t", adcs[aindex]->flagsa);
 
 									adcs[aindex]->flagsb = AuraN[aindex]->BinaryStatus[i++];
 									adcs[aindex]->flagsb = adcs[aindex]->flagsb << 8;
@@ -3039,9 +3039,9 @@ void eHouseTCP::Do_Work()
 									time += AuraN[aindex]->BinaryStatus[i++];
 									AuraDev[aindex]->ServerTempSet = time;
 									AuraDev[aindex]->ServerTempSet /= 10;
-									if (DEBUG_AURA) LOG(LOG_STATUS, "FlagsB: %lx\t", (long unsigned int) adcs[aindex]->flagsb);
+									if (DEBUG_AURA) _log.Log(LOG_STATUS, "FlagsB: %lx\t", (long unsigned int) adcs[aindex]->flagsb);
 									AuraDev[aindex]->LQI = AuraN[aindex]->BinaryStatus[i++];
-									if (DEBUG_AURA) LOG(LOG_STATUS, "LQI: %d\t", AuraDev[aindex]->LQI);
+									if (DEBUG_AURA) _log.Log(LOG_STATUS, "LQI: %d\t", AuraDev[aindex]->LQI);
 									AuraN[aindex]->BinaryStatusLength = AuraN[aindex]->BinaryStatus[0];//nbytes;
 									AuraN[aindex]->TCPQuery++;
 									AuraN[aindex]->StatusTimeOut = 15u;
@@ -3054,13 +3054,13 @@ void eHouseTCP::Do_Work()
 			}
 			else
 			{
-				LOG(LOG_STATUS, "[%s] St:  (%03d,%03d) Invalid Check Sum {%d!=%d} (%dB)", LogPrefix, devaddrh, devaddrl, sum, sum2, nbytes);
+				_log.Log(LOG_STATUS, "[%s] St:  (%03d,%03d) Invalid Check Sum {%d!=%d} (%dB)", LogPrefix, devaddrh, devaddrl, sum, sum2, nbytes);
 				if (ViaTCP)
 				{
 					nbytes = recv(TCPSocket, (char *)&udp_status, MAXMSG, 0);
 					continue;
 				}
-				//if (ViaTCP) LOG(LOG_STATUS, "[TCP n=%d] #%d (%d,%d) Data=%c", nbytes, udp_status[0], udp_status[1], udp_status[2], udp_status[4]);
+				//if (ViaTCP) _log.Log(LOG_STATUS, "[TCP n=%d] #%d (%d,%d) Data=%c", nbytes, udp_status[0], udp_status[1], udp_status[2], udp_status[4]);
 			}
 			//EthernetPerformData();
 			devaddrl = 0;
@@ -3104,12 +3104,12 @@ void eHouseTCP::Do_Work()
 	  timeout.tv_usec = 100000ul;	//100ms for delay
 	  if (setsockopt(TCPSocket, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, sizeof(timeout)) < 0)   //Set socket Read operation Timeout
 			{
-			LOG(LOG_ERROR, "[TCP Client Status] Set Read Timeout failed");
+			_log.Log(LOG_ERROR, "[TCP Client Status] Set Read Timeout failed");
 			perror("[TCP Client Status] Set Read Timeout failed\n");
 			}
 	 if (setsockopt(TCPSocket, SOL_SOCKET, SO_SNDTIMEO, (char *) &timeout, sizeof(timeout)) < 0)   //Set Socket Write operation Timeout
 			{
-			LOG(LOG_ERROR, "[TCP Client Status] Set Write Timeout failed");
+			_log.Log(LOG_ERROR, "[TCP Client Status] Set Write Timeout failed");
 			perror("[TCP Client Status] Set Write Timeout failed\n");
 			}*/
 		msl(1000);
@@ -3117,23 +3117,23 @@ void eHouseTCP::Do_Work()
 	}
 	else
 		ressock = shutdown(eHouseUDPSocket, SHUT_RDWR);
-	LOG(LOG_STATUS, "[%s] Shut %d/ERROR CODE: %d", LogPrefix, (unsigned int)ressock, errno);
+	_log.Log(LOG_STATUS, "[%s] Shut %d/ERROR CODE: %d", LogPrefix, (unsigned int)ressock, errno);
 	switch (errno)
 	{
 	case EBADF:
-		LOG(LOG_STATUS, "EBADF");
+		_log.Log(LOG_STATUS, "EBADF");
 		break;
 	case EINVAL:
-		LOG(LOG_STATUS, "Einval");
+		_log.Log(LOG_STATUS, "Einval");
 		break;
 	case ENOTCONN:
-		LOG(LOG_STATUS, "enotcon");
+		_log.Log(LOG_STATUS, "enotcon");
 		break;
 	case ENOTSOCK:
-		LOG(LOG_STATUS, "Enotsock");
+		_log.Log(LOG_STATUS, "Enotsock");
 		break;
 	case ENOBUFS:
-		LOG(LOG_STATUS, "Enobufs");
+		_log.Log(LOG_STATUS, "Enobufs");
 		break;
 	}
 #ifndef WIN32
@@ -3150,15 +3150,15 @@ void eHouseTCP::Do_Work()
 	eHouseUDPSocket = -1;
 	TCPSocket = -1;
 
-	LOG(LOG_STATUS, "close %d", ressock);
-	LOG(LOG_STATUS, "\r\nTERMINATED UDP\r\n");
+	_log.Log(LOG_STATUS, "close %d", ressock);
+	_log.Log(LOG_STATUS, "\r\nTERMINATED UDP\r\n");
 	//Freeing ALL Dynamic memory
 	int eHEIndex = 0;
 	for (eHEIndex = 0; eHEIndex < ETHERNET_EHOUSE_RM_MAX + 1; eHEIndex++)
 		//	if (strlen((char *) &eHEn[eHEIndex])>0)
 		if (eHEn[eHEIndex] != NULL)
 		{
-			LOG(LOG_STATUS, "Freeing 192.168.%d.%d", eHEn[eHEIndex]->AddrH, eHEn[eHEIndex]->AddrL);
+			_log.Log(LOG_STATUS, "Freeing 192.168.%d.%d", eHEn[eHEIndex]->AddrH, eHEn[eHEIndex]->AddrL);
 			free(eHEn[eHEIndex]);
 			eHEn[eHEIndex] = 0;
 			free(eHERMs[eHEIndex]);
@@ -3171,7 +3171,7 @@ void eHouseTCP::Do_Work()
 		//if (strlen((char *) &eHn[eHEIndex])>0)
 		if (eHn[eHEIndex] != NULL)
 		{
-			LOG(LOG_STATUS, "Freeing (%d,%d)", eHn[eHEIndex]->AddrH, eHn[eHEIndex]->AddrL);
+			_log.Log(LOG_STATUS, "Freeing (%d,%d)", eHn[eHEIndex]->AddrH, eHn[eHEIndex]->AddrL);
 			free(eHn[eHEIndex]);
 			eHn[eHEIndex] = 0;
 			free(eHRMs[eHEIndex]);
@@ -3185,7 +3185,7 @@ void eHouseTCP::Do_Work()
 		//	if (strlen((char *) &eHWIFIn[eHEIndex]) > 0)
 		if (eHWIFIn[eHEIndex] != NULL)
 		{
-			LOG(LOG_STATUS, "Freeing 192.168.%d.%d", eHWIFIn[eHEIndex]->AddrH, eHWIFIn[eHEIndex]->AddrL);
+			_log.Log(LOG_STATUS, "Freeing 192.168.%d.%d", eHWIFIn[eHEIndex]->AddrH, eHWIFIn[eHEIndex]->AddrL);
 			free(eHWIFIn[eHEIndex]);
 			eHWIFIn[eHEIndex] = 0;
 			free(eHWiFi[eHEIndex]);
@@ -3199,7 +3199,7 @@ void eHouseTCP::Do_Work()
 	//if (strlen((char *) &ECMn) > 0)
 	if (ECMn != NULL)
 	{
-		LOG(LOG_STATUS, "Freeing 192.168.%d.%d", ECMn->AddrH, ECMn->AddrL);
+		_log.Log(LOG_STATUS, "Freeing 192.168.%d.%d", ECMn->AddrH, ECMn->AddrL);
 		free(ECMn);
 		ECMn = 0;
 		free(ECM);
@@ -3211,7 +3211,7 @@ void eHouseTCP::Do_Work()
 	//if (strlen((char *) &eHouseProN) > 0)
 	if (eHouseProN != 0)
 	{
-		LOG(LOG_STATUS, "Freeing 192.168.%d.%d", eHouseProN->AddrH[0], eHouseProN->AddrL[0]);
+		_log.Log(LOG_STATUS, "Freeing 192.168.%d.%d", eHouseProN->AddrH[0], eHouseProN->AddrL[0]);
 		free(eHouseProN);
 		eHouseProN = 0;
 		free(eHouseProStatus);
@@ -3235,7 +3235,7 @@ void eHouseTCP::Do_Work()
 		//if (strlen((char *) & (AuraN[i])) < 1)
 		if (AuraN[i] != NULL)
 		{
-			LOG(LOG_STATUS, "Free AURA (%d,%d)", 0x81, i + 1);
+			_log.Log(LOG_STATUS, "Free AURA (%d,%d)", 0x81, i + 1);
 			free(AuraN[i]);
 			AuraN[i] = 0;
 			free(AuraDev[i]);
@@ -3249,7 +3249,7 @@ void eHouseTCP::Do_Work()
 
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	LOG(LOG_STATUS, "END LISTENER TCP Client");
+	_log.Log(LOG_STATUS, "END LISTENER TCP Client");
 	m_bIsStarted = false;
 	m_stoprequested = true;
 	//pthread_exit(NULL);

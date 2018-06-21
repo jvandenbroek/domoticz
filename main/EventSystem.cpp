@@ -38,6 +38,7 @@ extern "C" {
 extern time_t m_StartTime;
 extern std::string szUserDataFolder, szStartupFolder;
 extern http::server::CWebServerHelper m_webservers;
+extern bool g_bStopApplication;
 
 #ifdef ENABLE_PYTHON
 #include "../hardware/plugins/Plugins.h"
@@ -1247,7 +1248,7 @@ bool CEventSystem::GetEventTrigger(const uint64_t ulDevID, const _eReason reason
 	return bEventTrigger;
 }
 
-bool CEventSystem::NotifyReceiver(const _eNotifyType type, const _eNotifyStatus status, const uint64_t id, const std::string &message)
+bool CEventSystem::NotifyReceiver(const NOTIFY::_eType type, const NOTIFY::_eStatus status, const uint64_t id, const std::string &message, const void *genericPtr)
 {
 	if (!m_bEnabled)
 		return false;
@@ -1257,9 +1258,10 @@ bool CEventSystem::NotifyReceiver(const _eNotifyType type, const _eNotifyStatus 
 	item.nValue = static_cast<int>(type);
 	item.sValue = message;
 	item.lastLevel = static_cast<uint8_t>(status);
-	if (type != NOTIFY_DZ_STOP)
+	item.genericPtr = genericPtr;
+	if (!g_bStopApplication)
 		m_eventqueue.push(item);
-	else // blocking call on Domoticz shutdown
+	else // blocking call on application shutdown
 	{
 		std::vector<_tEventQueue> items;
 		items.push_back(item);
@@ -1619,7 +1621,7 @@ void CEventSystem::EvaluateEvent(const std::vector<_tEventQueue> &items)
 				}
 				else if ((itt->reason == REASON_TIME && filename.find("_time_") != std::string::npos) ||
 					(itt->reason == REASON_SECURITY && filename.find("_security_") != std::string::npos) ||
-					(itt->reason == REASON_NOTIFY && filename.find("_notify_") != std::string::npos) ||
+					(itt->reason == REASON_NOTIFY && filename.find("_NOTIFY::") != std::string::npos) ||
 					(itt->reason == REASON_USERVARIABLE && filename.find("_variable_") != std::string::npos))
 				{
 					EvaluateLua(*itt, m_lua_Dir + filename, "");
@@ -3197,8 +3199,7 @@ void CEventSystem::EvaluateLua(const std::vector<_tEventQueue> &items, const std
 {
 	boost::lock_guard<boost::mutex> l(luaMutex);
 
-	lua_State *lua_state;
-	lua_state = luaL_newstate();
+	lua_State *lua_state = luaL_newstate();
 
 	// load Lua libraries
 	static const luaL_Reg lualibs[] =

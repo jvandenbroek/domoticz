@@ -35,7 +35,7 @@ public:
 	CDomoticzHardwareBase* GetHardware(int HwdId);
 	CDomoticzHardwareBase* GetHardwareByIDType(const std::string &HwdId, const _eHardwareTypes HWType);
 	CDomoticzHardwareBase* GetHardwareByType(const _eHardwareTypes HWType);
-	std::vector<CDomoticzHardwareBase*>* GetHardwareDevices();
+	const std::vector<CDomoticzHardwareBase*>* GetHardwareDevices();
 
 	void HeartbeatUpdate(const std::string &component);
 	void HeartbeatRemove(const std::string &component);
