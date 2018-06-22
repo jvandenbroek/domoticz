@@ -3058,7 +3058,7 @@ bool CSQLHelper::SwitchLightFromTasker(uint64_t idx, const std::string &switchcm
 	std::vector<std::string> sd = result[0];
 	if (m_mainworker.SwitchLightInt(sd, switchcmd, level, color, false))
 		return true;
-	_notify.Notify(NOTIFY::SWITCHCMD, NOTIFY::ERROR, idx, switchcmd, NULL);
+	_notify.Notify(Notify::SWITCHCMD, Notify::ERROR, idx, switchcmd, NULL);
 	return false;
 }
 
@@ -7264,7 +7264,7 @@ bool CSQLHelper::BackupDatabase(const std::string &OutputFile)
 	if (!m_dbase)
 		return false; //database not open!
 
-	_notify.Notify(NOTIFY::BACKUP_BEGIN, NOTIFY::INFO, OutputFile);
+	_notify.Notify(Notify::BACKUP_BEGIN, Notify::INFO, OutputFile);
 
 	//First cleanup the database
 	OptimizeDatabase(m_dbase);
@@ -7302,7 +7302,7 @@ bool CSQLHelper::BackupDatabase(const std::string &OutputFile)
 	// Close the database connection opened on database file zFilename
 	// and return the result of this function.
 	sqlite3_close(pFile);
-	_notify.Notify(NOTIFY::BACKUP_END, (rc == SQLITE_OK) ? NOTIFY::INFO : NOTIFY::ERROR, OutputFile);
+	_notify.Notify(Notify::BACKUP_END, (rc == SQLITE_OK) ? Notify::INFO : Notify::ERROR, OutputFile);
 
 	return (rc == SQLITE_OK);
 }

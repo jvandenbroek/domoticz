@@ -86,7 +86,7 @@ void CdzVents::ProcessNotifyItem(lua_State *lua_state, int &index, std::string &
 		lua_pushstring(lua_state, itt.sValue.c_str());
 		lua_rawset(lua_state, -3);
 	}
-	else if (itt.nValue >= NOTIFY::HW_TIMEOUT && itt.nValue <= NOTIFY::HW_THREAD_ENDED)
+	else if (itt.nValue >= Notify::HW_TIMEOUT && itt.nValue <= Notify::HW_THREAD_ENDED)
 	{
 		lua_pushstring(lua_state, "id");
 		lua_pushnumber(lua_state, (lua_Number)reinterpret_cast<const CDomoticzHardwareBase*>(itt.genericPtr)->m_HwdID);
@@ -136,7 +136,7 @@ void CdzVents::ProcessNotify(lua_State *lua_state, const std::vector<CEventSyste
 			if (
 				itt->reason == m_mainworker.m_eventsystem.REASON_NOTIFY &&
 				itt->genericPtr != NULL &&
-				itt->nValue >= NOTIFY::HW_TIMEOUT && itt->nValue <= NOTIFY::HW_THREAD_ENDED)
+				itt->nValue >= Notify::HW_TIMEOUT && itt->nValue <= Notify::HW_THREAD_ENDED)
 				ProcessNotifyItem(lua_state, index, type, status, *itt);
 		}
 	}

@@ -3,7 +3,7 @@
 class CNotifyObserver
 {
 public:
-	enum _eType
+	enum _eType : uint16_t
 	{
 		LOG,             // 0
 		DZ_START,        // 1
@@ -18,7 +18,7 @@ public:
 		SWITCHCMD        // 10
 	};
 
-	enum _eStatus
+	enum _eStatus : uint8_t
 	{
 		OK,
 		INFO,
@@ -31,4 +31,4 @@ public:
 	virtual bool NotifyReceiver(const _eType type, const _eStatus status, const uint64_t id, const std::string &message, const void *genericPtr) = 0;
 };
 
-typedef CNotifyObserver NOTIFY;
+typedef CNotifyObserver Notify;

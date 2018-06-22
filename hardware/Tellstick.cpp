@@ -41,7 +41,7 @@ bool CTellstick::WriteToHardware(const char *pdata, const unsigned char length)
 
     boost::unique_lock<boost::mutex> lock(m_mutex);
     m_commands[pSwitch->id] = Command(*pSwitch);
-    m_cond.NOTIFY::all();
+    m_cond.Notify::all();
     return true;
 }
 
@@ -237,7 +237,7 @@ bool CTellstick::StopHardware()
     tdClose();
     boost::unique_lock<boost::mutex> lock(m_mutex);
     m_bIsStarted = false;
-    m_cond.NOTIFY::all();
+    m_cond.Notify::all();
     lock.unlock();
     if (m_thread.joinable())
         m_thread.join();

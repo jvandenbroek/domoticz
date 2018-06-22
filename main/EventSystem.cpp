@@ -1248,7 +1248,7 @@ bool CEventSystem::GetEventTrigger(const uint64_t ulDevID, const _eReason reason
 	return bEventTrigger;
 }
 
-bool CEventSystem::NotifyReceiver(const NOTIFY::_eType type, const NOTIFY::_eStatus status, const uint64_t id, const std::string &message, const void *genericPtr)
+bool CEventSystem::NotifyReceiver(const Notify::_eType type, const Notify::_eStatus status, const uint64_t id, const std::string &message, const void *genericPtr)
 {
 	if (!m_bEnabled)
 		return false;

@@ -46,7 +46,7 @@ bool CDomoticzHardwareBase::CustomCommand(const uint64_t idx, const std::string 
 bool CDomoticzHardwareBase::Start()
 {
 	m_iHBCounter = 0;
-	_notify.Notify(NOTIFY::HW_START, NOTIFY::INFO, reinterpret_cast<void*>(this));
+	_notify.Notify(Notify::HW_START, Notify::INFO, reinterpret_cast<void*>(this));
 	return StartHardware();
 }
 
@@ -54,9 +54,9 @@ bool CDomoticzHardwareBase::Stop()
 {
 	boost::lock_guard<boost::mutex> l(readQueueMutex);
 	if (!g_bStopApplication)
-		_notify.Notify(NOTIFY::HW_STOP, NOTIFY::INFO, reinterpret_cast<void*>(this));
+		_notify.Notify(Notify::HW_STOP, Notify::INFO, reinterpret_cast<void*>(this));
 	else
-		_notify.NotifyWait(NOTIFY::HW_STOP, NOTIFY::INFO, reinterpret_cast<void*>(this));
+		_notify.NotifyWait(Notify::HW_STOP, Notify::INFO, reinterpret_cast<void*>(this));
 
 	return StopHardware();
 }

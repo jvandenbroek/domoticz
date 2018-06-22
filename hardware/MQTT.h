@@ -36,7 +36,7 @@ private:
 	bool ConnectIntEx();
 	void SendDeviceInfo(const int m_HwdID, const uint64_t DeviceRowIdx, const std::string &DeviceName, const unsigned char *pRXCommand);
 	void SendSceneInfo(const uint64_t SceneIdx, const std::string &SceneName);
-	virtual bool NotifyReceiver(const NOTIFY::_eType type, const NOTIFY::_eStatus status, const uint64_t id, const std::string &message, const void *genericPtr);
+	virtual bool NotifyReceiver(const Notify::_eType type, const Notify::_eStatus status, const uint64_t id, const std::string &message, const void *genericPtr);
 
 protected:
 	std::string m_szIPAddress;

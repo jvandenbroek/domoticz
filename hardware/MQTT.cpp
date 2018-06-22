@@ -751,7 +751,7 @@ void MQTT::SendSceneInfo(const uint64_t SceneIdx, const std::string &SceneName)
 	}
 }
 
-bool MQTT::NotifyReceiver(const NOTIFY::_eType type, const NOTIFY::_eStatus status, const uint64_t id, const std::string &message, const void *genericPtr)
+bool MQTT::NotifyReceiver(const Notify::_eType type, const Notify::_eStatus status, const uint64_t id, const std::string &message, const void *genericPtr)
 {
 	if (!m_IsConnected)
 		return false;

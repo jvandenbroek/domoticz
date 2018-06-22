@@ -1602,7 +1602,7 @@ void MainWorker::Do_Work()
 				_notify.Start();
 				m_eventsystem.SetEnabled(m_sql.m_bEnableEventSystem);
 				m_eventsystem.StartEventSystem();
-				_notify.Notify(NOTIFY::DZ_START);
+				_notify.Notify(Notify::DZ_START);
 				m_bStartHardware = false;
 				StartDomoticzHardware();
 #ifdef ENABLE_PYTHON
@@ -11909,7 +11909,7 @@ bool MainWorker::SwitchLight(const uint64_t idx, const std::string &switchcmd, c
 	{
 		if (SwitchLightInt(sd, switchcmd, level, color, false))
 			return true;
-		_notify.Notify(NOTIFY::SWITCHCMD, NOTIFY::ERROR, idx, switchcmd);
+		_notify.Notify(Notify::SWITCHCMD, Notify::ERROR, idx, switchcmd);
 		return false;
 	}
 }
@@ -12887,7 +12887,7 @@ void MainWorker::HeartbeatCheck()
 				if (diff > 60)
 				{
 					_log.Log(LOG_ERROR, "%s hardware (%d) thread seems to have ended unexpectedly", pHardware->Name.c_str(), pHardware->m_HwdID);
-					_notify.Notify(NOTIFY::HW_THREAD_ENDED, NOTIFY::ERROR, reinterpret_cast<void*>(pHardware));
+					_notify.Notify(Notify::HW_THREAD_ENDED, Notify::ERROR, reinterpret_cast<void*>(pHardware));
 				}
 			}
 
@@ -12932,7 +12932,7 @@ void MainWorker::HeartbeatCheck()
 					}
 
 					_log.Log(LOG_ERROR, "%s hardware (%d) nothing received for more than %d %s!....", pHardware->Name.c_str(), pHardware->m_HwdID, totNum, sDataTimeout.c_str());
-					_notify.Notify(NOTIFY::HW_TIMEOUT, NOTIFY::ERROR, reinterpret_cast<void*>(pHardware));
+					_notify.Notify(Notify::HW_TIMEOUT, Notify::ERROR, reinterpret_cast<void*>(pHardware));
 					m_devicestorestart.push_back(pHardware);
 				}
 			}

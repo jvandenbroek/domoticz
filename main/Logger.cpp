@@ -206,7 +206,7 @@ void CLogger::Log(const _eLogLevel level, const char* logline, ...)
 	else if (level & LOG_ERROR)
 	{
 		sstr << "Error: " << cbuffer;
-		_notify.Notify(NOTIFY::LOG, NOTIFY::ERROR, cbuffer);
+		_notify.Notify(Notify::LOG, Notify::ERROR, cbuffer);
 	}
 	else if (level & LOG_DEBUG_INT)
 		sstr << "Debug: " << cbuffer;

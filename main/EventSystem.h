@@ -276,5 +276,5 @@ private:
 	void StripQuotes(std::string &sString);
 	std::string SpaceToUnderscore(std::string sResult);
 	std::string LowerCase(std::string sResult);
-	virtual bool NotifyReceiver(const NOTIFY::_eType type, const NOTIFY::_eStatus status, const uint64_t id, const std::string &message, const void *genericPtr);
+	virtual bool NotifyReceiver(const Notify::_eType type, const Notify::_eStatus status, const uint64_t id, const std::string &message, const void *genericPtr);
 };
