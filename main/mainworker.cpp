@@ -261,10 +261,9 @@ void MainWorker::AddAllDomoticzHardware()
 		"SELECT ID, Name, Enabled, Type, Address, Port, SerialPort, Username, Password, Extra, Mode1, Mode2, Mode3, Mode4, Mode5, Mode6, DataTimeout FROM Hardware ORDER BY ID ASC");
 	if (!result.empty())
 	{
-		std::vector<std::vector<std::string> >::const_iterator itt;
-		for (itt = result.begin(); itt != result.end(); ++itt)
+		for (const auto & itt : result)
 		{
-			std::vector<std::string> sd = *itt;
+			std::vector<std::string> sd = itt;
 
 			int ID = atoi(sd[0].c_str());
 			std::string Name = sd[1];
@@ -294,11 +293,11 @@ void MainWorker::AddAllDomoticzHardware()
 void MainWorker::StartDomoticzHardware()
 {
 	std::vector<CDomoticzHardwareBase*>::iterator itt;
-	for (itt = m_hardwaredevices.begin(); itt != m_hardwaredevices.end(); ++itt)
+	for (auto & itt : m_hardwaredevices)
 	{
-		if (!(*itt)->IsStarted())
+		if (!itt->IsStarted())
 		{
-			(*itt)->Start();
+			itt->Start();
 		}
 	}
 }
@@ -308,24 +307,22 @@ void MainWorker::StopDomoticzHardware()
 	// Separate the Stop() from the device removal from the vector.
 	// Some actions the hardware might take during stop (e.g updating a device) can cause deadlocks on the m_devicemutex
 	std::vector<CDomoticzHardwareBase*> OrgHardwaredevices;
-	std::vector<CDomoticzHardwareBase*>::iterator itt;
-
 	{
 		boost::lock_guard<boost::mutex> l(m_devicemutex);
-		for (itt = m_hardwaredevices.begin(); itt != m_hardwaredevices.end(); ++itt)
+		for (auto & itt : m_hardwaredevices)
 		{
-			OrgHardwaredevices.push_back(*itt);
+			OrgHardwaredevices.push_back(itt);
 		}
 		m_hardwaredevices.clear();
 	}
 
-	for (itt = OrgHardwaredevices.begin(); itt != OrgHardwaredevices.end(); ++itt)
+	for (auto & itt : OrgHardwaredevices)
 	{
 #ifdef ENABLE_PYTHON
-		m_pluginsystem.DeregisterPlugin((*itt)->m_HwdID);
+		m_pluginsystem.DeregisterPlugin(itt->m_HwdID);
 #endif
-		(*itt)->Stop();
-		delete (*itt);
+		itt->Stop();
+		delete itt;
 	}
 }
 
@@ -340,10 +337,9 @@ void MainWorker::GetAvailableWebThemes()
 	std::string sValue;
 	if (m_sql.GetPreferencesVar("WebTheme", sValue))
 	{
-		std::vector<std::string>::const_iterator itt;
-		for (itt = m_webthemes.begin(); itt != m_webthemes.end(); ++itt)
+		for (const auto & itt : m_webthemes)
 		{
-			if (*itt == sValue)
+			if (itt == sValue)
 			{
 				bFound = true;
 				break;
@@ -408,13 +404,12 @@ void MainWorker::RemoveDomoticzHardware(int HwdId)
 int MainWorker::FindDomoticzHardware(int HwdId)
 {
 	boost::lock_guard<boost::mutex> l(m_devicemutex);
-	std::vector<CDomoticzHardwareBase*>::iterator itt;
-	for (itt = m_hardwaredevices.begin(); itt != m_hardwaredevices.end(); ++itt)
+	int ii = 0;
+	for (const auto & itt : m_hardwaredevices)
 	{
-		if ((*itt)->m_HwdID == HwdId)
-		{
-			return (itt - m_hardwaredevices.begin());
-		}
+		if (itt->m_HwdID == HwdId)
+			return ii;
+		ii++;
 	}
 	return -1;
 }
@@ -422,13 +417,12 @@ int MainWorker::FindDomoticzHardware(int HwdId)
 int MainWorker::FindDomoticzHardwareByType(const _eHardwareTypes HWType)
 {
 	boost::lock_guard<boost::mutex> l(m_devicemutex);
-	std::vector<CDomoticzHardwareBase*>::iterator itt;
-	for (itt = m_hardwaredevices.begin(); itt != m_hardwaredevices.end(); ++itt)
+	int ii = 0;
+	for (const auto & itt : m_hardwaredevices)
 	{
-		if ((*itt)->HwdType == HWType)
-		{
-			return (itt - m_hardwaredevices.begin());
-		}
+		if (itt->HwdType == HWType)
+			return ii;
+		ii++;
 	}
 	return -1;
 }
@@ -436,13 +430,10 @@ int MainWorker::FindDomoticzHardwareByType(const _eHardwareTypes HWType)
 CDomoticzHardwareBase* MainWorker::GetHardware(int HwdId)
 {
 	boost::lock_guard<boost::mutex> l(m_devicemutex);
-	std::vector<CDomoticzHardwareBase*>::iterator itt;
-	for (itt = m_hardwaredevices.begin(); itt != m_hardwaredevices.end(); ++itt)
+	for (auto & itt : m_hardwaredevices)
 	{
-		if ((*itt)->m_HwdID == HwdId)
-		{
-			return (*itt);
-		}
+		if (itt->m_HwdID == HwdId)
+			return itt;
 	}
 	return NULL;
 }
@@ -463,13 +454,10 @@ CDomoticzHardwareBase* MainWorker::GetHardwareByIDType(const std::string &HwdId,
 CDomoticzHardwareBase* MainWorker::GetHardwareByType(const _eHardwareTypes HWType)
 {
 	boost::lock_guard<boost::mutex> l(m_devicemutex);
-	std::vector<CDomoticzHardwareBase*>::iterator itt;
-	for (itt = m_hardwaredevices.begin(); itt != m_hardwaredevices.end(); ++itt)
+	for (auto & itt : m_hardwaredevices)
 	{
-		if ((*itt)->HwdType == HWType)
-		{
-			return (*itt);
-		}
+		if (itt->HwdType == HWType)
+			return itt;
 	}
 	return NULL;
 }
@@ -564,10 +552,9 @@ bool MainWorker::GetSunSettings()
 		StringSplit(m_LastSunriseSet, ";", strarray);
 		m_SunRiseSetMins.clear();
 
-		std::vector<std::string>::const_iterator it;
-		for(it = strarray.begin(); it != strarray.end(); ++it)
+		for(const auto & it : strarray)
 		{
-			StringSplit(*it, ":", hourMinItem);
+			StringSplit(it, ":", hourMinItem);
 			int intMins = (atoi(hourMinItem[0].c_str()) * 60) + atoi(hourMinItem[1].c_str());
 			m_SunRiseSetMins.push_back(intMins);
 		}
@@ -1626,13 +1613,12 @@ void MainWorker::Do_Work()
 		}
 		if (m_devicestorestart.size() > 0)
 		{
-			std::vector<CDomoticzHardwareBase *>::const_iterator itt;
-			for (itt = m_devicestorestart.begin(); itt != m_devicestorestart.end(); ++itt)
+			for (const auto & itt : m_devicestorestart)
 			{
 				std::stringstream sstr;
-				sstr << (*itt)->m_HwdID;
+				sstr << itt->m_HwdID;
 				std::string idx = sstr.str();
-				_log.Log(LOG_ERROR, "Restarting: %s", (*itt)->Name.c_str());
+				_log.Log(LOG_ERROR, "Restarting: %s", itt->Name.c_str());
 				RestartHardware(idx);
 			}
 			m_devicestorestart.clear();
@@ -12425,23 +12411,21 @@ bool MainWorker::DoesDeviceActiveAScene(const uint64_t DevRowIdx, const int Cmnd
 {
 	//check for scene code
 	std::vector<std::vector<std::string> > result;
-	std::vector<std::vector<std::string> >::const_iterator itt;
 
 	result = m_sql.safe_query("SELECT Activators, SceneType FROM Scenes WHERE (Activators!='')");
 	if (!result.empty())
 	{
-		for (itt = result.begin(); itt != result.end(); ++itt)
+		for (const auto & itt : result)
 		{
-			std::vector<std::string> sd = *itt;
+			std::vector<std::string> sd = itt;
 
 			int SceneType = atoi(sd[1].c_str());
 
 			std::vector<std::string> arrayActivators;
 			StringSplit(sd[0], ";", arrayActivators);
-			std::vector<std::string>::const_iterator ittAct;
-			for (ittAct = arrayActivators.begin(); ittAct != arrayActivators.end(); ++ittAct)
+			for (const auto & ittAct : arrayActivators)
 			{
-				std::string sCodeCmd = *ittAct;
+				std::string sCodeCmd = ittAct;
 
 				std::vector<std::string> arrayCode;
 				StringSplit(sCodeCmd, ":", arrayCode);
@@ -12526,10 +12510,9 @@ bool MainWorker::SwitchScene(const uint64_t idx, std::string switchcmd)
 			);
 			if (!result.empty())
 			{
-				std::vector<std::vector<std::string> >::const_iterator ittCam;
-				for (ittCam = result.begin(); ittCam != result.end(); ++ittCam)
+				for (const auto & ittCam : result)
 				{
-					std::vector<std::string> sd = *ittCam;
+					std::vector<std::string> sd = ittCam;
 					std::string camidx = sd[0];
 					int delay = atoi(sd[1].c_str());
 					std::string subject;
@@ -12558,10 +12541,9 @@ bool MainWorker::SwitchScene(const uint64_t idx, std::string switchcmd)
 	if (result.size() < 1)
 		return true; //no devices in the scene
 
-	std::vector<std::vector<std::string> >::const_iterator itt;
-	for (itt = result.begin(); itt != result.end(); ++itt)
+	for (const auto & itt : result)
 	{
-		std::vector<std::string> sd = *itt;
+		std::vector<std::string> sd = itt;
 
 		int cmd = atoi(sd[1].c_str());
 		int level = atoi(sd[2].c_str());
@@ -12670,21 +12652,19 @@ void MainWorker::CheckSceneCode(const uint64_t DevRowIdx, const unsigned char dT
 {
 	//check for scene code
 	std::vector<std::vector<std::string> > result;
-	std::vector<std::vector<std::string> >::const_iterator itt;
 
 	result = m_sql.safe_query("SELECT ID, Activators, SceneType FROM Scenes WHERE (Activators!='')");
 	if (!result.empty())
 	{
-		for (itt = result.begin(); itt != result.end(); ++itt)
+		for (const auto & itt : result)
 		{
-			std::vector<std::string> sd = *itt;
+			std::vector<std::string> sd = itt;
 
 			std::vector<std::string> arrayActivators;
 			StringSplit(sd[1], ";", arrayActivators);
-			std::vector<std::string>::const_iterator ittAct;
-			for (ittAct = arrayActivators.begin(); ittAct != arrayActivators.end(); ++ittAct)
+			for (const auto & ittAct : arrayActivators)
 			{
-				std::string sCodeCmd = *ittAct;
+				std::string sCodeCmd = ittAct;
 
 				std::vector<std::string> arrayCode;
 				StringSplit(sCodeCmd, ":", arrayCode);
@@ -12737,15 +12717,13 @@ void MainWorker::LoadSharedUsers()
 
 	std::vector<std::vector<std::string> > result;
 	std::vector<std::vector<std::string> > result2;
-	std::vector<std::vector<std::string> >::const_iterator itt;
-	std::vector<std::vector<std::string> >::const_iterator itt2;
 
 	result = m_sql.safe_query("SELECT ID, Username, Password FROM USERS WHERE ((RemoteSharing==1) AND (Active==1))");
 	if (!result.empty())
 	{
-		for (itt = result.begin(); itt != result.end(); ++itt)
+		for (const auto & itt : result)
 		{
-			std::vector<std::string> sd = *itt;
+			std::vector<std::string> sd = itt;
 			tcp::server::_tRemoteShareUser suser;
 			suser.Username = base64_decode(sd[1]);
 			suser.Password = sd[2];
@@ -12754,9 +12732,9 @@ void MainWorker::LoadSharedUsers()
 			result2 = m_sql.safe_query("SELECT DeviceRowID FROM SharedDevices WHERE (SharedUserID == '%q')", sd[0].c_str());
 			if (!result2.empty())
 			{
-				for (itt2 = result2.begin(); itt2 != result2.end(); ++itt2)
+				for (const auto & itt2 : result2)
 				{
-					std::vector<std::string> sd2 = *itt2;
+					std::vector<std::string> sd2 = itt2;
 					uint64_t ID;
 					std::stringstream s_str(sd2[0]);
 					s_str >> ID;
@@ -12883,15 +12861,12 @@ void MainWorker::HeartbeatCheck()
 	time_t now;
 	mytime(&now);
 
-	std::map<std::string, time_t>::const_iterator iterator;
-	for (iterator = m_componentheartbeats.begin(); iterator != m_componentheartbeats.end(); ++iterator)
+	for (const auto & itt : m_componentheartbeats)
 	{
-		double dif = difftime(now, iterator->second);
-		//_log.Log(LOG_STATUS, "%s last checking  %.2lf seconds ago", iterator->first.c_str(), dif);
+		double dif = difftime(now, itt.second);
 		if (dif > 60)
 		{
-			_log.Log(LOG_ERROR, "%s thread seems to have ended unexpectedly", iterator->first.c_str());
-			_notify.Notify(NOTIFY::HW_THREAD_ENDED, NOTIFY::ERROR, iterator->first);
+			_log.Log(LOG_ERROR, "%s thread seems to have ended unexpectedly", itt.first.c_str());
 		}
 	}
 
