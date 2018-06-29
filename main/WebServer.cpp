@@ -1108,7 +1108,7 @@ namespace http {
 					m_sql.UpdatePreferencesVar("SmartMeterType", 0);
 				}
 			}
-			else if (IsNetworkDevice(htype)) 
+			else if (IsNetworkDevice(htype))
 			{
 				//Lan
 				if (address.empty() || port == 0)
@@ -1227,7 +1227,7 @@ namespace http {
 				(htype == HTYPE_NEST) ||
 				(htype == HTYPE_ANNATHERMOSTAT) ||
 				(htype == HTYPE_THERMOSMART) ||
-				(htype == HTYPE_Tado) || 
+				(htype == HTYPE_Tado) ||
 				(htype == HTYPE_Netatmo)
 				)
 			{
@@ -3745,8 +3745,10 @@ namespace http {
 				//used by Add Manual Light/Switch dialog
 				root["title"] = "GetSysfsGpio";
 #ifdef WITH_GPIO
-				std::vector<int> gpio_ids = CSysfsGpio::GetGpioIds();
-				std::vector<std::string> gpio_names = CSysfsGpio::GetGpioNames();
+				std::vector<int> gpio_ids;
+				std::vector<std::string> gpio_names;
+				CSysfsGpio::GetGpioIds(gpio_ids);
+				CSysfsGpio::GetGpioNames(gpio_names);
 
 				if (gpio_ids.size() == 0) {
 					root["status"] = "ERROR";
@@ -4181,7 +4183,7 @@ namespace http {
 					CDomoticzHardwareBase *pBaseHardware = reinterpret_cast<CDomoticzHardwareBase*>(m_mainworker.GetHardware(atoi(hwdid.c_str())));
 					if (pBaseHardware == NULL)
 						return;
-					if ((pBaseHardware->HwdType != HTYPE_EnOceanESP2) && (pBaseHardware->HwdType != HTYPE_EnOceanESP3) 
+					if ((pBaseHardware->HwdType != HTYPE_EnOceanESP2) && (pBaseHardware->HwdType != HTYPE_EnOceanESP3)
 						&& (pBaseHardware->HwdType != HTYPE_USBtinGateway) )
 						return;
 					unsigned long rID = 0;
@@ -4767,7 +4769,7 @@ namespace http {
 					CDomoticzHardwareBase *pBaseHardware = reinterpret_cast<CDomoticzHardwareBase*>(m_mainworker.GetHardware(atoi(hwdid.c_str())));
 					if (pBaseHardware == NULL)
 						return;
-					if ((pBaseHardware->HwdType != HTYPE_EnOceanESP2) && (pBaseHardware->HwdType != HTYPE_EnOceanESP3) 
+					if ((pBaseHardware->HwdType != HTYPE_EnOceanESP2) && (pBaseHardware->HwdType != HTYPE_EnOceanESP3)
 						&& (pBaseHardware->HwdType != HTYPE_USBtinGateway) )
 						return;
 					unsigned long rID = 0;
@@ -6684,11 +6686,11 @@ namespace http {
 			{
 				root["status"] = "OK";
 				root["title"] = "GetSecStatus";
-				
+
 				int secstatus = 0;
 				m_sql.GetPreferencesVar("SecStatus", secstatus);
 				root["secstatus"] = secstatus;
-				
+
 				int secondelay = 30;
 				m_sql.GetPreferencesVar("SecOnDelay", secondelay);
 				root["secondelay"] = secondelay;
@@ -9819,7 +9821,7 @@ namespace http {
 						root["result"][ii]["ValueUnits"] = "";
 						root["result"][ii]["ShowNotifications"] = false;
 						double meteroffset = AddjValue;
-						
+
 						switch (metertype)
 						{
 						case MTYPE_ENERGY:

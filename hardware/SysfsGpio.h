@@ -29,13 +29,13 @@ class CSysfsGpio : public CDomoticzHardwareBase
 
 public:
 
-	CSysfsGpio(const int ID, const int ManualDevices, const int Debounce);
+	CSysfsGpio(const int ID, const int autoConfigureDevices, const int debounce);
 	~CSysfsGpio();
 
 	bool WriteToHardware(const char *pdata, const unsigned char length) override;
-	static std::vector<int> GetGpioIds();
-	static std::vector<std::string> GetGpioNames();
-	static void RequestDbUpdate(int pin);
+	static void GetGpioIds(std::vector<int> &gpio_ids);
+	static void GetGpioNames(std::vector<std::string> &gpio_names);
+	static void RequestDbUpdate(const int pin);
 private:
 	bool StartHardware() override;
 	bool StopHardware() override;
@@ -43,20 +43,18 @@ private:
 	void Do_Work();
 	void EdgeDetectThread();
 	void Init();
-	void PollGpioInputs(bool PollOnce);
+	void PollGpioInputs(const bool pollOnce);
 	void CreateDomoticzDevices();
-	void UpdateDomoticzInputs(bool forceUpdate);
+	void UpdateDomoticzInputs(const bool forceUpdate);
 	void UpdateDomoticzDatabase();
 	void UpdateGpioOutputs();
-	void UpdateDeviceID(int pin);
-	std::vector<std::string> GetGpioDeviceId();
-	int GpioRead(int pin, const char* param);
+	void UpdateDeviceID(const int pin);
+	int GpioRead(const int pin, const char* param);
 	int GpioReadFd(int fd);
-	int GpioWrite(int pin, int value);
-	int GpioOpenRw(int gpio_pin);
-	int GetReadResult(int bytecount, char* value_str);
-	int GpioGetState(int index);
-	void GpioSaveState(int index, int value);
+	int GpioWrite(const int pin, const int value);
+	int GetReadResult(const int bytecount, const char* value_str);
+	inline void GpioSaveState(const int index, const int value);
+	inline const std::string GetGpioDeviceId();
 
 	static std::vector<gpio_info> m_saved_state;
 	static int m_sysfs_hwdid;
