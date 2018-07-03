@@ -1,7 +1,6 @@
 #pragma once
 
 #include <boost/signals2.hpp>
-#include <boost/exception/diagnostic_information.hpp>
 #include "../main/RFXNames.h"
 
 //Base class with functions all notification systems should have

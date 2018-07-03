@@ -1,7 +1,5 @@
 #pragma once
 #include "1WireSystem.h"
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/lock_guard.hpp>
 #include <condition_variable>
 #include <list>
 
@@ -65,11 +63,11 @@ protected:
    };
 
    // Thread-shared data and lock methods
-   boost::mutex m_Mutex;
-   class Locker:boost::lock_guard<boost::mutex>
+   std::mutex m_Mutex;
+   class Locker:std::lock_guard<std::mutex>
    {
    public:
-	   explicit Locker(const boost::mutex& mutex):boost::lock_guard<boost::mutex>(*(const_cast<boost::mutex*>(&mutex))){}
+	   explicit Locker(const std::mutex& mutex):std::lock_guard<std::mutex>(*(const_cast<std::mutex*>(&mutex))){}
       virtual ~Locker(){}
    };
    typedef std::map<std::string,DeviceState*> DeviceCollection;
