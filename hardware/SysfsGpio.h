@@ -72,5 +72,5 @@ private:
 
 	std::shared_ptr<std::thread> m_thread;
 	std::shared_ptr<std::thread> m_edge_thread;
-	boost::mutex m_state_mutex;
+	std::mutex m_state_mutex;
 };

@@ -661,7 +661,7 @@ void CPiFace::CallBackSendEvent(const unsigned char *pEventPacket, const unsigne
 {
     std::string sendData;
     sendData.insert(sendData.begin(), pEventPacket, pEventPacket + PacketLength);
-    boost::lock_guard<boost::mutex> l(m_queue_mutex);
+    std::lock_guard<std::mutex> l(m_queue_mutex);
     if (m_send_queue.size() < 100)
         m_send_queue.push_back(sendData);
     else

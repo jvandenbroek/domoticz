@@ -183,6 +183,6 @@ private:
     static const std::string ParameterPinTypeValueNames[CONFIG_NR_OF_PARAMETER_PIN_TYPES];
     static const std::string ParameterCountTypeValueNames[CONFIG_NR_OF_PARAMETER_COUNT_TYPES];
 
-    boost::mutex m_queue_mutex;
+    std::mutex m_queue_mutex;
     std::vector<std::string> m_send_queue;
 };

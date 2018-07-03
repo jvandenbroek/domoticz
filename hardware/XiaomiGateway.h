@@ -48,7 +48,7 @@ private:
 	std::string m_GatewayPassword;
 	std::string m_GatewayMusicId;
 	std::string m_GatewayVolume;
-	boost::mutex m_mutex;
+	std::mutex m_mutex;
 
 	volatile bool m_stoprequested;
 
@@ -81,7 +81,7 @@ private:
 		std::string GetToken(const std::string &ip);
 		std::string GetSID(const std::string &sid);
 	private:
-		boost::mutex m_mutex;
+		std::mutex m_mutex;
 		std::vector<boost::tuple<std::string, std::string, std::string> > m_GatewayTokens;
 
 		XiaomiGatewayTokenManager() { ; }

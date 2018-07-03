@@ -16,7 +16,7 @@ private:
 private:
 	volatile bool m_stoprequested;
 	std::shared_ptr<std::thread> m_thread;
-	boost::mutex m_pipe_mutex;
+	std::mutex m_pipe_mutex;
 	FILE *m_hPipe;
 	std::string m_cmdline;
 };

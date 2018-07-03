@@ -1132,7 +1132,7 @@ void calculateCRC(const unsigned char* pCmd, unsigned int length, unsigned short
 
 int SatelIntegra::SendCommand(const unsigned char* cmd, const unsigned int cmdLength, unsigned char *answer, const unsigned int expectedLength1, const unsigned int expectedLength2)
 {
-	boost::lock_guard<boost::mutex> lock(m_mutex);
+	std::lock_guard<std::mutex> lock(m_mutex);
 
 	if (!ConnectToIntegra())
 	{

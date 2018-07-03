@@ -20,7 +20,7 @@ private:
 	void DoInfluxPush();
 
 	std::shared_ptr<std::thread> m_background_task_thread;
-	boost::mutex m_background_task_mutex;
+	std::mutex m_background_task_mutex;
 	bool m_stoprequested;
 	bool StartThread();
 	void StopThread();

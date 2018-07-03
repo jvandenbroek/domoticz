@@ -92,7 +92,7 @@ private:
 	bool m_armLastState[32];
 
 	// thread-safe for read and write
-	boost::mutex m_mutex;
+	std::mutex m_mutex;
 
 	bool m_alarmLast;
 };

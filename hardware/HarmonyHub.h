@@ -137,7 +137,7 @@ private:
 	volatile bool m_stoprequested;
 
 	std::shared_ptr<std::thread> m_thread;
-	boost::mutex m_mutex;
+	std::mutex m_mutex;
 
 	csocket * m_connection;
 	_eConnectionStatus m_connectionstatus;

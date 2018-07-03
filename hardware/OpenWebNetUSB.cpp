@@ -270,7 +270,7 @@ bool COpenWebNetUSB::FindDevice(int deviceID, int deviceUnit, int subType, int* 
 
 bool COpenWebNetUSB::writeRead(const char* command, unsigned int commandSize, bool silent)
 {
-	boost::lock_guard<boost::mutex> l(readQueueMutex);
+	std::lock_guard<std::mutex> l(readQueueMutex);
 
 	m_readBufferSize = 0;
 	memset(m_readBuffer, 0, OPENWEBNET_SERIAL_BUFFER_SIZE);
@@ -398,7 +398,7 @@ bool COpenWebNetUSB::ParseData(char* data, int length, vector<bt_openwebnet>& me
 
 void COpenWebNetUSB::readCallback(const char *data, size_t len)
 {
-	boost::lock_guard<boost::mutex> l(readQueueMutex);
+	std::lock_guard<std::mutex> l(readQueueMutex);
 	if (!m_bIsStarted)
 		return;
 

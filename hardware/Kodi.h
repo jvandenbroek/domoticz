@@ -150,7 +150,7 @@ private:
 	int m_iPingTimeoutms;
 	std::shared_ptr<std::thread> m_thread;
 	volatile bool m_stoprequested;
-	boost::mutex m_mutex;
+	std::mutex m_mutex;
 	boost::asio::io_service m_ios;
 };
 

@@ -32,7 +32,7 @@ private:
 	std::shared_ptr<std::thread> m_thread;
 	csocket *m_socket;
 	sockaddr_in m_addr;
-	boost::mutex m_mutex;
+	std::mutex m_mutex;
 
 	int m_LastAlarms;
 	int m_LastWarnings;

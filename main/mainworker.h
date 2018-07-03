@@ -139,9 +139,9 @@ private:
 	uint64_t PerformRealActionFromDomoticzClient(const unsigned char *pRXCommand, CDomoticzHardwareBase **pOriginalHardware);
 	void HandleLogNotifications();
 	std::map<std::string, time_t > m_componentheartbeats;
-	boost::mutex m_heartbeatmutex;
+	std::mutex m_heartbeatmutex;
 
-	boost::mutex m_decodeRXMessageMutex;
+	std::mutex m_decodeRXMessageMutex;
 
 	std::vector<int> m_devicestorestart;
 
@@ -158,7 +158,7 @@ private:
 	time_t m_ScheduleLastDayTime;
 
 
-	boost::mutex m_devicemutex;
+	std::mutex m_devicemutex;
 
 	std::string m_szDomoticzUpdateChecksumURL;
 	bool m_bDoDownloadDomoticzUpdate;
@@ -172,7 +172,7 @@ private:
 #endif
 	volatile bool m_stoprequested;
 	std::shared_ptr<std::thread> m_thread;
-	boost::mutex m_mutex;
+	std::mutex m_mutex;
 
 	time_t m_LastUpdateCheck;
 

@@ -706,7 +706,7 @@ int CHarmonyHub::SubmitCommand(const std::string &szCommand, const std::string &
 ************************************************************************/
 bool CHarmonyHub::CheckForHarmonyData()
 {
-	boost::lock_guard<boost::mutex> lock(m_mutex);
+	std::lock_guard<std::mutex> lock(m_mutex);
 
 	if (m_connectionstatus == DISCONNECTED)
 		return false;

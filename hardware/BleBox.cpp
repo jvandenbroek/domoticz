@@ -94,7 +94,7 @@ void BleBox::Do_Work()
 
 void BleBox::GetDevicesState()
 {
-	boost::lock_guard<boost::mutex> l(m_mutex);
+	std::lock_guard<std::mutex> l(m_mutex);
 
 	for (const auto & itt : m_devices)
 	{
@@ -1114,14 +1114,14 @@ void BleBox::RemoveAllNodes()
 
 void BleBox::UnloadNodes()
 {
-	boost::lock_guard<boost::mutex> l(m_mutex);
+	std::lock_guard<std::mutex> l(m_mutex);
 
 	m_devices.clear();
 }
 
 bool BleBox::LoadNodes()
 {
-	boost::lock_guard<boost::mutex> l(m_mutex);
+	std::lock_guard<std::mutex> l(m_mutex);
 
 	std::vector<std::vector<std::string> > result;
 	result = m_sql.safe_query("SELECT ID,DeviceID FROM DeviceStatus WHERE (HardwareID==%d)", m_HwdID);

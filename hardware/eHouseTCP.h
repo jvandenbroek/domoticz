@@ -179,7 +179,7 @@ private:
 
 	unsigned char m_userCode[8]; 	// password to eHouse 6 ascii chars
 
-	boost::mutex m_mutex;
+	std::mutex m_mutex;
 	bool m_alarmLast;
 	char ViaTCP;					//Statuses via TCP/IP connection
 	int PlanID;

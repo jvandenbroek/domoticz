@@ -1194,7 +1194,7 @@ XiaomiGateway::XiaomiGatewayTokenManager& XiaomiGateway::XiaomiGatewayTokenManag
 void XiaomiGateway::XiaomiGatewayTokenManager::UpdateTokenSID(const std::string & ip, const std::string & token, const std::string & sid)
 {
 	bool found = false;
-	boost::mutex::scoped_lock lock(m_mutex);
+	std::unique_lock<std::mutex> lock(m_mutex);
 	for (unsigned i = 0; i < m_GatewayTokens.size(); i++) {
 		if (boost::get<0>(m_GatewayTokens[i]) == ip) {
 			boost::get<1>(m_GatewayTokens[i]) = token;
@@ -1212,7 +1212,7 @@ std::string XiaomiGateway::XiaomiGatewayTokenManager::GetToken(const std::string
 {
 	std::string token = "";
 	bool found = false;
-	boost::mutex::scoped_lock lock(m_mutex);
+	std::unique_lock<std::mutex> lock(m_mutex);
 	for (unsigned i = 0; i < m_GatewayTokens.size(); i++) {
 		if (boost::get<0>(m_GatewayTokens[i]) == ip) {
 			token = boost::get<1>(m_GatewayTokens[i]);
@@ -1225,7 +1225,7 @@ std::string XiaomiGateway::XiaomiGatewayTokenManager::GetSID(const std::string &
 {
 	std::string sid = "";
 	bool found = false;
-	boost::mutex::scoped_lock lock(m_mutex);
+	std::unique_lock<std::mutex> lock(m_mutex);
 	for (unsigned i = 0; i < m_GatewayTokens.size(); i++) {
 		if (boost::get<0>(m_GatewayTokens[i]) == ip) {
 			sid = boost::get<2>(m_GatewayTokens[i]);

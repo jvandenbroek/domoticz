@@ -184,8 +184,8 @@ private:
 	boost::shared_mutex m_uservariablesMutex;
 	boost::shared_mutex m_scenesgroupsMutex;
 	boost::shared_mutex m_eventtriggerMutex;
-	boost::mutex m_measurementStatesMutex;
-	boost::mutex luaMutex;
+	std::mutex m_measurementStatesMutex;
+	std::mutex luaMutex;
 	volatile bool m_stoprequested;
 	std::shared_ptr<std::thread> m_thread, m_eventqueuethread;
 	int m_SecStatus;

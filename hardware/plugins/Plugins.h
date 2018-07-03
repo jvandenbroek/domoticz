@@ -43,7 +43,7 @@ namespace Plugins {
 
 		CPluginNotifier*	m_Notifier;
 
-		boost::mutex	m_TransportsMutex;
+		std::mutex	m_TransportsMutex;
 		std::vector<CPluginTransport*>	m_Transports;
 
 		std::shared_ptr<std::thread> m_thread;

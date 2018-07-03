@@ -1,5 +1,7 @@
 #pragma once
 #include "1WireSystem.h"
+#include <boost/thread/mutex.hpp>
+#include <condition_variable>
 #include <list>
 
 class C1WireByKernel : public I_1WireSystem
@@ -33,7 +35,7 @@ protected:
    void ReadStates();
 
    // Thread management
-   boost::thread* m_Thread;
+   std::shared_ptr<std::thread> m_thread;
    void ThreadFunction();
    void ThreadProcessPendingChanges();
    void ThreadBuildDevicesList();
@@ -75,8 +77,8 @@ protected:
    // Pending changes queue
    std::list<DeviceState> m_PendingChanges;
    const DeviceState* GetDevicePendingState(const std::string& deviceId) const;
-   boost::mutex m_PendingChangesMutex;
-   boost::condition_variable m_PendingChangesCondition;
+   std::mutex m_PendingChangesMutex;
+   std::condition_variable m_PendingChangesCondition;
    class IsPendingChanges
    {
    private:

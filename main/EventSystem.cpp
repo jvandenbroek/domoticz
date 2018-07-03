@@ -1706,7 +1706,7 @@ lua_State *CEventSystem::CreateBlocklyLuaState()
 	lua_setglobal(lua_state, "variable");
 	uservariablesMutexLock.unlock();
 
-	boost::lock_guard<boost::mutex> measurementStatesMutexLock(m_measurementStatesMutex);
+	std::lock_guard<std::mutex> measurementStatesMutexLock(m_measurementStatesMutex);
 	GetCurrentMeasurementStates();
 
 	if (m_tempValuesByID.size() > 0) {
@@ -2716,7 +2716,7 @@ void CEventSystem::EvaluateLuaClassic(lua_State *lua_state, const _tEventQueue &
 	lua_setglobal(lua_state, "print");
 
 	{
-		boost::lock_guard<boost::mutex> measurementStatesMutexLock(m_measurementStatesMutex);
+		std::lock_guard<std::mutex> measurementStatesMutexLock(m_measurementStatesMutex);
 		GetCurrentMeasurementStates();
 
 		float thisDeviceTemp = 0;
@@ -3131,7 +3131,7 @@ void CEventSystem::EvaluateLua(const _tEventQueue &item, const std::string &file
 
 void CEventSystem::EvaluateLua(const std::vector<_tEventQueue> &items, const std::string &filename, const std::string &LuaString)
 {
-	boost::lock_guard<boost::mutex> l(luaMutex);
+	std::lock_guard<std::mutex> l(luaMutex);
 
 	lua_State *lua_state;
 	lua_state = luaL_newstate();

@@ -49,7 +49,7 @@ bool CDomoticzHardwareBase::Start()
 
 bool CDomoticzHardwareBase::Stop()
 {
-	boost::lock_guard<boost::mutex> l(readQueueMutex);
+	std::lock_guard<std::mutex> l(readQueueMutex);
 	return StopHardware();
 }
 

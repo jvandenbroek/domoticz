@@ -55,7 +55,7 @@ private:
 	int m_bufferpos;
 	int m_retrycntr;
 
-	boost::mutex m_sendMutex;
+	std::mutex m_sendMutex;
 	std::vector<std::string> m_sendqueue;
 };
 

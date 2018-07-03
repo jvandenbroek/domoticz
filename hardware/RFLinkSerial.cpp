@@ -130,7 +130,7 @@ void CRFLinkSerial::Do_Work()
 		/*
 		if (m_sendqueue.size()>0)
 		{
-			boost::lock_guard<boost::mutex> l(m_sendMutex);
+			std::lock_guard<std::mutex> l(m_sendMutex);
 
 			std::vector<std::string>::iterator itt=m_sendqueue.begin();
 			if (itt!=m_sendqueue.end())
@@ -150,7 +150,7 @@ void CRFLinkSerial::Add2SendQueue(const char* pData, const size_t length)
 {
 	std::string sBytes;
 	sBytes.insert(0,pData,length);
-	boost::lock_guard<boost::mutex> l(m_sendMutex);
+	std::lock_guard<std::mutex> l(m_sendMutex);
 	m_sendqueue.push_back(sBytes);
 }
 */
@@ -190,7 +190,7 @@ bool CRFLinkSerial::OpenSerialDevice()
 
 void CRFLinkSerial::readCallback(const char *data, size_t len)
 {
-	boost::lock_guard<boost::mutex> l(readQueueMutex);
+	std::lock_guard<std::mutex> l(readQueueMutex);
 	ParseData(data, len);
 }
 

@@ -166,7 +166,7 @@ void CurrentCostMeterTCP::Do_Work()
 			}
 			else
 			{
-				boost::lock_guard<boost::mutex> l(readQueueMutex);
+				std::lock_guard<std::mutex> l(readQueueMutex);
 				ParseData(data, bread);
 			}
 		}

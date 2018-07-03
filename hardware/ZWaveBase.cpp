@@ -850,7 +850,7 @@ ZWaveBase::_tZWaveDevice* ZWaveBase::FindDevice(const int nodeID, const int inst
 
 bool ZWaveBase::WriteToHardware(const char *pdata, const unsigned char length)
 {
-	boost::lock_guard<boost::mutex> l(m_NotificationMutex);
+	std::lock_guard<std::mutex> l(m_NotificationMutex);
 
 	const _tZWaveDevice* pDevice=NULL;
 

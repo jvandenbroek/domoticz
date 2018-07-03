@@ -173,7 +173,7 @@ void Comm5Serial::enableNotificationResponseHandler(const std::string & frame)
 
 void Comm5Serial::readCallBack(const char * data, size_t len)
 {
-	boost::lock_guard<boost::mutex> l(readQueueMutex);
+	std::lock_guard<std::mutex> l(readQueueMutex);
 
 	if (!m_bEnableReceive)
 		return; //receiving not enabled
@@ -329,7 +329,7 @@ void Comm5Serial::enableNotifications()
 
 void Comm5Serial::OnData(const unsigned char *pData, size_t length)
 {
-	boost::lock_guard<boost::mutex> l(readQueueMutex);
+	std::lock_guard<std::mutex> l(readQueueMutex);
 	ParseData(pData, length);
 }
 

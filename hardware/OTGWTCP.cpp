@@ -131,7 +131,7 @@ void OTGWTCP::Do_Work()
 
 void OTGWTCP::OnData(const unsigned char *pData, size_t length)
 {
-	boost::lock_guard<boost::mutex> l(readQueueMutex);
+	std::lock_guard<std::mutex> l(readQueueMutex);
 	ParseData(pData,length);
 }
 

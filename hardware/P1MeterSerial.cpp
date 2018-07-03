@@ -135,7 +135,7 @@ bool P1MeterSerial::StopHardware()
 
 void P1MeterSerial::readCallback(const char *data, size_t len)
 {
-	boost::lock_guard<boost::mutex> l(readQueueMutex);
+	std::lock_guard<std::mutex> l(readQueueMutex);
 
 	if (!m_bEnableReceive)
 		return; //receiving not enabled

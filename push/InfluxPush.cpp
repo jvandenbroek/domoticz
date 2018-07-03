@@ -145,7 +145,7 @@ void CInfluxPush::DoInfluxPush()
 					m_PushedItems[szKey] = pItem;
 				}
 
-				boost::lock_guard<boost::mutex> l(m_background_task_mutex);
+				std::lock_guard<std::mutex> l(m_background_task_mutex);
 				if (m_background_task_queue.size() < 50)
 					m_background_task_queue.push_back(pItem);
 			}
@@ -180,7 +180,7 @@ void CInfluxPush::Do_Work()
 		sleep_milliseconds(500);
 
 		{ // additional scope for lock (accessing size should be within lock too)
-			boost::lock_guard<boost::mutex> l(m_background_task_mutex);
+			std::lock_guard<std::mutex> l(m_background_task_mutex);
 			if (m_background_task_queue.empty())
 				continue;
 			_items2do = m_background_task_queue;

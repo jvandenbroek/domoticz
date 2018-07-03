@@ -426,7 +426,7 @@ public:
 	bool		m_bLogEventScriptTrigger;
 	bool		m_bDisableDzVentsSystem;
 private:
-	boost::mutex	m_sqlQueryMutex;
+	std::mutex		m_sqlQueryMutex;
 	sqlite3			*m_dbase;
 	std::string		m_dbase_name;
 	unsigned char	m_sensortimeoutcounter;
@@ -438,7 +438,7 @@ private:
 
 	std::vector<_tTaskItem> m_background_task_queue;
 	std::shared_ptr<std::thread> m_background_task_thread;
-	boost::mutex m_background_task_mutex;
+	std::mutex m_background_task_mutex;
 	bool m_stoprequested;
 	bool StartThread();
 	void Do_Work();

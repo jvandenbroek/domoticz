@@ -251,7 +251,7 @@ namespace http {
 			// root of url for reverse proxy servers
 			std::string m_webRoot;
 			/// sessions management
-			boost::mutex m_sessionsMutex;
+			std::mutex m_sessionsMutex;
 			boost::asio::io_service m_io_service;
 			boost::asio::deadline_timer m_session_clean_timer;
 			std::thread m_io_service_thread;

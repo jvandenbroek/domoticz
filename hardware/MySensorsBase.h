@@ -490,6 +490,6 @@ private:
 	std::string m_LineReceived;
 	std::map<int, bool> m_node_sleep_states;
 	std::map<int, std::vector<_tMySensorSmartSleepQueueItem> > m_node_sleep_queue;
-	boost::mutex m_node_sleep_mutex;
+	std::mutex m_node_sleep_mutex;
 };
 

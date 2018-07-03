@@ -415,7 +415,7 @@ void COpenWebNetTCP::MonitorFrames()
 				}
 				else
 				{
-					boost::lock_guard<boost::mutex> l(readQueueMutex);
+					std::lock_guard<std::mutex> l(readQueueMutex);
 					std::vector<bt_openwebnet> responses;
 					ParseData(data, bread, responses);
 
@@ -1461,7 +1461,7 @@ bool COpenWebNetTCP::sendCommand(bt_openwebnet& command, std::vector<bt_openwebn
 			_log.Log(LOG_STATUS, "COpenWebNetTCP: sent=%s received=%s", command.frame_open.c_str(), responseBuffer);
 		}
 
-		boost::lock_guard<boost::mutex> l(readQueueMutex);
+		std::lock_guard<std::mutex> l(readQueueMutex);
 		ret = ParseData(responseBuffer, read, response);
 	}
 	else

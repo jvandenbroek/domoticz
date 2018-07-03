@@ -562,7 +562,7 @@ int MultiFun::SendCommand(const unsigned char* cmd, const unsigned int cmdLength
 		return -1;
 	}
 
-	boost::lock_guard<boost::mutex> lock(m_mutex);
+	std::lock_guard<std::mutex> lock(m_mutex);
 
 	unsigned char databuffer[BUFFER_LENGHT];
 	int ret = -1;

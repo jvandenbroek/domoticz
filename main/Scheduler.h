@@ -87,7 +87,7 @@ private:
 	time_t m_tNautTwEnd;
 	time_t m_tAstTwStart;
 	time_t m_tAstTwEnd;
-	boost::mutex m_mutex;
+	std::mutex m_mutex;
 	volatile bool m_stoprequested;
 	std::shared_ptr<std::thread> m_thread;
 	std::vector<tScheduleItem> m_scheduleitems;

@@ -270,7 +270,7 @@ void DomoticzTCP::Do_Work()
 			}
 			else
 			{
-				boost::lock_guard<boost::mutex> l(readQueueMutex);
+				std::lock_guard<std::mutex> l(readQueueMutex);
 				onRFXMessage((const unsigned char *)&buf, bread);
 			}
 		}
@@ -408,7 +408,7 @@ void DomoticzTCP::writeProxy(const char *data, size_t size)
 void DomoticzTCP::FromProxy(const unsigned char *data, size_t datalen)
 {
 	/* data received from slave */
-	boost::lock_guard<boost::mutex> l(readQueueMutex);
+	std::lock_guard<std::mutex> l(readQueueMutex);
 	onRFXMessage(data, datalen);
 }
 

@@ -219,7 +219,7 @@ bool Comm5TCP::WriteToHardware(const char *pdata, const unsigned char length)
 
 void Comm5TCP::OnData(const unsigned char *pData, size_t length)
 {
-	boost::lock_guard<boost::mutex> l(readQueueMutex);
+	std::lock_guard<std::mutex> l(readQueueMutex);
 	ParseData(pData, length);
 }
 
