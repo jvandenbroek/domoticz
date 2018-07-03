@@ -78,7 +78,6 @@ namespace Plugins {
 		m_bAllPluginsStarted = false;
 		m_iPollInterval = 10;
 		m_InitialPythonThread = NULL;
-		m_thread = NULL;
 	}
 
 	CPluginSystem::~CPluginSystem(void)
@@ -105,7 +104,7 @@ namespace Plugins {
 		// Pull UI elements from plugins and create manifest map in memory
 		BuildManifest();
 
-		m_thread = new boost::thread(boost::bind(&CPluginSystem::Do_Work, this));
+		m_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CPluginSystem::Do_Work, this)));
 
 		szPyVersion = Py_GetVersion();
 
@@ -348,7 +347,6 @@ namespace Plugins {
 		{
 			m_stoprequested = true;
 			m_thread->join();
-			m_thread = NULL;
 		}
 
 		// Hardware should already be stopped so just flush the queue (should already be empty)

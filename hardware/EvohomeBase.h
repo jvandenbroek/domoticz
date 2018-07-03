@@ -559,7 +559,7 @@ private:
 	unsigned int m_nBindID;//device ID of bound device
 	unsigned char m_nBindIDType;//what type of device to bind
 	std::mutex m_mtxBindNotify;
-	boost::condition_variable m_cndBindNotify;
+	std::condition_variable m_cndBindNotify;
 
 	unsigned int m_MaxDeviceID;
 

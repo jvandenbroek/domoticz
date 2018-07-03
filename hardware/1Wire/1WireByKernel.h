@@ -1,6 +1,7 @@
 #pragma once
 #include "1WireSystem.h"
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/lock_guard.hpp>
 #include <condition_variable>
 #include <list>
 
