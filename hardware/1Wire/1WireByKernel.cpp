@@ -65,7 +65,7 @@ void C1WireByKernel::ThreadFunction()
          m_PendingChangesCondition.wait_for(lock, std::chrono::duration<int>(10), IsPendingChanges(m_PendingChanges));
       }
    }
-   catch(boost::thread_interrupted&)
+   catch(...)
    {
       // Thread is stopped
    }
