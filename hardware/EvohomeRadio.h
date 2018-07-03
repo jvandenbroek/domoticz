@@ -16,6 +16,7 @@
 
 #include "EvohomeBase.h"
 #include <condition_variable>
+#include <boost/thread/thread_time.hpp>
 
 #define EVOHOME_RETRY_DELAY 30
 

@@ -2,6 +2,7 @@
 
 #include "DomoticzHardware.h"
 #include "../main/RFXtrx.h"
+#include <boost/thread/thread_time.hpp>
 
 #define CONFIG_NR_OF_PARAMETER_TYPES        13
 #define CONFIG_NR_OF_PARAMETER_BOOL_TYPES   4

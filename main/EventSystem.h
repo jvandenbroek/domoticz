@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <vector>
+#include <boost/thread/shared_mutex.hpp>
 
 extern "C" {
 #ifdef WITH_EXTERNAL_LUA

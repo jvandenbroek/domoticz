@@ -15,6 +15,8 @@
 #include <sstream>
 #include <openssl/md5.h>
 #include <chrono>
+#include <limits.h>
+#include <cstring>
 
 #if defined WIN32
 #include "../msbuild/WindowsHelper.h"
@@ -25,6 +27,7 @@
 
 // Includes for SystemUptime()
 #if defined(__linux__) || defined(__linux) || defined(linux)
+#include <sys/time.h>
 #include <sys/sysinfo.h>
 #elif defined(macintosh) || defined(__APPLE__) || defined(__APPLE_CC__)
 #include <time.h>

@@ -62,7 +62,6 @@ void C1WireByKernel::ThreadFunction()
 
          // Wait only if no pending changes
          std::unique_lock<std::mutex> lock(m_PendingChangesMutex);
-         //boost::system_time const timeout=boost::get_system_time()+boost::posix_time::seconds(10);
          m_PendingChangesCondition.wait_for(lock, std::chrono::duration<int>(10), IsPendingChanges(m_PendingChanges));
       }
    }
