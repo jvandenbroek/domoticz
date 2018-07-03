@@ -136,7 +136,7 @@ private:
 	// vars
 	volatile bool m_stoprequested;
 
-	boost::shared_ptr<boost::thread> m_thread;
+	std::shared_ptr<std::thread> m_thread;
 	boost::mutex m_mutex;
 
 	csocket * m_connection;

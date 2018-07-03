@@ -15,7 +15,7 @@
  * On Mac OS X boost asio's serial ports have bugs, and the usual implementation
  * of this class does not work. So a workaround class was written temporarily,
  * until asio (hopefully) will fix Mac compatibility for serial ports.
- * 
+ *
  * Please note that unlike said in the documentation on OS X until asio will
  * be fixed serial port *writes* are *not* asynchronous, but at least
  * asynchronous *read* works.
@@ -33,7 +33,9 @@
 #include <algorithm>
 #include <iostream>
 #include <boost/asio.hpp>
+#include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <boost/thread.hpp>
 #include <boost/smart_ptr/shared_array.hpp>  // for shared_array
 #include <boost/system/error_code.hpp>       // for error_code
 #include <boost/system/system_error.hpp>     // for system_error
@@ -293,7 +295,7 @@ void AsyncSerial::writeEnd(const boost::system::error_code& error)
 		}
 		catch (...)
 		{
-			
+
 		}
     }
 }

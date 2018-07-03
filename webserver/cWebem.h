@@ -162,7 +162,7 @@ namespace http {
 			void RegisterIncludeCode(
 				const char* idname,
 				webem_include_function fun );
-			
+
 			void RegisterIncludeCodeW(
 				const char* idname,
 				webem_include_function_w fun );
@@ -194,7 +194,7 @@ namespace http {
 			void AddUserPassword(const unsigned long ID, const std::string &username, const std::string &password, const _eUserRights userrights, const int activetabs);
 			std::string ExtractRequestPath(const std::string& original_request_path);
 			bool IsBadRequestPath(const std::string& original_request_path);
-			
+
 			void ClearUserPasswords();
 			std::vector<_tWebUserPassword> m_userpasswords;
 			void AddLocalNetworks(std::string network);
@@ -254,7 +254,7 @@ namespace http {
 			boost::mutex m_sessionsMutex;
 			boost::asio::io_service m_io_service;
 			boost::asio::deadline_timer m_session_clean_timer;
-			boost::thread m_io_service_thread;
+			std::thread m_io_service_thread;
 		};
 
 	}

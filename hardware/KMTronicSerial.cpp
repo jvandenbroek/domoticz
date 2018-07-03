@@ -41,7 +41,7 @@ bool KMTronicSerial::StartHardware()
 	m_retrycntr = RETRY_DELAY-2; //will force reconnect first thing
 
 	//Start worker thread
-	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&KMTronicSerial::Do_Work, this)));
+	m_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&KMTronicSerial::Do_Work, this)));
 
 	return (m_thread != NULL);
 

@@ -157,13 +157,13 @@ bool CInfluxPush::StartThread()
 {
 	StopThread();
 	m_stoprequested = false;
-	m_background_task_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CInfluxPush::Do_Work, this)));
+	m_background_task_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CInfluxPush::Do_Work, this)));
 	return (m_background_task_thread != NULL);
 }
 
 void CInfluxPush::StopThread()
 {
-	if (m_background_task_thread)
+	if (m_background_task_thread && m_background_task_thread->joinable())
 	{
 		m_stoprequested = true;
 		m_background_task_thread->join();

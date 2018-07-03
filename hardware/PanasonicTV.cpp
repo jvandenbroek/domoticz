@@ -128,7 +128,7 @@ public:
 	std::string		m_Name;
 
 	bool			m_stoprequested;
-	boost::shared_ptr<boost::thread> m_thread;
+	std::shared_ptr<std::thread> m_thread;
 protected:
 	bool			m_Busy;
 	bool			m_Stoppable;
@@ -184,7 +184,7 @@ void CPanasonicNode::CPanasonicStatus::Clear()
 void CPanasonicNode::StopThread()
 {
 	try {
-		if (m_thread)
+		if (m_thread && m_thread->joinable())
 		{
 			m_stoprequested = true;
 			m_thread->join();
@@ -200,7 +200,7 @@ void CPanasonicNode::StopThread()
 bool CPanasonicNode::StartThread()
 {
 	StopThread();
-	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CPanasonicNode::Do_Work, this)));
+	m_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CPanasonicNode::Do_Work, this)));
 	return (m_thread != NULL);
 }
 
@@ -787,7 +787,7 @@ bool CPanasonic::StartHardware()
 
 	//Start worker thread
 	m_stoprequested = false;
-	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CPanasonic::Do_Work, this)));
+	m_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CPanasonic::Do_Work, this)));
 	_log.Log(LOG_STATUS, "Panasonic Plugin: Started");
 
 	return true;
@@ -798,7 +798,7 @@ bool CPanasonic::StopHardware()
 	StopHeartbeatThread();
 
 	try {
-		if (m_thread)
+		if (m_thread && m_thread->joinable())
 		{
 			m_stoprequested = true;
 			m_thread->join();

@@ -54,5 +54,8 @@ typedef unsigned char       BYTE;
 
 #define WEBSERVER_DONT_USE_ZIP
 
-#include <boost/thread.hpp>
-
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/shared_mutex.hpp>
+#include <vector>
+#include <iomanip>
+#include <thread>

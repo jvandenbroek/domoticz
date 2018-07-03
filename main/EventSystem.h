@@ -187,7 +187,7 @@ private:
 	boost::mutex m_measurementStatesMutex;
 	boost::mutex luaMutex;
 	volatile bool m_stoprequested;
-	boost::shared_ptr<boost::thread> m_thread, m_eventqueuethread;
+	std::shared_ptr<std::thread> m_thread, m_eventqueuethread;
 	int m_SecStatus;
 	std::string m_lua_Dir;
 	std::string m_szStartTime;

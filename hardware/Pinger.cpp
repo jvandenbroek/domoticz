@@ -124,7 +124,7 @@ private:
 		{
 			// DD 2 possible 'invalid' replies that will be discarded are:
 			// Type 8: Echo request, happens when we ping ourselves (localhost)
-			// Type 3: Destination host unreachable. 
+			// Type 3: Destination host unreachable.
 			start_receive();
 		}
 	}
@@ -173,7 +173,7 @@ bool CPinger::StartHardware()
 
 	//Start worker thread
 	m_stoprequested = false;
-	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CPinger::Do_Work, this)));
+	m_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CPinger::Do_Work, this)));
 	_log.Log(LOG_STATUS, "Pinger: Started");
 
 	return true;
@@ -184,7 +184,7 @@ bool CPinger::StopHardware()
 	StopHeartbeatThread();
 
 	try {
-		if (m_thread)
+		if (m_thread && m_thread->joinable())
 		{
 			m_stoprequested = true;
 			m_thread->join();

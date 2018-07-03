@@ -118,7 +118,7 @@ bool CLogitechMediaServer::StartHardware()
 
 	//Start worker thread
 	m_stoprequested = false;
-	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CLogitechMediaServer::Do_Work, this)));
+	m_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CLogitechMediaServer::Do_Work, this)));
 
 	return (m_thread != NULL);
 }
@@ -128,7 +128,7 @@ bool CLogitechMediaServer::StopHardware()
 	StopHeartbeatThread();
 
 	try {
-		if (m_thread)
+		if (m_thread && m_thread->joinable())
 		{
 			m_stoprequested = true;
 			m_thread->join();

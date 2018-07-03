@@ -142,7 +142,7 @@ private:
 	CTCPServerProxied *m_pProxyServer;
 #endif
 
-	boost::shared_ptr<boost::thread> m_thread;
+	std::shared_ptr<std::thread> m_thread;
 	bool StartHardware() { return false; };
 	bool StopHardware() { return false; };
 

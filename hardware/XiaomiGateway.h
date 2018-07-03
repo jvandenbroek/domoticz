@@ -33,8 +33,8 @@ private:
 	unsigned int GetShortID(const std::string & nodeid);
 
 	bool m_bDoRestart;
-	boost::shared_ptr<boost::thread> m_thread;
-	boost::shared_ptr<boost::thread> m_udp_thread;
+	std::shared_ptr<std::thread> m_thread;
+	std::shared_ptr<std::thread> m_udp_thread;
 	bool m_OutputMessage;
 	bool m_IncludeVoltage;
 	bool m_ListenPort9898;

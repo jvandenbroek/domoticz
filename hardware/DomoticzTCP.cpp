@@ -115,7 +115,7 @@ bool DomoticzTCP::StartHardwareTCP()
 	m_retrycntr = RETRY_DELAY; //will force reconnect first thing
 
 	//Start worker thread
-	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&DomoticzTCP::Do_Work, this)));
+	m_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&DomoticzTCP::Do_Work, this)));
 
 	return (m_thread != NULL);
 }
@@ -148,7 +148,7 @@ bool DomoticzTCP::StopHardwareTCP()
 	}
 	else {
 		try {
-			if (m_thread)
+			if (m_thread && m_thread->joinable())
 			{
 				m_stoprequested = true;
 				m_thread->join();

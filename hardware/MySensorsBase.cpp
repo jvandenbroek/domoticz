@@ -2340,13 +2340,13 @@ void MySensorsBase::SendTextSensorValue(const int nodeID, const int childID, con
 bool MySensorsBase::StartSendQueue()
 {
 	//Start worker thread
-	m_send_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&MySensorsBase::Do_Send_Work, this)));
+	m_send_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&MySensorsBase::Do_Send_Work, this)));
 	return (m_send_thread != NULL);
 }
 
 void MySensorsBase::StopSendQueue()
 {
-	if (m_send_thread != NULL)
+	if (m_send_thread != NULL && m_send_thread->joinable())
 	{
 		assert(m_send_thread);
 		//Add a dummy queue item, so we stop

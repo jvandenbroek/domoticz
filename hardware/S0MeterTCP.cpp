@@ -35,8 +35,8 @@ bool S0MeterTCP::StartHardware()
 	ReloadLastTotals();
 
 	//Start worker thread
-	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&S0MeterTCP::Do_Work, this)));
-	return (m_thread!=NULL);
+	m_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&S0MeterTCP::Do_Work, this)));
+	return (m_thread != NULL && m_thread->joinable());
 }
 
 bool S0MeterTCP::StopHardware()
@@ -53,7 +53,7 @@ bool S0MeterTCP::StopHardware()
 		}
 	}
 	try {
-		if (m_thread)
+		if (m_thread && m_thread->joinable())
 		{
 			m_thread->join();
 			m_thread.reset();

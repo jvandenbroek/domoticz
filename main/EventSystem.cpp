@@ -152,23 +152,22 @@ void CEventSystem::StartEventSystem()
 #endif
 
 	m_stoprequested = false;
-	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CEventSystem::Do_Work, this)));
-	m_eventqueuethread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CEventSystem::EventQueueThread, this)));
+	m_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CEventSystem::Do_Work, this)));
+	m_eventqueuethread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CEventSystem::EventQueueThread, this)));
 	m_szStartTime = TimeToString(&m_StartTime, TF_DateTime);
 }
 
 void CEventSystem::StopEventSystem()
 {
-
-	if (m_eventqueuethread)
+	UnlockEventQueueThread();
+	if (m_eventqueuethread && m_eventqueuethread->joinable())
 	{
 		m_stoprequested = true;
-		UnlockEventQueueThread();
 		m_eventqueuethread->join();
-		m_eventqueue.clear();
 	}
+	m_eventqueue.clear();
 
-	if (m_thread)
+	if (m_thread && m_thread->joinable())
 	{
 		m_stoprequested = true;
 		m_thread->join();
@@ -3250,9 +3249,9 @@ void CEventSystem::EvaluateLua(const std::vector<_tEventQueue> &items, const std
 	{
 		lua_sethook(lua_state, luaStop, LUA_MASKCOUNT, 10000000);
 		//luaThread = boost::thread(&CEventSystem::luaThread, lua_state, filename);
-		//boost::shared_ptr<boost::thread> luaThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CEventSystem::luaThread, this, lua_state, filename)));
+		//std::shared_ptr<std::thread> luaThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CEventSystem::luaThread, this, lua_state, filename)));
 		boost::thread luaThread(boost::bind(&CEventSystem::luaThread, this, lua_state, filename));
-		//m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CEventSystem::Do_Work, this)));
+		//m_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CEventSystem::Do_Work, this)));
 		if (!luaThread.timed_join(boost::posix_time::seconds(10)))
 		{
 			_log.Log(LOG_ERROR, "EventSystem: Warning!, lua script %s has been running for more than 10 seconds", filename.c_str());

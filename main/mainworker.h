@@ -171,7 +171,7 @@ private:
 	http::server::ssl_server_settings m_secure_webserver_settings;
 #endif
 	volatile bool m_stoprequested;
-	boost::shared_ptr<boost::thread> m_thread;
+	std::shared_ptr<std::thread> m_thread;
 	boost::mutex m_mutex;
 
 	time_t m_LastUpdateCheck;
@@ -196,7 +196,7 @@ private:
 	// RxMessage queue resources
 	volatile bool m_stopRxMessageThread;
 	volatile unsigned long m_rxMessageIdx;
-	boost::shared_ptr<boost::thread> m_rxMessageThread;
+	std::shared_ptr<std::thread> m_rxMessageThread;
 	void Do_Work_On_Rx_Messages();
 	struct _tRxQueueItem {
 		std::string Name;

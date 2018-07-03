@@ -18,7 +18,7 @@ struct tScheduleItem
 	unsigned short startYear;
 	unsigned char startHour;
 	unsigned char startMin;
-	_eTimerType	timerType; 
+	_eTimerType	timerType;
 	_eTimerCommand timerCmd;
 	int Level;
 	_tColor Color;
@@ -89,7 +89,7 @@ private:
 	time_t m_tAstTwEnd;
 	boost::mutex m_mutex;
 	volatile bool m_stoprequested;
-	boost::shared_ptr<boost::thread> m_thread;
+	std::shared_ptr<std::thread> m_thread;
 	std::vector<tScheduleItem> m_scheduleitems;
 
 	//our thread

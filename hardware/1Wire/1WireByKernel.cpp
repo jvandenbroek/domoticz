@@ -33,7 +33,8 @@ C1WireByKernel::C1WireByKernel()
 C1WireByKernel::~C1WireByKernel()
 {
    m_Thread->interrupt();
-   m_Thread->join();
+   if (m_Thread->joinable())
+         m_Thread->join();
    delete m_Thread;
 }
 

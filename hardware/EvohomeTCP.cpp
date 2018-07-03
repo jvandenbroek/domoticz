@@ -16,7 +16,7 @@ bool CEvohomeTCP::StopHardware()
 	m_stoprequested=true;
 
 	try {
-		if (m_thread)
+		if (m_thread && m_thread->joinable())
 		{
 			m_thread->join();
 			m_thread.reset();

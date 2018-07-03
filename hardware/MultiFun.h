@@ -29,7 +29,7 @@ private:
 	const unsigned short m_IPPort;
 	const std::string m_IPAddress;
 	volatile bool m_stoprequested;
-	boost::shared_ptr<boost::thread> m_thread;
+	std::shared_ptr<std::thread> m_thread;
 	csocket *m_socket;
 	sockaddr_in m_addr;
 	boost::mutex m_mutex;
@@ -39,6 +39,6 @@ private:
 	int m_LastDevices;
 	int m_LastState;
 	int m_LastQuickAccess;
-	bool m_isSensorExists[2]; 
+	bool m_isSensorExists[2];
 	bool m_isWeatherWork[2];
 };

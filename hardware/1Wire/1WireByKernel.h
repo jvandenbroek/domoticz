@@ -1,5 +1,6 @@
 #pragma once
 #include "1WireSystem.h"
+#include <list>
 
 class C1WireByKernel : public I_1WireSystem
 {

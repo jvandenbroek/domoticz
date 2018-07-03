@@ -665,7 +665,7 @@ CSQLHelper::CSQLHelper(void)
 
 CSQLHelper::~CSQLHelper(void)
 {
-	if (m_background_task_thread)
+	if (m_background_task_thread && m_background_task_thread->joinable())
 	{
 		m_stoprequested = true;
 		m_background_task_thread->join();
@@ -3039,7 +3039,7 @@ bool CSQLHelper::OpenDatabase()
 
 bool CSQLHelper::StartThread()
 {
-	m_background_task_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CSQLHelper::Do_Work, this)));
+	m_background_task_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CSQLHelper::Do_Work, this)));
 
 	return (m_background_task_thread != NULL);
 }

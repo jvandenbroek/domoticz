@@ -50,7 +50,7 @@ bool MySensorsSerial::StartHardware()
 	m_retrycntr = RETRY_DELAY; //will force reconnect first thing
 
 	//Start worker thread
-	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&MySensorsSerial::Do_Work, this)));
+	m_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&MySensorsSerial::Do_Work, this)));
 	StartSendQueue();
 	return (m_thread != NULL);
 }

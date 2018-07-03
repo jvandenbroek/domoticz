@@ -755,7 +755,7 @@ namespace http {
 
 		CProxyManager::~CProxyManager()
 		{
-			if (m_thread) {
+			if (m_thread && m_thread->joinable()) {
 				delete m_thread;
 			}
 		}
@@ -790,7 +790,7 @@ namespace http {
 
 		void CProxyManager::Stop()
 		{
-			if (m_thread) {
+			if (m_thread && m_thread->joinable()) {
 				io_service.post(boost::bind(&CProxyClient::Stop, proxyclient));
 				delete m_thread;
 				m_thread = NULL;

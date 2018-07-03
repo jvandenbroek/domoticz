@@ -923,7 +923,7 @@ bool CKodi::StartHardware()
 
 	//Start worker thread
 	m_stoprequested = false;
-	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CKodi::Do_Work, this)));
+	m_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CKodi::Do_Work, this)));
 	_log.Log(LOG_STATUS, "Kodi: Started");
 
 	return true;
@@ -934,7 +934,7 @@ bool CKodi::StopHardware()
 	StopHeartbeatThread();
 
 	try {
-		if (m_thread)
+		if (m_thread && m_thread->joinable())
 		{
 			m_stoprequested = true;
 			m_thread->join();

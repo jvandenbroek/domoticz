@@ -97,7 +97,7 @@ private:
 	void UpdateRelayHeatDemand(uint8_t nDevNo, uint8_t nDemand);
 protected:
 	volatile bool m_stoprequested;
-	boost::shared_ptr<boost::thread> m_thread;
+	std::shared_ptr<std::thread> m_thread;
 	int m_retrycntr;
 	int m_nBufPtr;
 	bool m_bDoRestart;

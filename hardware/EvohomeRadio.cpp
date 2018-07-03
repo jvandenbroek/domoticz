@@ -191,10 +191,10 @@ bool CEvohomeRadio::StartHardware()
 	//Start worker thread
 	m_bDoRestart=false;
 	m_retrycntr = EVOHOME_RETRY_DELAY; //will force reconnect first thing
-	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CEvohomeRadio::Do_Work, this)));
+	m_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CEvohomeRadio::Do_Work, this)));
 	m_bIsStarted=true;
 
-	return (m_thread!=NULL);
+	return (m_thread != NULL && m_thread->joinable());
 }
 
 std::string CEvohomeMsg::Encode()

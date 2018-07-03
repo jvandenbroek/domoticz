@@ -1128,10 +1128,13 @@ bool MainWorker::Stop()
 		// Stop RxMessage thread before hardware to avoid NULL pointer exception
 		m_stopRxMessageThread = true;
 		UnlockRxMessageQueue();
-		m_rxMessageThread->join();
-		m_rxMessageThread.reset();
+		if (m_rxMessageThread->joinable())
+		{
+			m_rxMessageThread->join();
+			m_rxMessageThread.reset();
+		}
 	}
-	if (m_thread)
+	if (m_thread && m_thread->joinable())
 	{
 		m_webservers.StopServers();
 		m_sharedserver.StopServer();
@@ -1207,8 +1210,8 @@ bool MainWorker::StartThread()
 		LoadSharedUsers();
 	}
 
-	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&MainWorker::Do_Work, this)));
-	m_rxMessageThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&MainWorker::Do_Work_On_Rx_Messages, this)));
+	m_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&MainWorker::Do_Work, this)));
+	m_rxMessageThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&MainWorker::Do_Work_On_Rx_Messages, this)));
 
 	return (m_thread != NULL) && (m_rxMessageThread != NULL);
 }

@@ -15,7 +15,6 @@
 #include <sstream>
 #include <openssl/md5.h>
 #include <chrono>
-#include <thread>
 
 #if defined WIN32
 #include "../msbuild/WindowsHelper.h"

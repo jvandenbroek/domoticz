@@ -36,7 +36,7 @@ bool MySensorsTCP::StartHardware()
 	m_bIsStarted = true;
 
 	//Start worker thread
-	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&MySensorsTCP::Do_Work, this)));
+	m_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&MySensorsTCP::Do_Work, this)));
 	StartSendQueue();
 	return (m_thread != NULL);
 }
@@ -56,7 +56,7 @@ bool MySensorsTCP::StopHardware()
 		}
 	}
 	try {
-		if (m_thread)
+		if (m_thread && m_thread->joinable())
 		{
 			m_thread->join();
 		}

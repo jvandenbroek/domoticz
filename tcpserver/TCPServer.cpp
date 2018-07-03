@@ -98,7 +98,7 @@ void CTCPServerInt::handleAccept(const boost::system::error_code& error)
 	}
 
 	new_connection_->m_endpoint=s;
-		
+
 	if (IsUserHereFirstTime(s))
 	{
 		_log.Log(LOG_STATUS, "Incoming Domoticz connection from: %s", s.c_str());
@@ -404,9 +404,9 @@ bool CTCPServer::StartServer(const std::string &address, const std::string &port
 	} while (exception);
 	_log.Log(LOG_NORM, "Starting shared server on: %s:%s", listen_address.c_str(), port.c_str());
 	//Start worker thread
-	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CTCPServer::Do_Work, this)));
+	m_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CTCPServer::Do_Work, this)));
 
-	return (m_thread!=NULL);
+	return (m_thread != NULL && m_thread->joinable());
 }
 
 #ifndef NOCLOUD
@@ -432,7 +432,7 @@ void CTCPServer::StopServer()
 	if (m_pTCPServer) {
 		m_pTCPServer->stop();
 	}
-	if (m_thread) {
+	if (m_thread && m_thread->joinable()) {
 		m_thread->join();
 	}
 	// This is the only time to delete it
