@@ -6,12 +6,13 @@
 #include "../main/localtime_r.h"
 #include "P1MeterBase.h"
 #include "hardwaretypes.h"
-#include <string>
-#include <algorithm>
-#include <iostream>
-#include <boost/bind.hpp>
 
+#include <algorithm>
+#include <boost/bind.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 #include <ctime>
+#include <iostream>
+#include <string>
 
 //#define DEBUG_MYSENSORS
 

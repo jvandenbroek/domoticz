@@ -26,13 +26,14 @@ History :
 #include "../main/Helper.h"
 #include "../main/SQLHelper.h"
 
-#include <time.h>
-#include <string>
 #include <algorithm>
-#include <iostream>
-#include <cstdlib>
 #include <boost/bind.hpp>
+#include <boost/exception/diagnostic_information.hpp>
+#include <cstdlib>
 #include <ctime>
+#include <iostream>
+#include <string>
+#include <time.h>
 
 #define USBTIN_BAUD_RATE         115200
 #define USBTIN_PARITY            boost::asio::serial_port_base::parity::none

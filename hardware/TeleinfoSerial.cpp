@@ -29,12 +29,12 @@ History :
 #include "../main/Logger.h"
 #include "../main/Helper.h"
 
-#include <string>
 #include <algorithm>
-#include <iostream>
 #include <boost/bind.hpp>
-
+#include <boost/exception/diagnostic_information.hpp>
 #include <ctime>
+#include <iostream>
+#include <string>
 
 #ifdef _DEBUG
 #define DEBUG_TeleinfoSerial

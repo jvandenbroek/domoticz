@@ -6,11 +6,12 @@
 #include "../main/localtime_r.h"
 #include "P1MeterBase.h"
 #include "hardwaretypes.h"
+
 #include <string>
 #include <algorithm>
 #include <iostream>
 #include <boost/bind.hpp>
-
+#include <boost/exception/diagnostic_information.hpp>
 #include <ctime>
 
 //#define DEBUG_KMTronic

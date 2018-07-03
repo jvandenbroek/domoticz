@@ -5,12 +5,13 @@
 #include "../main/RFXtrx.h"
 #include "P1MeterBase.h"
 #include "hardwaretypes.h"
-#include <string>
-#include <algorithm>
-#include <iostream>
-#include <boost/bind.hpp>
 
+#include <algorithm>
 #include <ctime>
+#include <boost/bind.hpp>
+#include <boost/exception/diagnostic_information.hpp>
+#include <iostream>
+#include <string>
 
 #ifdef _DEBUG
 	//#define DEBUG_S0

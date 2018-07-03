@@ -16,11 +16,13 @@ License: Public domain
 #include "P1MeterBase.h"
 #include "hardwaretypes.h"
 #include "../main/SQLHelper.h"
-#include <string>
+
 #include <algorithm>
-#include <iostream>
-#include <boost/bind.hpp>
 #include <ctime>
+#include <boost/bind.hpp>
+#include <boost/exception/diagnostic_information.hpp>
+#include <iostream>
+#include <string>
 
 
 COpenWebNetUSB::COpenWebNetUSB(const int ID, const std::string& devname, unsigned int baud_rate)

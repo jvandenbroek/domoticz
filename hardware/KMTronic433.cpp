@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <iostream>
 #include <boost/bind.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 
 #include <ctime>
 

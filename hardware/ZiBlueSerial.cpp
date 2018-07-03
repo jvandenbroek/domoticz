@@ -4,6 +4,8 @@
 #include "../main/Helper.h"
 #include "../main/localtime_r.h"
 
+#include <boost/exception/diagnostic_information.hpp>
+
 #define ZiBlue_RETRY_DELAY 30
 
 CZiBlueSerial::CZiBlueSerial(const int ID, const std::string& devname) :

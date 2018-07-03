@@ -12,6 +12,7 @@
 #include "hardwaretypes.h"
 #include "../main/localtime_r.h"
 
+#include <boost/exception/diagnostic_information.hpp>
 #include <ctime>
 
 #define ENOCEAN_RETRY_DELAY 30
