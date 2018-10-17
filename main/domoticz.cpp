@@ -42,7 +42,7 @@
 	#include <syslog.h>
 	#include <errno.h>
 	#include <fcntl.h>
-	#include <string.h> 
+	#include <string.h>
 #endif
 
 const char *szHelp =
@@ -112,7 +112,7 @@ static const _facilities facilities[] =
 	{ "local5", LOG_LOCAL5 },
 	{ "local6", LOG_LOCAL6 },
 	{ "local7", LOG_LOCAL7 }
-}; 
+};
 std::string logfacname = "user";
 #endif
 std::string szStartupFolder;
@@ -120,6 +120,7 @@ std::string szUserDataFolder;
 std::string szWWWFolder;
 std::string szWebRoot;
 std::string dbasefile;
+std::map<std::string, std::string> mConfigFile;
 
 bool bHasInternalTemperature=false;
 std::string szInternalTemperatureCommand = "/opt/vc/bin/vcgencmd measure_temp";
@@ -160,7 +161,7 @@ bool g_bUseWatchdog = true;
 bool g_bIsWSL = false;
 
 #define DAEMON_NAME "domoticz"
-#define PID_FILE "/var/run/domoticz.pid" 
+#define PID_FILE "/var/run/domoticz.pid"
 
 std::string daemonname = DAEMON_NAME;
 std::string pidfile = PID_FILE;
@@ -205,7 +206,7 @@ void daemonize(const char *rundir, const char *pidfile)
 #ifndef WIN32
 	sigaction(SIGHUP,  &newSigAction, NULL);    // catch HUP, for log rotation
 #endif
-	
+
 	/* Fork*/
 	pid = fork();
 
@@ -674,9 +675,11 @@ bool ParseConfigFile(const std::string &szConfigFile)
 		else if (szFlag == "launch_browser") {
 			bStartWebBrowser = GetConfigBool(sLine);
 		}
+		else
+			mConfigFile[szFlag] = sLine;
 	}
 	infile.close();
-
+	mConfigFile["config_file"] = szConfigFile;
 	return true;
 }
 
@@ -700,10 +703,10 @@ int main(int argc, char**argv)
 	SetThreadName(thread_watchdog.native_handle(), "Watchdog");
 #if defined WIN32
 #ifndef _DEBUG
-	CreateMutexA(0, FALSE, "Local\\Domoticz"); 
-	if(GetLastError() == ERROR_ALREADY_EXISTS) { 
+	CreateMutexA(0, FALSE, "Local\\Domoticz");
+	if(GetLastError() == ERROR_ALREADY_EXISTS) {
 		MessageBox(HWND_DESKTOP,"Another instance of Domoticz is already running!","Domoticz",MB_OK);
-		return 1; 
+		return 1;
 	}
 #endif //_DEBUG
 	RedirectIOToConsole();
@@ -711,7 +714,7 @@ int main(int argc, char**argv)
 
 	CCmdLine cmdLine;
 
-	// parse argc,argv 
+	// parse argc,argv
 #if defined WIN32
 	cmdLine.SplitLine(__argc, __argv);
 #else
@@ -1128,15 +1131,15 @@ int main(int argc, char**argv)
 	{
 		int idx, logfacility = 0;
 
-		for ( idx = 0; idx < sizeof(facilities)/sizeof(facilities[0]); idx++ ) 
+		for ( idx = 0; idx < sizeof(facilities)/sizeof(facilities[0]); idx++ )
 		{
-			if (strcmp(facilities[idx].facname, logfacname.c_str()) == 0) 
+			if (strcmp(facilities[idx].facname, logfacname.c_str()) == 0)
 			{
 				logfacility = facilities[idx].facvalue;
 				break;
 			}
-		} 
-		if ( logfacility == 0 ) 
+		}
+		if ( logfacility == 0 )
 		{
 			_log.Log(LOG_ERROR, "%s is an unknown syslog facility", logfacname.c_str());
 			return 1;

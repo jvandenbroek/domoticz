@@ -30,36 +30,76 @@ const std::string CdzVents::GetVersion()
 	return m_version;
 }
 
-void CdzVents::EvaluateDzVents(lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items, const int secStatus)
+uint8_t CdzVents::CheckProcessItems(const std::vector<CEventSystem::_tEventQueue> &items)
+{
+	uint8_t processReason = 0;
+	for (auto const & itt : items)
+	{
+		if (itt.reason == m_mainworker.m_eventsystem.REASON_DEVICE)
+			processReason |= m_mainworker.m_eventsystem.REASON_DEVICE;
+
+		if (itt.reason == m_mainworker.m_eventsystem.REASON_TIME)
+			processReason |= m_mainworker.m_eventsystem.REASON_TIME;
+
+		if (itt.reason == m_mainworker.m_eventsystem.REASON_URL)
+			processReason |= m_mainworker.m_eventsystem.REASON_URL;
+
+		if (itt.reason == m_mainworker.m_eventsystem.REASON_SECURITY)
+			processReason |= m_mainworker.m_eventsystem.REASON_SECURITY;
+	}
+	if (!m_flags)
+		return processReason;
+
+	uint8_t mask = 0x01;
+	uint8_t flags = ~m_flags; // flip all bits, we want to check the opposite below
+
+	while(flags)
+	{
+		switch(flags & mask)
+		{
+		case m_mainworker.m_eventsystem.REASON_DEVICE:
+			processReason &= ~m_mainworker.m_eventsystem.REASON_DEVICE;
+			break;
+		case m_mainworker.m_eventsystem.REASON_SCENEGROUP:
+			processReason &= ~m_mainworker.m_eventsystem.REASON_SCENEGROUP;
+			break;
+		case m_mainworker.m_eventsystem.REASON_USERVARIABLE:
+			processReason &= ~m_mainworker.m_eventsystem.REASON_USERVARIABLE;
+			break;
+		case m_mainworker.m_eventsystem.REASON_TIME:
+			processReason &= ~m_mainworker.m_eventsystem.REASON_TIME;
+			break;
+		case m_mainworker.m_eventsystem.REASON_URL:
+			processReason &= ~m_mainworker.m_eventsystem.REASON_URL;
+			break;
+		case m_mainworker.m_eventsystem.REASON_SECURITY:
+			processReason &= ~m_mainworker.m_eventsystem.REASON_SECURITY;
+			break;
+		}
+		// zero out bit before shifting
+		flags &= ~mask;
+		mask <<= 1;
+	}
+	return processReason;
+}
+
+bool CdzVents::EvaluateDzVents(lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items, const int secStatus, const uint8_t processReason)
 {
 	// reroute print library to Domoticz logger
 	luaL_openlibs(lua_state);
 	lua_pushcfunction(lua_state, l_domoticz_print);
 	lua_setglobal(lua_state, "print");
 
-	bool reasonTime = false;
-	bool reasonURL = false;
-	bool reasonSecurity = false;
-	std::vector<CEventSystem::_tEventQueue>::const_iterator itt;
-	for (itt = items.begin(); itt != items.end(); ++itt)
-	{
-		if (itt->reason == m_mainworker.m_eventsystem.REASON_URL)
-			reasonURL = true;
-
-		if (itt->reason == m_mainworker.m_eventsystem.REASON_SECURITY)
-			reasonSecurity = true;
-
-		if (itt->reason == m_mainworker.m_eventsystem.REASON_TIME)
-			reasonTime = true;
-	}
 	ExportDomoticzDataToLua(lua_state, items);
-	SetGlobalVariables(lua_state, reasonTime, secStatus);
 
-	if (reasonURL)
+	if (processReason & m_mainworker.m_eventsystem.REASON_URL)
 		ProcessHttpResponse(lua_state, items);
 
-	if (reasonSecurity)
+	if (processReason & m_mainworker.m_eventsystem.REASON_SECURITY)
 		ProcessSecurity(lua_state, items);
+
+	SetGlobalVariables(lua_state, processReason & m_mainworker.m_eventsystem.REASON_TIME, secStatus);
+	return true;
 }
 
 void CdzVents::ProcessSecurity(lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items)

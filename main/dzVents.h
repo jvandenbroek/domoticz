@@ -10,10 +10,12 @@ public:
 	const std::string GetVersion();
 	void LoadEvents();
 	bool processLuaCommand(lua_State *lua_state, const std::string &filename, const int tIndex);
-	void EvaluateDzVents(lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items, const int secStatus);
+	bool EvaluateDzVents(lua_State *lua_state, const std::vector<CEventSystem::_tEventQueue> &items, const int secStatus, const uint8_t processReason);
+	uint8_t CheckProcessItems(const std::vector<CEventSystem::_tEventQueue> &items);
 
 	std::string m_scriptsDir, m_runtimeDir;
 	bool m_bdzVentsExist;
+	uint8_t m_flags;
 
 private:
 

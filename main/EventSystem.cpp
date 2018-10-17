@@ -37,6 +37,7 @@ extern "C" {
 extern time_t m_StartTime;
 extern std::string szUserDataFolder, szStartupFolder;
 extern http::server::CWebServerHelper m_webservers;
+extern std::map<std::string, std::string> mConfigFile;
 
 #ifdef ENABLE_PYTHON
 #include "../hardware/plugins/Plugins.h"
@@ -198,6 +199,7 @@ void CEventSystem::LoadEvents()
 	std::string dzv_Dir, s;
 	CdzVents* dzvents = CdzVents::GetInstance();
 	dzvents->m_bdzVentsExist = false;
+	dzvents->m_flags = 0x00;
 
 #ifdef WIN32
 	m_lua_Dir = szUserDataFolder + "scripts\\lua\\";
@@ -255,7 +257,8 @@ void CEventSystem::LoadEvents()
 		{
 			filename = dzv_Dir + *itt;
 			if (filename.find("README.md") == std::string::npos)
-				std::remove(filename.c_str());
+				if (std::remove(filename.c_str()))
+					_log.Log(LOG_ERROR, "dzVents: Error removing file %s, check permissions.", filename.c_str());
 		}
 
 		std::vector<std::vector<std::string> >::const_iterator itt2;
@@ -277,14 +280,42 @@ void CEventSystem::LoadEvents()
 			if ((eitem.Interpreter == "dzVents") && (eitem.EventStatus != 0))
 			{
 				s = dzv_Dir + eitem.Name.c_str() + ".lua";
-				_log.Log(LOG_STATUS, "dzVents: Write file: %s", s.c_str());
-				FILE *fOut = fopen(s.c_str(), "wb+");
+				FILE *fOut = std::fopen(s.c_str(), "wb+");
 				if (fOut)
 				{
+					_log.Log(LOG_STATUS, "dzVents: Write file: %s", s.c_str());
 					fwrite(eitem.Actions.c_str(), 1, eitem.Actions.size(), fOut);
 					fclose(fOut);
 				}
+				else
+					_log.Log(LOG_ERROR, "dzVents: Error writing file %s, check permissions.", s.c_str());
 				dzvents->m_bdzVentsExist = true;
+			}
+		}
+		std::string szFlags = mConfigFile["dzvents_flags"];
+
+		if (!szFlags.empty())
+		{
+			std::vector<std::string> flags;
+			StringSplit(szFlags, ",", flags);
+			for (const auto & itt : flags)
+			{
+				std::string wflag = itt;
+				stdstring_trim(wflag);
+				if (wflag.empty())
+					continue;
+				if (wflag == "device")
+					dzvents->m_flags |= REASON_DEVICE;
+				else if (wflag == "scenegroup")
+					dzvents->m_flags |= REASON_SCENEGROUP;
+				else if (wflag == "uservariable")
+					dzvents->m_flags |= REASON_USERVARIABLE;
+				else if (wflag == "time")
+					dzvents->m_flags |= REASON_TIME;
+				else if (wflag == "httpresponse")
+					dzvents->m_flags |= REASON_URL;
+				else if (wflag == "security")
+					dzvents->m_flags |= REASON_SECURITY;
 			}
 		}
 	}
@@ -1413,7 +1444,6 @@ void CEventSystem::EventQueueThread()
 	_log.Log(LOG_STATUS, "EventSystem: Queue thread started...");
 	_tEventQueue item;
 	std::vector<_tEventQueue> items;
-	std::vector<_tEventQueue>::const_iterator itt;
 
 	while (!m_TaskQueue.IsStopRequested(0))
 	{
@@ -1427,9 +1457,9 @@ void CEventSystem::EventQueueThread()
 		//_log.Log(LOG_STATUS, "EventSystem: \n reason => %d\n id => %" PRIu64 "\n devname => %s\n nValue => %d\n sValue => %s\n nValueWording => %s\n lastUpdate => %s\n lastLevel => %d\n",
 			//item.reason, item.id, item.devname.c_str(), item.nValue, item.sValue.c_str(), item.nValueWording.c_str(), item.lastUpdate.c_str(), item.lastLevel);
 #endif
-		for (itt = items.begin(); itt != items.end(); ++itt)
+		for (auto & itt : items)
 		{
-			if (itt->id == item.id && itt->reason <= REASON_SCENEGROUP && itt->reason == item.reason)
+			if (itt.id == item.id && itt.reason <= REASON_SCENEGROUP && itt.reason == item.reason)
 			{
 				EvaluateEvent(items);
 				items.clear();
@@ -3138,6 +3168,14 @@ void CEventSystem::EvaluateLua(const _tEventQueue &item, const std::string &file
 
 void CEventSystem::EvaluateLua(const std::vector<_tEventQueue> &items, const std::string &filename, const std::string &LuaString)
 {
+	CdzVents* dzvents = CdzVents::GetInstance();
+	uint8_t dzVentsProcessItems = 0;
+	if (!m_sql.m_bDisableDzVentsSystem && filename == dzvents->m_runtimeDir + "dzVents.lua")
+	{
+		if (!(dzVentsProcessItems = dzvents->CheckProcessItems(items)))
+			return;
+	}
+
 	std::lock_guard<std::mutex> l(luaMutex);
 
 	lua_State *lua_state;
@@ -3160,6 +3198,18 @@ void CEventSystem::EvaluateLua(const std::vector<_tEventQueue> &items, const std
 		lib->func(lua_state);
 		lua_settop(lua_state, 0);
 	}
+
+	int secstatus = 0;
+	m_sql.GetPreferencesVar("SecStatus", secstatus);
+
+	if (!m_sql.m_bDisableDzVentsSystem && filename == dzvents->m_runtimeDir + "dzVents.lua")
+	{
+		if (!dzVentsProcessItems)
+			return;
+		dzvents->EvaluateDzVents(lua_state, items, secstatus, dzVentsProcessItems);
+	}
+	else
+		EvaluateLuaClassic(lua_state, items[0], secstatus);
 
 	lua_pushcfunction(lua_state, l_domoticz_applyJsonPath);
 	lua_setglobal(lua_state, "domoticz_applyJsonPath");
@@ -3252,14 +3302,6 @@ void CEventSystem::EvaluateLua(const std::vector<_tEventQueue> &items, const std
 	lua_pushnumber(lua_state, sunTimers[9]);
 	lua_rawset(lua_state, -3);
 	lua_setglobal(lua_state, "timeofday");
-
-	int secstatus = 0;
-	m_sql.GetPreferencesVar("SecStatus", secstatus);
-	CdzVents* dzvents = CdzVents::GetInstance();
-	if (!m_sql.m_bDisableDzVentsSystem && filename == dzvents->m_runtimeDir + "dzVents.lua")
-		dzvents->EvaluateDzVents(lua_state, items, secstatus);
-	else
-		EvaluateLuaClassic(lua_state, items[0], secstatus);
 
 	int status = 0;
 	if (LuaString.length() == 0)

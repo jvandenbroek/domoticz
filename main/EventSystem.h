@@ -50,14 +50,14 @@ class CEventSystem : public CLuaCommon, StoppableTask
 		bool bEventTrigger;
 	};
 public:
-	enum _eReason
+	enum _eReason : uint8_t
 	{
-		REASON_DEVICE,			// 0
-		REASON_SCENEGROUP,		// 1
-		REASON_USERVARIABLE,	// 2
-		REASON_TIME,			// 3
-		REASON_SECURITY,		// 4
-		REASON_URL				// 5
+		REASON_DEVICE       = 0x01,
+		REASON_SCENEGROUP   = 0x02,
+		REASON_USERVARIABLE = 0x04,
+		REASON_TIME         = 0x08,
+		REASON_SECURITY     = 0x10,
+		REASON_URL          = 0x20
 	};
 
 	struct _tDeviceStatus
