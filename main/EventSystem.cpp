@@ -3202,12 +3202,8 @@ void CEventSystem::EvaluateLua(const std::vector<_tEventQueue> &items, const std
 	int secstatus = 0;
 	m_sql.GetPreferencesVar("SecStatus", secstatus);
 
-	if (!m_sql.m_bDisableDzVentsSystem && filename == dzvents->m_runtimeDir + "dzVents.lua")
-	{
-		if (!dzVentsProcessItems)
-			return;
+	if (dzVentsProcessItems)
 		dzvents->EvaluateDzVents(lua_state, items, secstatus, dzVentsProcessItems);
-	}
 	else
 		EvaluateLuaClassic(lua_state, items[0], secstatus);
 

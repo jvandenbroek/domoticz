@@ -76,8 +76,7 @@ uint8_t CdzVents::CheckProcessItems(const std::vector<CEventSystem::_tEventQueue
 			processReason &= ~m_mainworker.m_eventsystem.REASON_SECURITY;
 			break;
 		}
-		// zero out bit before shifting
-		flags &= ~mask;
+		flags &= ~mask; // zero out bit before shifting
 		mask <<= 1;
 	}
 	return processReason;
