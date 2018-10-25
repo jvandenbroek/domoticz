@@ -9,11 +9,12 @@
 
 #define RETRY_DELAY 30
 
-RFXComTCP::RFXComTCP(const int ID, const std::string &IPAddress, const unsigned short usIPPort) :
+RFXComTCP::RFXComTCP(const int ID, const std::string &IPAddress, const unsigned short usIPPort, const _eRFXAsyncType AsyncType) :
 	m_szIPAddress(IPAddress)
 {
 	m_HwdID=ID;
 	m_usIPPort=usIPPort;
+	m_AsyncType = AsyncType;
 	m_bReceiverStarted = false;
 }
 
