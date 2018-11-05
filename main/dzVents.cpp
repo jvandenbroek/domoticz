@@ -47,11 +47,11 @@ uint8_t CdzVents::CheckProcessItems(const std::vector<CEventSystem::_tEventQueue
 		if (itt.reason == m_mainworker.m_eventsystem.REASON_SECURITY)
 			processReason |= m_mainworker.m_eventsystem.REASON_SECURITY;
 	}
-	if (!m_flags)
+	if (!m_reason)
 		return processReason;
 
 	uint8_t mask = 0x01;
-	uint8_t flags = ~m_flags; // flip all bits, we want to check the opposite below
+	uint8_t flags = ~m_reason; // flip all bits, we want to check the opposite below
 
 	while(flags)
 	{

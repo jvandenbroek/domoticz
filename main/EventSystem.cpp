@@ -199,7 +199,7 @@ void CEventSystem::LoadEvents()
 	std::string dzv_Dir, s;
 	CdzVents* dzvents = CdzVents::GetInstance();
 	dzvents->m_bdzVentsExist = false;
-	dzvents->m_flags = 0x00;
+	dzvents->m_reason = 0x00;
 
 #ifdef WIN32
 	m_lua_Dir = szUserDataFolder + "scripts\\lua\\";
@@ -292,7 +292,7 @@ void CEventSystem::LoadEvents()
 				dzvents->m_bdzVentsExist = true;
 			}
 		}
-		std::string szFlags = mConfigFile["dzvents_flags"];
+		std::string szFlags = mConfigFile["dzvents_reason"];
 
 		if (!szFlags.empty())
 		{
@@ -305,17 +305,17 @@ void CEventSystem::LoadEvents()
 				if (wflag.empty())
 					continue;
 				if (wflag == "device")
-					dzvents->m_flags |= REASON_DEVICE;
+					dzvents->m_reason |= REASON_DEVICE;
 				else if (wflag == "scenegroup")
-					dzvents->m_flags |= REASON_SCENEGROUP;
+					dzvents->m_reason |= REASON_SCENEGROUP;
 				else if (wflag == "uservariable")
-					dzvents->m_flags |= REASON_USERVARIABLE;
+					dzvents->m_reason |= REASON_USERVARIABLE;
 				else if (wflag == "time")
-					dzvents->m_flags |= REASON_TIME;
+					dzvents->m_reason |= REASON_TIME;
 				else if (wflag == "httpresponse")
-					dzvents->m_flags |= REASON_URL;
+					dzvents->m_reason |= REASON_URL;
 				else if (wflag == "security")
-					dzvents->m_flags |= REASON_SECURITY;
+					dzvents->m_reason |= REASON_SECURITY;
 			}
 		}
 	}

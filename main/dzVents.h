@@ -15,7 +15,7 @@ public:
 
 	std::string m_scriptsDir, m_runtimeDir;
 	bool m_bdzVentsExist;
-	uint8_t m_flags;
+	uint8_t m_reason;
 
 private:
 
