@@ -521,7 +521,7 @@ bool P1MeterBase::MatchLine()
 				temp_usage = (unsigned long)(strtod(value, &validate)*1000.0f);
 				if (!m_gas.gasusage || m_p1version >= 4)
 				{
-					if (temp_usage - m_gas.gasusage > 10000)
+					if ((temp_usage - m_gas.gasusage > 10000 || temp_usage - m_gas.gasusage < 0) && m_gas.gasusage)
 					{
 						_log.Log(LOG_ERROR, "P1 Smart Meter: Gas Usage too high, temp_usage: %lu, m_gas.gasusage: %d, buffer: %s",
 							temp_usage, m_gas.gasusage, l_buffer);
