@@ -119,10 +119,14 @@ bool CHardwareMonitor::StartHardware()
 #if defined(__linux__) || defined(__CYGWIN32__) || defined(__FreeBSD__) || defined(__OpenBSD__)
 	// Busybox df doesn't support -x parameter
 	int returncode = 0;
-	std::vector<std::string> ret = ExecuteCommandAndReturn("df -x nfs -x tmpfs -x devtmpfs 2> /dev/null", returncode);
+	std::string timeoutCommand;
+	std::vector<std::string> ret = ExecuteCommandAndReturn("timeout --version > /dev/null 2&>1", returncode);
+	if (!returncode)
+		timeoutCommand = "timeout 1 ";
+	ret = ExecuteCommandAndReturn("df -x nfs -x tmpfs -x devtmpfs 2> /dev/null", returncode);
 	returncode == 0 ?
-		m_dfcommand = "df -x nfs -x tmpfs -x devtmpfs" :
-		m_dfcommand = "df";
+		m_dfcommand = timeoutCommand + "df -x nfs -x tmpfs -x devtmpfs" :
+		m_dfcommand = timeoutCommand + "df";
 #endif
 	return true;
 }
