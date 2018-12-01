@@ -272,7 +272,7 @@ bool P1MeterBase::MatchLine()
 			{
 				m_lastUpdateTime = atime;
 				sDecodeRXMessage(this, (const unsigned char *)&m_power, "Power", 255);
-				if (m_voltagel1) {			
+				if (m_voltagel1) {
 					SendVoltageSensor(0, 1, 255, m_voltagel1, "Voltage L1");
 				}
 				if (m_voltagel2) {
@@ -306,7 +306,7 @@ bool P1MeterBase::MatchLine()
 				if (m_powerdell3) {
 					SendWattMeter(0, 6, 255, m_powerdell3, "Delivery L3");
 				}
-						  
+
 				if ((m_gas.gasusage > 0) && ((m_gas.gasusage != m_lastgasusage) || (difftime(atime, m_lastSharedSendGas) >= 300)))
 				{
 					//only update gas when there is a new value, or 5 minutes are passed
@@ -482,7 +482,7 @@ bool P1MeterBase::MatchLine()
 				temp_ampere = strtof(value,&validate);
 				if (temp_ampere < 100)
 					m_amperagel3 = temp_ampere; //Amperage L3;
-				break;				
+				break;
 			case P1TYPE_POWERUSEL1:
 				temp_power = (unsigned long)(strtod(value, &validate)*1000.0f);
 				if (temp_power < 10000)
@@ -520,7 +520,15 @@ bool P1MeterBase::MatchLine()
 			case P1TYPE_GASUSAGEDSMR4:
 				temp_usage = (unsigned long)(strtod(value, &validate)*1000.0f);
 				if (!m_gas.gasusage || m_p1version >= 4)
+				{
+					if (temp_usage - m_gas.gasusage > 10000)
+					{
+						_log.Log(LOG_ERROR, "P1 Smart Meter: Gas Usage too high, temp_usage: %lu, m_gas.gasusage: %d, buffer: %s",
+							temp_usage, m_gas.gasusage, l_buffer);
+						break;
+					}
 					m_gas.gasusage = temp_usage;
+				}
 				else if (temp_usage - m_gas.gasusage < 20000)
 					m_gas.gasusage = temp_usage;
 				break;
