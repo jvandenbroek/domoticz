@@ -465,7 +465,7 @@ void CLimitLess::Do_Work()
 	_log.Log(LOG_STATUS,"AppLamp: Worker stopped...");
 }
 
-void CLimitLess::Send_V6_RGBWW_On(const uint8_t dunit, const long delay)
+bool CLimitLess::Send_V6_RGBWW_On(const uint8_t dunit, const long delay)
 {
 	unsigned char *pCMD;
 	if (dunit == 5)
@@ -474,11 +474,14 @@ void CLimitLess::Send_V6_RGBWW_On(const uint8_t dunit, const long delay)
 		pCMD = (unsigned char*)&V6_RGBWW_On;
 		pCMD[0x09] = dunit;
 	}
-	SendV6Command(pCMD);
+	if (!SendV6Command(pCMD))
+		return false;
+
 	sleep_milliseconds(delay);
+	return true;
 }
 
-void CLimitLess::Send_V6_RGBW_On(const uint8_t dunit, const long delay)
+bool CLimitLess::Send_V6_RGBW_On(const uint8_t dunit, const long delay)
 {
 	unsigned char *pCMD;
 	if (dunit == 5)
@@ -487,8 +490,10 @@ void CLimitLess::Send_V6_RGBW_On(const uint8_t dunit, const long delay)
 		pCMD = (unsigned char*)&V6_RGBW_On;
 		pCMD[0x09] = dunit;
 	}
-	SendV6Command(pCMD);
+	if (!SendV6Command(pCMD))
+		return false;
 	sleep_milliseconds(delay);
+	return true;
 }
 
 void CLimitLess::Send_V4V5_RGBW_On(const uint8_t dunit, const long delay)
@@ -520,7 +525,8 @@ bool CLimitLess::WriteToHardware(const char *pdata, const unsigned char length)
 			case Color_LedOn:
 			{
 				//Send ON, sleep 100ms
-				Send_V6_RGBWW_On(pLed->dunit, 100);
+				if (!Send_V6_RGBWW_On(pLed->dunit, 100))
+					return false;
 				break;
 			}
 			case Color_LedOff:
@@ -542,7 +548,8 @@ bool CLimitLess::WriteToHardware(const char *pdata, const unsigned char length)
 				}
 
 				//Send ON, sleep 100ms
-				Send_V6_RGBWW_On(pLed->dunit, 100);
+				if (!Send_V6_RGBWW_On(pLed->dunit, 100))
+					return false;
 
 				//Send the command, sleep 100ms
 				if (pLed->color.mode == ColorModeWhite)
@@ -578,7 +585,8 @@ bool CLimitLess::WriteToHardware(const char *pdata, const unsigned char length)
 				else{
 					_log.Log(LOG_STATUS, "AppLamp: SetRGBColour - Color mode %d is unhandled, if you have a suggestion for what it should do, please post on the Domoticz forum", pLed->color.mode);
 				}
-				SendV6Command(pCMD);
+				if (!SendV6Command(pCMD))
+					return false;
 				sleep_milliseconds(100);
 
 				//Send brightness
@@ -595,7 +603,8 @@ bool CLimitLess::WriteToHardware(const char *pdata, const unsigned char length)
 			case Color_SetBrightnessLevel:
 			{
 				//First send ON , sleep 100ms, then the command
-				Send_V6_RGBWW_On(pLed->dunit, 100);
+				if (!Send_V6_RGBWW_On(pLed->dunit, 100))
+					return false;
 				if (pLed->dunit == 5)
 					pCMD = (unsigned char*)&V6_Bridge_SetBrightnessLevel;
 				else
@@ -608,7 +617,8 @@ bool CLimitLess::WriteToHardware(const char *pdata, const unsigned char length)
 			case Color_SetColorToWhite:
 			{
 				//First send ON , sleep 100ms, then the command
-				Send_V6_RGBWW_On(pLed->dunit, 100);
+				if (!Send_V6_RGBWW_On(pLed->dunit, 100))
+					return false;
 				if (pLed->dunit == 5)
 					pCMD = (unsigned char*)&V6_Bridge_White_On;
 				else {
@@ -622,11 +632,13 @@ bool CLimitLess::WriteToHardware(const char *pdata, const unsigned char length)
 				if (pLed->dunit == 5) {
 					//First put on
 					pCMD = (unsigned char*)&V6_BridgeOn;
-					SendV6Command(pCMD);
+					if (!SendV6Command(pCMD))
+						return false;
 					sleep_milliseconds(50);
 					//Second set to white
 					pCMD = (unsigned char*)&V6_Bridge_White_On;
-					SendV6Command(pCMD);
+					if (!SendV6Command(pCMD))
+						return false;
 					sleep_milliseconds(50);
 					//Third set to 2 percent brightness
 					pCMD = (unsigned char*)&V6_Bridge_SetBrightnessLevel;
@@ -659,7 +671,8 @@ bool CLimitLess::WriteToHardware(const char *pdata, const unsigned char length)
 			case Color_DiscoMode:
 			{
 				//First send ON , sleep 100ms, then the command
-				Send_V6_RGBWW_On(pLed->dunit, 100);
+				if (!Send_V6_RGBWW_On(pLed->dunit, 100))
+					return false;
 				if (pLed->dunit == 5)
 					pCMD = (unsigned char*)&V6_Bridge_Disco_Mode;
 				else {
@@ -679,7 +692,8 @@ bool CLimitLess::WriteToHardware(const char *pdata, const unsigned char length)
 			case Color_DiscoMode_9:
 			{
 				//First send ON , sleep 100ms, then the command
-				Send_V6_RGBWW_On(pLed->dunit, 100);
+				if (!Send_V6_RGBWW_On(pLed->dunit, 100))
+					return false;
 				unsigned char mode = pLed->command - Color_DiscoMode_1 + 1;
 				if (pLed->dunit == 5) {
 					pCMD = (unsigned char*)&V6_Bridge_Disco_Mode;
@@ -701,7 +715,8 @@ bool CLimitLess::WriteToHardware(const char *pdata, const unsigned char length)
 			case Color_LedOn:
 			{
 				//Send ON, sleep 100ms
-				Send_V6_RGBW_On(pLed->dunit, 100);
+				if (!Send_V6_RGBW_On(pLed->dunit, 100))
+					return false;
 				break;
 			}
 			case Color_LedOff:
@@ -717,7 +732,8 @@ bool CLimitLess::WriteToHardware(const char *pdata, const unsigned char length)
 			case Color_SetColor:
 			{
 				//Send ON, sleep 100ms
-				Send_V6_RGBW_On(pLed->dunit, 100);
+				if (!Send_V6_RGBW_On(pLed->dunit, 100))
+					return false;
 
 				//Send the command, sleep 100ms
 				if (pLed->color.mode == ColorModeWhite)
@@ -747,7 +763,8 @@ bool CLimitLess::WriteToHardware(const char *pdata, const unsigned char length)
 				else{
 					_log.Log(LOG_STATUS, "AppLamp: SetRGBColour - Color mode %d is unhandled, if you have a suggestion for what it should do, please post on the Domoticz forum", pLed->color.mode);
 				}
-				SendV6Command(pCMD);
+				if (!SendV6Command(pCMD))
+					return false;
 				sleep_milliseconds(100);
 
 				//Send brightness
@@ -764,7 +781,8 @@ bool CLimitLess::WriteToHardware(const char *pdata, const unsigned char length)
 			case Color_SetBrightnessLevel:
 			{
 				//First send ON , sleep 100ms, then the command
-				Send_V6_RGBW_On(pLed->dunit, 100);
+				if (!Send_V6_RGBW_On(pLed->dunit, 100))
+					return false;
 				if (pLed->dunit == 5)
 					pCMD = (unsigned char*)&V6_Bridge_SetBrightnessLevel;
 				else
@@ -777,7 +795,8 @@ bool CLimitLess::WriteToHardware(const char *pdata, const unsigned char length)
 			case Color_SetColorToWhite:
 			{
 				//First send ON , sleep 100ms, then the command
-				Send_V6_RGBW_On(pLed->dunit, 100);
+				if (!Send_V6_RGBW_On(pLed->dunit, 100))
+					return false;
 				if (pLed->dunit == 5)
 					pCMD = (unsigned char*)&V6_Bridge_White_On;
 				else {
@@ -813,7 +832,8 @@ bool CLimitLess::WriteToHardware(const char *pdata, const unsigned char length)
 			case Color_DiscoMode:
 			{
 				//First send ON , sleep 100ms, then the command
-				Send_V6_RGBW_On(pLed->dunit, 100);
+				if (!Send_V6_RGBW_On(pLed->dunit, 100))
+					return false;
 				if (pLed->dunit == 5)
 					return false;
 				pCMD = (unsigned char*)&V6_RGBW_Disco_Mode;
@@ -831,7 +851,8 @@ bool CLimitLess::WriteToHardware(const char *pdata, const unsigned char length)
 			case Color_DiscoMode_9:
 			{
 				//First send ON , sleep 100ms, then the command
-				Send_V6_RGBW_On(pLed->dunit, 100);
+				if (!Send_V6_RGBW_On(pLed->dunit, 100))
+					return false;
 				if (pLed->dunit == 5)
 					return false;
 				unsigned char mode = pLed->command - Color_DiscoMode_1 + 1;
@@ -1017,7 +1038,8 @@ bool CLimitLess::WriteToHardware(const char *pdata, const unsigned char length)
 */
 		if (pCMD != NULL)
 		{
-			SendV6Command(pCMD);
+			if (!SendV6Command(pCMD))
+				return false;
 			sleep_milliseconds(100);
 		}
 		return true;

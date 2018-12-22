@@ -18,8 +18,8 @@ private:
 	bool AddSwitchIfNotExits(const unsigned char Unit, const std::string& devname);
 	bool GetV6BridgeID();
 	bool SendV6Command(const uint8_t *pCmd);
-	void Send_V6_RGBWW_On(const uint8_t dunit, const long delay);
-	void Send_V6_RGBW_On(const uint8_t dunit, const long delay);
+	bool Send_V6_RGBWW_On(const uint8_t dunit, const long delay);
+	bool Send_V6_RGBW_On(const uint8_t dunit, const long delay);
 	void Send_V4V5_RGBW_On(const uint8_t dunit, const long delay);
 	bool IsDataAvailable(const SOCKET sock);
 	void Init();
